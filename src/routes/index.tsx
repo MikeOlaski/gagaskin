@@ -5,6 +5,7 @@ import { lazy, Suspense } from "react";
 import { AtlasPreview } from "@/components/skin/AtlasPreview";
 import { FrontPreview2D } from "@/components/skin/FrontPreview2D";
 import { AutoDesignPanel } from "@/components/skin/AutoDesignPanel";
+import { ProjectsPanel } from "@/components/skin/ProjectsPanel";
 import { ReferencePanel } from "@/components/skin/ReferencePanel";
 import { SkinFileBar } from "@/components/skin/SkinFileBar";
 import { ToolPanel } from "@/components/skin/ToolPanel";
@@ -63,6 +64,7 @@ function SkinPainterPage() {
 
       <main className="mx-auto grid max-w-[1800px] gap-4 overflow-x-hidden px-4 py-4 lg:px-6 xl:grid-cols-[300px_minmax(0,1fr)_360px]">
         <div className="flex min-w-0 flex-col gap-4">
+          <ProjectsPanel />
           <ReferencePanel />
           <AutoDesignPanel />
           <ToolPanel />
