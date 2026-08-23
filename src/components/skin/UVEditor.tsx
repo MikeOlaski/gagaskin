@@ -140,16 +140,24 @@ export function UVEditor() {
         ctx.strokeRect(Math.round(px) + 2, Math.round(py) + 2, Math.round(w) - 4, Math.round(h) - 4);
       }
 
-      // technical labels
-      if (cellSize >= 8) {
-        ctx.font = "500 9px ui-sans-serif, system-ui, sans-serif";
-        ctx.fillStyle = COLOR_LABEL;
-        ctx.fillText(face.face, px, py - 2);
-        const meta = showCoords
-          ? `${face.atlas.w}x${face.atlas.h} @${face.atlas.x},${face.atlas.y}`
-          : `${face.atlas.w}x${face.atlas.h}`;
-        ctx.fillText(meta, px, py + h + 9);
+      // technical labels — drawn in the gutters, never over texels
+      ctx.font = "500 9px ui-sans-serif, system-ui, sans-serif";
+      ctx.fillStyle = face.id === selectedFaceId ? COLOR_SELECTED : COLOR_LABEL;
+      const nameWidth = ctx.measureText(face.face).width;
+      if (nameWidth <= w + 6) ctx.fillText(face.face, px, py - 3);
+
+      if (cellSize >= 10) {
+        ctx.font = "500 8px ui-sans-serif, system-ui, sans-serif";
+        const dims = `${face.atlas.w}x${face.atlas.h}`;
+        ctx.fillText(dims, px, py + h + 9);
+        if (showCoords) {
+          const coords = `@${face.atlas.x},${face.atlas.y}`;
+          if (ctx.measureText(coords).width <= w + 8) {
+            ctx.fillText(coords, px, py + h + 18);
+          }
+        }
       }
+
     }
   }, [skin, cellSize, selectedFaceId, showCoords, width, height, pad]);
 
