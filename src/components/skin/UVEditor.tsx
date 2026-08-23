@@ -45,7 +45,7 @@ export function UVEditor() {
 
   const pad = LAYOUT_PADDING;
   const width = (LAYOUT_CELLS_W + pad * 2) * cellSize;
-  const height = (LAYOUT_CELLS_H + pad * 2) * cellSize + 18;
+  const height = (LAYOUT_CELLS_H + pad * 2) * cellSize + 40;
 
   useEffect(() => {
     const canvas = canvasRef.current;
@@ -63,7 +63,7 @@ export function UVEditor() {
     ctx.fillRect(0, 0, width, height);
 
     const ox = pad * cellSize;
-    const oy = pad * cellSize + 12;
+    const oy = pad * cellSize + 22;
 
     // group labels
     ctx.font = "600 11px ui-sans-serif, system-ui, sans-serif";
@@ -74,7 +74,7 @@ export function UVEditor() {
       ctx.fillText(
         PART_LABELS[group.part].toUpperCase(),
         ox + b.x * cellSize,
-        oy + b.y * cellSize - 4,
+        oy + b.y * cellSize - 17,
       );
     }
 
@@ -169,7 +169,7 @@ export function UVEditor() {
       const px = clientX - rect.left;
       const py = clientY - rect.top;
       const ox = pad * cellSize;
-      const oy = pad * cellSize + 12;
+      const oy = pad * cellSize + 22;
       for (const placed of PLACED_FACES) {
         const fx = ox + placed.x * cellSize;
         const fy = oy + placed.y * cellSize;
