@@ -43,6 +43,20 @@ export function UVEditor() {
   const beginStroke = useEditorStore((s) => s.beginStroke);
   const selected = useSelectedFace();
 
+  // Fit the exploded map to narrow viewports on first paint (client only).
+  const autoFitted = useRef(false);
+  useEffect(() => {
+    if (autoFitted.current) return;
+    autoFitted.current = true;
+    const available = window.innerWidth - 80;
+    const needed = (LAYOUT_CELLS_W + LAYOUT_PADDING * 2) * 12;
+    if (needed > available) {
+      const fit = Math.max(4, Math.floor(available / (LAYOUT_CELLS_W + LAYOUT_PADDING * 2)));
+      setCellSize(fit);
+    }
+  }, [setCellSize]);
+
+
   const pad = LAYOUT_PADDING;
   const width = (LAYOUT_CELLS_W + pad * 2) * cellSize;
   const height = (LAYOUT_CELLS_H + pad * 2) * cellSize + 40;
