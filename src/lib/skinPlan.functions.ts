@@ -23,7 +23,7 @@ should come from near its FRONT crop. Reply with JSON only.`;
 
 export interface AiPlanResult {
   ok: boolean;
-  plan?: unknown;
+  planJson?: string;
   error?: string;
   status?: number;
 }
@@ -96,12 +96,14 @@ export const generateSkinPlan = createServerFn({ method: "POST" })
     };
     const content = payload.choices?.[0]?.message?.content ?? "";
     try {
-      return { ok: true, plan: JSON.parse(content) };
+      JSON.parse(content);
+      return { ok: true, planJson: content };
     } catch {
       const match = content.match(/\{[\s\S]*\}/);
       if (match) {
         try {
-          return { ok: true, plan: JSON.parse(match[0]) };
+          JSON.parse(match[0]);
+          return { ok: true, planJson: match[0] };
         } catch {
           /* fall through */
         }
