@@ -15,7 +15,7 @@ import { useEditorStore } from "@/store/editorStore";
  * The -Y (bottom) face is flipped vertically, matching Minecraft's convention.
  */
 function applyUVs(geometry: THREE.BoxGeometry, part: BodyPart) {
-  const uv = geometry.attributes.uv as THREE.BufferAttribute;
+  const uv = geometry.attributes["uv"] as THREE.BufferAttribute;
   const order: Array<{ face: "LEFT" | "RIGHT" | "TOP" | "BOTTOM" | "FRONT" | "BACK"; flipV: boolean }> = [
     { face: "LEFT", flipV: false }, // +X
     { face: "RIGHT", flipV: false }, // -X
