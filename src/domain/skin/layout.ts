@@ -37,18 +37,18 @@ const HEAD_ROW_X = TORSO_CENTER - 12; // 14 -> LEFT | FRONT | RIGHT (8 each)
 
 // ── Vertical bands ─────────────────────────────────────────────────────────
 const HEAD_TOP_Y = 0;
-const HEAD_BACK_Y = 10;
-const HEAD_BOTTOM_Y = 20;
-const HEAD_ROW_Y = 30;
+const HEAD_BACK_Y = 11;
+const HEAD_BOTTOM_Y = 22;
+const HEAD_ROW_Y = 33;
 
-const TORSO_TOP_Y = 42; // 8x4
-const LIMB_ROW_Y = 48; // all 12-tall side panels of torso + arms
-const TORSO_BOTTOM_Y = 62; // 8x4
-const TORSO_BACK_Y = 68; // 8x12
+const TORSO_TOP_Y = 46; // 8x4
+const LIMB_ROW_Y = 53; // all 12-tall side panels of torso + arms
+const TORSO_BOTTOM_Y = 68; // 8x4
+const TORSO_BACK_Y = 75; // 8x12
 
-const LEG_TOP_Y = 84; // 4x4
-const LEG_ROW_Y = 90; // 4x12
-const LEG_BOTTOM_Y = 104; // 4x4
+const LEG_TOP_Y = 92; // 4x4
+const LEG_ROW_Y = 99; // 4x12
+const LEG_BOTTOM_Y = 114; // 4x4
 
 // legs: left group 8..24, 4 cells of whitespace, right group 28..44
 const LEFT_LEG_X = 8;
