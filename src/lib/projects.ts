@@ -64,6 +64,9 @@ export function loadImageFromDataUrl(dataUrl: string): Promise<HTMLImageElement>
   });
 }
 
+/** Supabase generated Json types reject our narrow interfaces; JSONB columns accept them. */
+const json = (value: unknown) => value as never;
+
 const COLUMNS = "id, name, skin_png, reference_data_url, palette, plan, view_state, updated_at";
 
 export async function listProjects(): Promise<SkinProjectRow[]> {
@@ -85,9 +88,9 @@ export async function createProject(snapshot: ProjectSnapshot): Promise<SkinProj
       name: snapshot.name,
       skin_png: encodeSkin(snapshot.skin),
       reference_data_url: snapshot.referenceDataUrl,
-      palette: snapshot.palette,
-      plan: snapshot.plan,
-      view_state: snapshot.viewState,
+      palette: json(snapshot.palette),
+      plan: json(snapshot.plan),
+      view_state: json(snapshot.viewState),
     })
     .select(COLUMNS)
     .single();
@@ -105,9 +108,9 @@ export async function updateProject(
       name: snapshot.name,
       skin_png: encodeSkin(snapshot.skin),
       reference_data_url: snapshot.referenceDataUrl,
-      palette: snapshot.palette,
-      plan: snapshot.plan,
-      view_state: snapshot.viewState,
+      palette: json(snapshot.palette),
+      plan: json(snapshot.plan),
+      view_state: json(snapshot.viewState),
     })
     .eq("id", id)
     .select(COLUMNS)
