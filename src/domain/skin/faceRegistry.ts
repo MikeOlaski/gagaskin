@@ -121,7 +121,7 @@ export function faceId(part: BodyPart, face: FaceName): string {
 }
 
 export function getFace(part: BodyPart, face: FaceName): SkinFace {
-  return FACE_BY_ID[faceId(part, face)];
+  return FACE_BY_ID[faceId(part, face)]!;
 }
 
 export const OPPOSITE_PART: Partial<Record<BodyPart, BodyPart>> = {
