@@ -119,44 +119,51 @@ const HEX = /^#[0-9a-fA-F]{6}$/;
 export function normalizePlan(raw: unknown, palette: string[], origin: PlanOrigin): SkinPlan | null {
   if (typeof raw !== "object" || raw === null) return null;
   const obj = raw as Record<string, unknown>;
-  const rawFaces = Array.isArray(obj.faces) ? obj.faces : [];
+  const rawFaces = Array.isArray(obj["faces"]) ? (obj["faces"] as unknown[]) : [];
   const seen = new Set<string>();
   const faces: FacePlan[] = [];
 
   for (const entry of rawFaces) {
     if (typeof entry !== "object" || entry === null) continue;
     const e = entry as Record<string, unknown>;
-    const faceId = typeof e.faceId === "string" ? e.faceId : "";
+    const faceId = typeof e["faceId"] === "string" ? e["faceId"] : "";
     if (!FACE_BY_ID[faceId] || seen.has(faceId)) continue;
 
+    const rawBrightness = e["brightness"];
     const brightness =
-      typeof e.brightness === "number" && Number.isFinite(e.brightness)
-        ? Math.min(2, Math.max(0.2, e.brightness))
+      typeof rawBrightness === "number" && Number.isFinite(rawBrightness)
+        ? Math.min(2, Math.max(0.2, rawBrightness))
         : 1;
-    const color = typeof e.color === "string" && HEX.test(e.color) ? e.color : undefined;
-    const s = typeof e.source === "object" && e.source !== null ? (e.source as Record<string, unknown>) : null;
+    const rawColor = e["color"];
+    const color = typeof rawColor === "string" && HEX.test(rawColor) ? rawColor : undefined;
+    const rawSource = e["source"];
+    const s =
+      typeof rawSource === "object" && rawSource !== null
+        ? (rawSource as Record<string, unknown>)
+        : null;
     let source: PlanRegion | undefined;
     if (s && ["x", "y", "w", "h"].every((k) => typeof s[k] === "number")) {
-      const r = region(s.x as number, s.y as number, s.w as number, s.h as number);
+      const r = region(s["x"] as number, s["y"] as number, s["w"] as number, s["h"] as number);
       if (r.w > 0.01 && r.h > 0.01) source = r;
     }
     if (!source && !color) continue;
 
     seen.add(faceId);
-    faces.push({
-      faceId,
-      source,
-      color,
-      brightness,
-      note: typeof e.note === "string" ? e.note.slice(0, 120) : undefined,
-    });
+    const rawNote = e["note"];
+    const plan: FacePlan = { faceId, brightness };
+    if (source) plan.source = source;
+    if (color) plan.color = color;
+    if (typeof rawNote === "string") plan.note = rawNote.slice(0, 120);
+    faces.push(plan);
   }
 
   if (faces.length === 0) return null;
 
+  const rawTitle = obj["title"];
+  const rawSummary = obj["summary"];
   return {
-    title: typeof obj.title === "string" && obj.title ? obj.title.slice(0, 80) : "AI paint plan",
-    summary: typeof obj.summary === "string" ? obj.summary.slice(0, 400) : "",
+    title: typeof rawTitle === "string" && rawTitle ? rawTitle.slice(0, 80) : "AI paint plan",
+    summary: typeof rawSummary === "string" ? rawSummary.slice(0, 400) : "",
     origin,
     palette,
     faces,
