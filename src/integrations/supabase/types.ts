@@ -14,7 +14,45 @@ export type Database = {
   }
   public: {
     Tables: {
-      [_ in never]: never
+      skin_projects: {
+        Row: {
+          created_at: string
+          id: string
+          name: string
+          palette: Json
+          plan: Json | null
+          reference_data_url: string | null
+          skin_png: string
+          updated_at: string
+          user_id: string
+          view_state: Json
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          name?: string
+          palette?: Json
+          plan?: Json | null
+          reference_data_url?: string | null
+          skin_png: string
+          updated_at?: string
+          user_id: string
+          view_state?: Json
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          name?: string
+          palette?: Json
+          plan?: Json | null
+          reference_data_url?: string | null
+          skin_png?: string
+          updated_at?: string
+          user_id?: string
+          view_state?: Json
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
