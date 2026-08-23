@@ -210,7 +210,7 @@ export function UVEditor() {
   };
 
   return (
-    <section className="flex min-h-0 flex-col rounded-xl border border-border bg-card shadow-sm">
+    <section className="flex min-h-0 w-full min-w-0 flex-col rounded-xl border border-border bg-card shadow-sm">
       <header className="flex flex-wrap items-center gap-3 border-b border-border px-4 py-3">
         <h2 className="text-sm font-semibold text-foreground">Exploded UV editor</h2>
         <div className="ml-auto flex items-center gap-2">

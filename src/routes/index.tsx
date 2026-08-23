@@ -60,15 +60,15 @@ function SkinPainterPage() {
         </div>
       </header>
 
-      <main className="mx-auto grid max-w-[1800px] gap-4 px-4 py-4 lg:px-6 xl:grid-cols-[300px_minmax(0,1fr)_360px]">
-        <div className="flex flex-col gap-4">
+      <main className="mx-auto grid max-w-[1800px] gap-4 overflow-x-hidden px-4 py-4 lg:px-6 xl:grid-cols-[300px_minmax(0,1fr)_360px]">
+        <div className="flex min-w-0 flex-col gap-4">
           <ReferencePanel />
           <ToolPanel />
         </div>
 
         <UVEditor />
 
-        <div className="flex flex-col gap-4">
+        <div className="flex min-w-0 flex-col gap-4">
           <ClientOnly fallback={<PreviewFallback label="Loading 3D preview…" />}>
             <Suspense fallback={<PreviewFallback label="Loading 3D preview…" />}>
               <ModelPreview3D />
