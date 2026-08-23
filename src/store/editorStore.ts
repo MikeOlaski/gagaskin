@@ -4,6 +4,15 @@ import { createDemoSkin, createDiagnosticSkin } from "@/domain/skin/demoSkin";
 import { FACE_BY_ID, oppositeFace, type SkinFace } from "@/domain/skin/faceRegistry";
 import { fitImageToFace, type FitMode } from "@/domain/skin/imageMapping";
 import {
+  applyPlan,
+  buildDeterministicPlan,
+  normalizePlan,
+  type SkinPlan,
+} from "@/domain/skin/autoDesign";
+import { FACES } from "@/domain/skin/faceRegistry";
+import { extractPalette } from "@/domain/skin/palette";
+import { generateSkinPlan } from "@/lib/skinPlan.functions";
+import {
   cloneSkin,
   createBlankSkin,
   fillRect,
@@ -46,6 +55,9 @@ interface EditorState {
   reference: ReferenceImage | null;
   palette: string[];
   fitMode: FitMode;
+  plan: SkinPlan | null;
+  planLoading: boolean;
+  planError: string | null;
   undoStack: SkinBuffer[];
   redoStack: SkinBuffer[];
 
@@ -64,6 +76,11 @@ interface EditorState {
   clearSelectedFace: () => void;
   copyToOppositeLimb: () => void;
   fitReferenceToSelectedFace: () => void;
+
+  buildAutoPlan: () => void;
+  requestAiPlan: (style?: string) => Promise<void>;
+  applyCurrentPlan: () => void;
+  clearPlan: () => void;
 
   setReference: (ref: ReferenceImage | null) => void;
   setPalette: (palette: string[]) => void;
@@ -111,6 +128,9 @@ export const useEditorStore = create<EditorState>((set, get) => {
     reference: null,
     palette: [],
     fitMode: "cover",
+    plan: null,
+    planLoading: false,
+    planError: null,
     undoStack: [],
     redoStack: [],
 
@@ -194,10 +214,72 @@ export const useEditorStore = create<EditorState>((set, get) => {
       );
     },
 
+    buildAutoPlan: () => {
+      const state = get();
+      if (!state.reference) return;
+      const palette =
+        state.palette.length > 0 ? state.palette : extractPalette(state.reference.element, 12);
+      if (palette.length !== state.palette.length) set({ palette });
+      set({ plan: buildDeterministicPlan(palette), planError: null });
+    },
+
+    requestAiPlan: async (style) => {
+      const state = get();
+      if (!state.reference || state.planLoading) return;
+      set({ planLoading: true, planError: null });
+      try {
+        const palette =
+          state.palette.length > 0 ? state.palette : extractPalette(state.reference.element, 12);
+        if (palette.length !== state.palette.length) set({ palette });
+        const imageDataUrl = toDataUrl(state.reference.element, 384);
+        if (!imageDataUrl) throw new Error("Could not read that image.");
+        const result = await generateSkinPlan({
+          data: {
+            imageDataUrl,
+            palette,
+            faceIds: FACES.map((f) => f.id),
+            ...(style ? { style } : {}),
+          },
+        });
+        if (!result.ok || !result.planJson) {
+          set({ planError: result.error ?? "The AI plan failed." });
+          return;
+        }
+        const plan = normalizePlan(JSON.parse(result.planJson), palette, "ai");
+        if (!plan) {
+          set({ planError: "The AI plan did not cover any valid faces." });
+          return;
+        }
+        set({ plan });
+      } catch (error) {
+        set({ planError: error instanceof Error ? error.message : "The AI plan failed." });
+      } finally {
+        set({ planLoading: false });
+      }
+    },
+
+    applyCurrentPlan: () => {
+      const state = get();
+      const plan = state.plan;
+      if (!plan) return;
+      snapshot();
+      mutate((skin) =>
+        applyPlan(
+          skin,
+          plan,
+          state.reference?.element ?? null,
+          state.reference?.width ?? 0,
+          state.reference?.height ?? 0,
+        ),
+      );
+    },
+
+    clearPlan: () => set({ plan: null, planError: null }),
+
     setReference: (reference) => {
       const prev = get().reference;
       if (prev && prev.url !== reference?.url) URL.revokeObjectURL(prev.url);
-      set({ reference });
+      set({ reference, plan: null, planError: null });
     },
     setPalette: (palette) => set({ palette }),
 
@@ -237,6 +319,20 @@ export const useEditorStore = create<EditorState>((set, get) => {
     canRedo: () => get().redoStack.length > 0,
   };
 });
+
+/** Downscale an image to a JPEG data URL for AI analysis. */
+function toDataUrl(source: CanvasImageSource, maxSize: number): string | null {
+  const w = (source as HTMLImageElement).naturalWidth || maxSize;
+  const h = (source as HTMLImageElement).naturalHeight || maxSize;
+  const scale = Math.min(1, maxSize / Math.max(w, h));
+  const canvas = document.createElement("canvas");
+  canvas.width = Math.max(1, Math.round(w * scale));
+  canvas.height = Math.max(1, Math.round(h * scale));
+  const ctx = canvas.getContext("2d");
+  if (!ctx) return null;
+  ctx.drawImage(source, 0, 0, canvas.width, canvas.height);
+  return canvas.toDataURL("image/jpeg", 0.85);
+}
 
 function selectedFace(state: { selectedFaceId: string | null }): SkinFace | null {
   return state.selectedFaceId ? FACE_BY_ID[state.selectedFaceId] ?? null : null;
