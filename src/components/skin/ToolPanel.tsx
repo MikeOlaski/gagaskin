@@ -17,6 +17,7 @@ import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { Slider } from "@/components/ui/slider";
 import { OPPOSITE_PART, PART_LABELS } from "@/domain/skin/faceRegistry";
+import { cn } from "@/lib/utils";
 import { useEditorStore, useSelectedFace, type Tool } from "@/store/editorStore";
 
 const TOOLS: Array<{ id: Tool; label: string; icon: LucideIcon }> = [
@@ -27,7 +28,8 @@ const TOOLS: Array<{ id: Tool; label: string; icon: LucideIcon }> = [
   { id: "eyedropper", label: "Picker", icon: Droplet },
 ];
 
-export function ToolPanel() {
+/** `bare` drops the card chrome for use inside a wrapper that already provides it (e.g. FloatingPanel). */
+export function ToolPanel({ bare = false }: { bare?: boolean } = {}) {
   const tool = useEditorStore((s) => s.tool);
   const setTool = useEditorStore((s) => s.setTool);
   const color = useEditorStore((s) => s.color);
@@ -49,7 +51,7 @@ export function ToolPanel() {
   const opposite = selected ? OPPOSITE_PART[selected.part] : undefined;
 
   return (
-    <section className="rounded-xl border border-border bg-card p-4 shadow-sm">
+    <section className={cn("p-4", !bare && "rounded-xl border border-border bg-card shadow-sm")}>
       <h2 className="text-sm font-semibold text-foreground">Tools</h2>
 
       <div className="mt-3 grid grid-cols-3 gap-2">
