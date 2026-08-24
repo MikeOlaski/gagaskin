@@ -249,6 +249,7 @@ The out list is drawn from the research's own "what I would not prioritise first
 | --- | --- |
 | 0 — Safety net | The 25 loose working-tree files are committed to `checkpoint/codex-validation-shell` |
 | 1 — Research | `docs/design-system.md` exists with a sourced token table |
+| 1.5 — Schema | Mike has pasted the consolidated SQL script into the Lovable UI and confirmed every table, policy and function exists |
 | 2 — Gate & multi-user | `/join` works with cap, waitlist, attribution, platform field; `?start=` honoured; two live accounts verified isolated against the hosted database |
 | 3 — Front end | Home, `/skins` and three landing pages built on the design system, gallery populated by Grace through the publish form, LCP budget met |
 | 4 — Orders loop | Mike submits an order, releases it, Grace builds and delivers it, Mike receives it — once, end to end |
@@ -274,6 +275,39 @@ write to. Committing it is the first action taken.
    shipping. Antigravity and Lovable must be idle against this repository during the sprint.
 
 Never force-push, rebase, amend or squash pushed history — Lovable syncs from it.
+
+### Schema changes go through the Lovable UI
+
+**No agent applies SQL to the hosted database.** Not through the Supabase CLI, not through
+`db push`, not through a migration runner. Mike applies every schema change himself through
+the Lovable UI. This is a hard constraint of the hosting setup, not a preference.
+
+Consequences for how this work is sequenced:
+
+1. **All schema for the whole sprint is authored up front, as one consolidated SQL script.**
+   `profiles`, `waitlist`, `user_roles` plus `has_role()`, `skin_orders`, `gallery_skins`,
+   and the offer view counter — written once, reviewed once, applied once. Drip-feeding five
+   separate schema changes through a manual UI step would stall every phase behind a
+   round-trip.
+2. **Schema lands before the code that reads it.** Phase 1.5 in the plan: Mike pastes the
+   script into Lovable and confirms the tables exist. Application code is written against a
+   schema that is already live.
+3. **The applied SQL is committed to `supabase/migrations/` as a record, not as a
+   mechanism.** It documents what the hosted database contains so the repo and the database
+   do not drift. Nothing in the build applies it.
+4. **RLS policies are part of that same script** and are verified live afterwards, not
+   assumed from the file.
+
+### Multiple agents write to this repository
+
+ChatGPT, Antigravity and Lovable all contribute to `GagaSkin.com`. The 43 checkpointed
+files are what happens when that goes unmanaged.
+
+- `git pull origin main` before starting any session, without exception.
+- Antigravity and Lovable stay idle against this repo during a working session.
+- Commit and push at the end of a session rather than leaving work in the tree.
+- `src/routeTree.gen.ts` is generated and will conflict constantly. Regenerate it rather
+  than resolving it by hand.
 
 ## 13. Constraints and open items
 
