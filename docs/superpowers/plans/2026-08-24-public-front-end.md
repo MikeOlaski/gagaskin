@@ -957,6 +957,21 @@ export function SiteShell({ view, children }: { view: ViewName; children: ReactN
 }
 ```
 
+- [ ] **Step 3b: Leave the nav empty**
+
+`SiteShell`'s primary nav ships empty. A typed TanStack `Link` to a route that does not
+exist yet fails `tsc --noEmit`, so each nav entry lands with its own route: `/join` in
+Task 7, `/skins` in Task 10, `/custom` in Task 14. Each of those tasks adds one `<Link>`
+to the nav.
+
+Fonts are loaded in `src/routes/__root.tsx` via a Google Fonts stylesheet with
+`preconnect` and `display=swap`. Self-hosting them as woff2 subsets remains outstanding
+and should happen if Task 11 misses the LCP budget.
+
+The `record_offer_view` RPC is not in the generated Supabase types until Mike applies the
+schema (Task 3), so `recordView` casts narrowly rather than widening the client's types.
+Once `src/integrations/supabase/types.ts` regenerates, the cast can be removed.
+
 - [ ] **Step 4: Verify tokens resolved**
 
 Run: `grep -c "from design-system.md" src/site.css`

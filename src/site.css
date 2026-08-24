@@ -1,0 +1,82 @@
+/* Public surface only. The editor keeps its own theme; nothing here leaks into it.
+   Token values come from docs/design-system.md, which sources each one. */
+.gs {
+  --gs-canvas: #FAF7F2;
+  --gs-surface: #FFFFFF;
+  --gs-ink: #1C1A17;
+  --gs-ink-muted: #6B6560;
+  --gs-line: #E6E0D8;
+  /* Fill-only: 4.29:1 on canvas fails AA as text. Green takes --gs-accent-ink. */
+  --gs-accent: #3C8527;
+  --gs-accent-ink: #FFFFFF;
+  --gs-signal-assist: #3366CC;
+  --gs-signal-human: #C43C10;
+  --gs-signal-build: #FFC42B;
+  --gs-radius: 6px;
+  --gs-gutter: 24px;
+  --gs-font-display: "Nunito", ui-rounded, system-ui, sans-serif;
+  --gs-font-body: "Inter", system-ui, -apple-system, sans-serif;
+  --gs-font-pixel: "Jersey 10", "Courier New", monospace;
+
+  background: var(--gs-canvas);
+  color: var(--gs-ink);
+  font-family: var(--gs-font-body);
+  font-size: 16px;
+  line-height: 24px;
+  min-height: 100vh;
+}
+
+/* Type scale from docs/design-system.md. Pixel type appears only on the label row. */
+.gs h1 { font-family: var(--gs-font-display); font-size: 48px; line-height: 52px; }
+.gs h2 { font-family: var(--gs-font-display); font-size: 36px; line-height: 42px; }
+.gs h3 { font-family: var(--gs-font-display); font-size: 24px; line-height: 32px; }
+.gs .gs-pixel { font-family: var(--gs-font-pixel); font-size: 14px; line-height: 20px; }
+
+.gs a:focus-visible,
+.gs button:focus-visible {
+  outline: 3px solid var(--gs-ink);
+  outline-offset: 2px;
+}
+
+.gs-skip { position: absolute; left: -9999px; }
+.gs-skip:focus {
+  left: var(--gs-gutter);
+  top: var(--gs-gutter);
+  z-index: 50;
+  background: var(--gs-surface);
+  padding: 0.5rem 0.75rem;
+}
+
+/* Every competitor gives each skin its own plate rather than sitting it on the
+   page background, so saturated user content reads. See design-system.md C2. */
+.gs-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+  gap: var(--gs-gutter);
+}
+.gs-pair {
+  background: var(--gs-surface);
+  border: 1px solid var(--gs-line);
+  border-radius: var(--gs-radius);
+  overflow: hidden;
+  margin: 0;
+}
+.gs-pair__images { display: grid; grid-template-columns: 1fr 1fr; gap: 2px; }
+.gs-pair__images img { width: 100%; height: auto; display: block; image-rendering: pixelated; }
+
+.gs-cta {
+  display: inline-block;
+  background: var(--gs-accent);
+  color: var(--gs-accent-ink);
+  border-radius: var(--gs-radius);
+  padding: 0.75rem 1.25rem;
+  text-decoration: none;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .gs *, .gs *::before, .gs *::after {
+    animation-duration: 0.01ms !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
