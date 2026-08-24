@@ -564,8 +564,9 @@ Expected: FAIL — cannot resolve `@/lib/offers`.
 ```typescript
 // src/lib/offers.ts
 
-/** The three public offers. AI Helper and Awesome Editor are two pitches for
- *  one product; which one converts better is the experiment this shell runs. */
+/** The three public offers. AI Helper and Awesome Editor are two positioning
+ *  gates to the same product — the editor. Not separate features, not a test:
+ *  each argues for the editor in the language of a different visitor. */
 export type OfferId = "ai-helper" | "custom" | "build";
 export type EditorStart = "ai-helper" | "build";
 
@@ -1845,7 +1846,7 @@ git commit -m "Add home page built on the vision-to-skin spine"
 - Consumes: `SiteShell` (Task 6); `getOffer` (Task 4).
 - Produces: `/ai-helper` and `/build`, both linking to `/join?from=<id>`.
 
-These are the two pitches for one product. They must argue differently. `/build` must contain no reference to AI at all.
+These are two positioning gates to the same product. They must argue differently, in the language of different visitors. `/build` must contain no reference to AI at all.
 
 - [ ] **Step 1: Write /ai-helper**
 
@@ -2741,6 +2742,95 @@ Write `docs/qa-receipt-front-end.md` recording, for each of Steps 3–7: what wa
 ```bash
 git add docs/qa-receipt-front-end.md
 git commit -m "Record live QA: two-account isolation, gate, order loop, waitlist, mobile"
+```
+
+---
+
+## Task 16.5: Privacy, terms and social cards
+
+**Files:**
+- Create: `src/routes/privacy.tsx`, `src/routes/terms.tsx`, `public/og-default.png`
+- Modify: `src/components/site/SiteShell.tsx` (footer links), each public route's `head()`
+
+**Interfaces:**
+- Consumes: `SiteShell` (Task 6).
+- Produces: `/privacy`, `/terms`, and an OG image on every public page.
+
+**Why:** the gate collects email addresses from an audience that skews under 13, and
+`/custom` accepts image uploads. The adult attestation in Task 7 is only meaningful if the
+policy it points at exists. Source material: `docs/voice-of-customer.md` §"Claims requiring
+validation" and the `PRIVACY-NOTES.md` in `/Users/mikeolaski/Projects/GAGA-Skin`.
+
+- [ ] **Step 1: Write `/privacy`**
+
+Plain language, aimed at a parent reading it in two minutes. It must state, accurately and
+without promising anything the product does not do:
+
+- What is collected: email address, password (hashed by Supabase Auth), chosen platform,
+  which page the account was created from, saved skin projects, and any image uploaded to a
+  custom order or the gallery.
+- What is not collected: real name, age, birthdate, address, payment details, location, and
+  no advertising or third-party tracking of any kind.
+- Where it lives: Supabase, via Lovable Cloud. Email is sent by Lovable Cloud.
+- Accounts for under-13s are created by a parent or guardian, who controls them.
+- Custom-order images are visible to Mike as guardian and to Grace once released, and to
+  nobody else.
+- How to delete an account and everything in it, and the contact address for asking.
+- Explicitly: **do not upload photographs of children.** Use drawings, characters or
+  reference art.
+
+Do not claim GDPR or COPPA compliance, a retention schedule, or a breach-response process
+that has not been implemented. State only what is true.
+
+- [ ] **Step 2: Write `/terms`**
+
+Equally plain, covering: skins you make are yours to keep and use; you keep the rights to
+what you upload and confirm you are allowed to share it; custom orders are handmade by a
+person and no price is agreed or charged through the site; the service is early and may
+change or go offline; accounts may be removed for uploading illegal or abusive content.
+
+No turnaround promise, no refund policy for a service that takes no payment, no warranty
+language copied from a template that does not apply.
+
+- [ ] **Step 3: Link them**
+
+Add to the `SiteShell` footer, beside the existing trust line:
+
+```tsx
+<nav aria-label="Legal">
+  <Link to="/privacy">Privacy</Link>
+  <Link to="/terms">Terms</Link>
+</nav>
+```
+
+- [ ] **Step 4: Add the social card**
+
+Create `public/og-default.png` at 1200 × 630 using the Task 1 tokens: `--gs-canvas`
+background, the wordmark in `--gs-font-display`, and one real before/after pair from the
+gallery. Then add to every public route's `head()` meta array:
+
+```tsx
+{ property: "og:title", content: "<the page's own title>" },
+{ property: "og:description", content: "<the page's own description>" },
+{ property: "og:image", content: "https://gagaskin.com/og-default.png" },
+{ property: "og:type", content: "website" },
+{ name: "twitter:card", content: "summary_large_image" },
+```
+
+- [ ] **Step 5: Verify**
+
+Run: `npx vitest run src/test/copy.test.ts`
+Expected: PASS. The legal pages are not in `PUBLIC_ROUTES`, but the footer text is in
+`SiteShell`, which the guardrail does scan.
+
+Run: `npm run build`
+Expected: `built in`.
+
+- [ ] **Step 6: Commit**
+
+```bash
+git add src/routes/privacy.tsx src/routes/terms.tsx public/og-default.png src/components/site/SiteShell.tsx src/routes src/routeTree.gen.ts
+git commit -m "Add privacy policy, terms and social cards"
 ```
 
 ---

@@ -27,10 +27,16 @@ One story, three levels of help:
 | Human Creator Custom Orders | `/custom` | Do it for me | Order form → Grace |
 | Awesome Editor | `/build` | Let me do it | Editor, paint-first |
 
-AI Helper and Awesome Editor are **two pitches for one product**. This is deliberate: it is
-a live positioning A/B on the single largest strategic uncertainty in the research, which
-holds that AI-forward positioning repels core skin creators while blank-canvas beginners
-may need exactly that promise. Both names ship. Traffic decides.
+AI Helper and Awesome Editor are **two positioning gates to the same product** — the
+editor. They are not separate features and are not a test anyone has to run. Both simply
+ship, each arguing for the editor in the language of a different visitor: one who wants
+help starting, one who wants the tool.
+
+Which gate a person came through is recorded at signup, so it can be looked at later. That
+is bookkeeping, not an experiment — no decision in this round depends on comparing them.
+The research does hold that AI-forward language repels core skin creators while
+blank-canvas beginners may need exactly that promise, which is why `/build` never mentions
+AI at all.
 
 ### Proof unit
 
@@ -103,7 +109,8 @@ predatory friction. So above the fold, plainly: no ads, no redirects, nothing so
 skin is yours. The gate becomes the proof rather than the tax.
 
 **Offer attribution.** `/join?from=ai-helper|build|custom`. The value is written to
-`profiles.source_offer` at creation and never overwritten. This is the A/B result.
+`profiles.source_offer` at creation and never overwritten. It records which gate a person
+came through.
 
 **Capacity.** A configured cap (default 50) on live registrations. Under the cap, signup
 completes normally. At or over the cap, the same form silently becomes a waitlist: the
@@ -312,8 +319,8 @@ files are what happens when that goes unmanaged.
 ## 13. Constraints and open items
 
 - **AI positioning is a known landmine.** `r/minecraftskins` restricts AI-generated skin
-  content; commission sellers advertise "NO AI used." The A/B tests this deliberately, but
-  no page may describe the product as an AI skin generator, and Smart Assist output must
+  content; commission sellers advertise "NO AI used." This is why `/build` never mentions
+  AI. No page may describe the product as an AI skin generator, and Smart Assist output must
   always be presented as editable pixels the creator owns.
 - **COPPA.** Adult attestation is the chosen control. If a later round opens to a public
   cohort, verifiable parental consent must be revisited before launch.
@@ -321,5 +328,6 @@ files are what happens when that goes unmanaged.
   category but are not usable as commercial marketing assets.
 - **Unvalidated claims that must not appear on any page:** likeness fidelity, turnaround
   time, price acceptance, user counts, testimonials, or any conversion figure.
+- **Email** is sent by Lovable Cloud. No third-party SMTP is configured for this round.
 - **Open:** the registration cap value (default 50) and the notification channel for order
-  release (email assumed) are Mike's to confirm during Phase 2.
+  release are Mike's to confirm during Phase 2.
