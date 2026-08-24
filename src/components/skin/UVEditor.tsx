@@ -30,11 +30,11 @@ export function UVEditor({ fullBleed = false }: { fullBleed?: boolean } = {}) {
   const viewportRef = useRef<HTMLDivElement>(null);
   const drawingRef = useRef(false);
   const spaceHeldRef = useRef(false);
-  const panRef = useRef<{
+  const dragOriginRef = useRef<{
     startX: number;
     startY: number;
-    scrollLeft: number;
-    scrollTop: number;
+    originX: number;
+    originY: number;
   } | null>(null);
   const zoomAnchorRef = useRef<{
     cellX: number;
@@ -42,6 +42,14 @@ export function UVEditor({ fullBleed = false }: { fullBleed?: boolean } = {}) {
     clientX: number;
     clientY: number;
   } | null>(null);
+  // The canvas is free-floating (like Figma/Photoshop) — panning moves it via
+  // CSS transform rather than relying on native scroll, so it's draggable
+  // anywhere in the viewport even when it's smaller than the available space.
+  const [pan, setPan] = useState({ x: 24, y: 24 });
+  const panRef = useRef(pan);
+  useEffect(() => {
+    panRef.current = pan;
+  }, [pan]);
   const [spaceHeld, setSpaceHeld] = useState(false);
   const [isPanning, setIsPanning] = useState(false);
   const skin = useEditorStore((s) => s.skin);
@@ -55,18 +63,31 @@ export function UVEditor({ fullBleed = false }: { fullBleed?: boolean } = {}) {
   const beginStroke = useEditorStore((s) => s.beginStroke);
   const selected = useSelectedFace();
 
-  // Fit the exploded map to narrow viewports on first paint (client only).
-  const autoFitted = useRef(false);
+  // Fit the exploded map to narrow viewports and center it in the available
+  // space on first paint (client only).
+  const initialized = useRef(false);
   useEffect(() => {
-    if (autoFitted.current) return;
-    autoFitted.current = true;
+    if (initialized.current) return;
+    const viewport = viewportRef.current;
+    if (!viewport) return;
+    initialized.current = true;
+
+    let cell = cellSize;
     const available = window.innerWidth - 80;
-    const needed = (LAYOUT_CELLS_W + LAYOUT_PADDING * 2) * 12;
+    const needed = (LAYOUT_CELLS_W + LAYOUT_PADDING * 2) * cell;
     if (needed > available) {
-      const fit = Math.max(4, Math.floor(available / (LAYOUT_CELLS_W + LAYOUT_PADDING * 2)));
-      setCellSize(fit);
+      cell = Math.max(MIN_CELL, Math.floor(available / (LAYOUT_CELLS_W + LAYOUT_PADDING * 2)));
+      setCellSize(cell);
     }
-  }, [setCellSize]);
+
+    const contentW = (LAYOUT_CELLS_W + LAYOUT_PADDING * 2) * cell;
+    const contentH = (LAYOUT_CELLS_H + LAYOUT_PADDING * 2) * cell + 40;
+    setPan({
+      x: Math.max(24, (viewport.clientWidth - contentW) / 2),
+      y: Math.max(24, (viewport.clientHeight - contentH) / 2),
+    });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   // Hold space for grab-to-pan, like other canvas apps.
   useEffect(() => {
@@ -93,20 +114,24 @@ export function UVEditor({ fullBleed = false }: { fullBleed?: boolean } = {}) {
     };
   }, []);
 
-  // Ctrl/Cmd + scroll to zoom toward the cursor; plain scroll pans natively.
+  // Plain scroll pans the free-floating canvas; Ctrl/Cmd + scroll zooms toward the cursor.
   useEffect(() => {
     const viewport = viewportRef.current;
     if (!viewport) return;
     const onWheel = (e: WheelEvent) => {
-      if (!(e.ctrlKey || e.metaKey)) return;
       e.preventDefault();
+      if (!(e.ctrlKey || e.metaKey)) {
+        setPan((p) => ({ x: p.x - e.deltaX, y: p.y - e.deltaY }));
+        return;
+      }
       const rect = viewport.getBoundingClientRect();
       const clientX = e.clientX - rect.left;
       const clientY = e.clientY - rect.top;
       const state = useEditorStore.getState();
+      const currentPan = panRef.current;
       zoomAnchorRef.current = {
-        cellX: (viewport.scrollLeft + clientX) / state.cellSize,
-        cellY: (viewport.scrollTop + clientY) / state.cellSize,
+        cellX: (clientX - currentPan.x) / state.cellSize,
+        cellY: (clientY - currentPan.y) / state.cellSize,
         clientX,
         clientY,
       };
@@ -116,14 +141,15 @@ export function UVEditor({ fullBleed = false }: { fullBleed?: boolean } = {}) {
     return () => viewport.removeEventListener("wheel", onWheel);
   }, []);
 
-  // Re-anchor scroll after a wheel-zoom so the point under the cursor stays put.
+  // Re-anchor pan after a wheel-zoom so the point under the cursor stays put.
   useEffect(() => {
     const anchor = zoomAnchorRef.current;
-    const viewport = viewportRef.current;
-    if (!anchor || !viewport) return;
+    if (!anchor) return;
     zoomAnchorRef.current = null;
-    viewport.scrollLeft = anchor.cellX * cellSize - anchor.clientX;
-    viewport.scrollTop = anchor.cellY * cellSize - anchor.clientY;
+    setPan({
+      x: anchor.clientX - anchor.cellX * cellSize,
+      y: anchor.clientY - anchor.cellY * cellSize,
+    });
   }, [cellSize]);
 
   const pad = LAYOUT_PADDING;
@@ -280,17 +306,27 @@ export function UVEditor({ fullBleed = false }: { fullBleed?: boolean } = {}) {
     [cellSize, pad],
   );
 
+  // Capture is best-effort: a failure here (e.g. an already-released pointer)
+  // must never block selection/painting/panning from proceeding.
+  const capturePointer = (target: Element, pointerId: number) => {
+    try {
+      (target as Element & { setPointerCapture: (id: number) => void }).setPointerCapture(
+        pointerId,
+      );
+    } catch {
+      // ignored
+    }
+  };
+
   const onPointerDown = (e: React.PointerEvent<HTMLCanvasElement>) => {
     if (spaceHeldRef.current || e.button === 1 || tool === "hand") {
-      const viewport = viewportRef.current;
-      if (!viewport) return;
       e.preventDefault();
-      e.currentTarget.setPointerCapture(e.pointerId);
-      panRef.current = {
+      capturePointer(e.currentTarget, e.pointerId);
+      dragOriginRef.current = {
         startX: e.clientX,
         startY: e.clientY,
-        scrollLeft: viewport.scrollLeft,
-        scrollTop: viewport.scrollTop,
+        originX: panRef.current.x,
+        originY: panRef.current.y,
       };
       setIsPanning(true);
       return;
@@ -298,7 +334,7 @@ export function UVEditor({ fullBleed = false }: { fullBleed?: boolean } = {}) {
     if (e.button !== 0) return;
     const target = hit(e.clientX, e.clientY);
     if (!target) return;
-    e.currentTarget.setPointerCapture(e.pointerId);
+    capturePointer(e.currentTarget, e.pointerId);
     selectFace(target.faceId);
     if (tool === "select") return;
     if (tool !== "eyedropper") beginStroke();
@@ -307,11 +343,9 @@ export function UVEditor({ fullBleed = false }: { fullBleed?: boolean } = {}) {
   };
 
   const onPointerMove = (e: React.PointerEvent<HTMLCanvasElement>) => {
-    if (panRef.current) {
-      const viewport = viewportRef.current;
-      if (!viewport) return;
-      viewport.scrollLeft = panRef.current.scrollLeft - (e.clientX - panRef.current.startX);
-      viewport.scrollTop = panRef.current.scrollTop - (e.clientY - panRef.current.startY);
+    if (dragOriginRef.current) {
+      const { startX, startY, originX, originY } = dragOriginRef.current;
+      setPan({ x: originX + (e.clientX - startX), y: originY + (e.clientY - startY) });
       return;
     }
     if (!drawingRef.current) return;
@@ -322,8 +356,8 @@ export function UVEditor({ fullBleed = false }: { fullBleed?: boolean } = {}) {
 
   const endStroke = () => {
     drawingRef.current = false;
-    if (panRef.current) {
-      panRef.current = null;
+    if (dragOriginRef.current) {
+      dragOriginRef.current = null;
       setIsPanning(false);
     }
   };
@@ -379,12 +413,16 @@ export function UVEditor({ fullBleed = false }: { fullBleed?: boolean } = {}) {
           </span>
         </div>
       </header>
-      <div ref={viewportRef} className="min-h-0 flex-1 overflow-auto p-4">
+      <div ref={viewportRef} className="relative min-h-0 flex-1 overflow-hidden">
         <canvas
           ref={canvasRef}
           data-testid="uv-editor-canvas"
           className="touch-none select-none"
           style={{
+            position: "absolute",
+            left: 0,
+            top: 0,
+            transform: `translate(${pan.x}px, ${pan.y}px)`,
             cursor: isPanning
               ? "grabbing"
               : spaceHeld || tool === "hand"

@@ -23,18 +23,26 @@ function ShortcutRow({ label, keys }: { label: string; keys: string }) {
   );
 }
 
+export function ShortcutsList() {
+  return (
+    <div className="space-y-1.5">
+      {TOOLS.map((t) => (
+        <ShortcutRow key={t.id} label={t.label} keys={t.shortcut} />
+      ))}
+      <div className="my-2 h-px bg-border" />
+      {OTHER_SHORTCUTS.map((s) => (
+        <ShortcutRow key={s.label + s.keys} label={s.label} keys={s.keys} />
+      ))}
+    </div>
+  );
+}
+
 export function KeyboardShortcutsPanel() {
   return (
     <section className="rounded-xl border border-border bg-card p-4 shadow-sm">
       <h2 className="text-sm font-semibold text-foreground">Keyboard shortcuts</h2>
-      <div className="mt-3 space-y-1.5">
-        {TOOLS.map((t) => (
-          <ShortcutRow key={t.id} label={t.label} keys={t.shortcut} />
-        ))}
-        <div className="my-2 h-px bg-border" />
-        {OTHER_SHORTCUTS.map((s) => (
-          <ShortcutRow key={s.label + s.keys} label={s.label} keys={s.keys} />
-        ))}
+      <div className="mt-3">
+        <ShortcutsList />
       </div>
     </section>
   );

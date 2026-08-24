@@ -62,7 +62,7 @@ export function ToolPanel({ bare = false }: { bare?: boolean } = {}) {
             key={id}
             variant={tool === id ? "default" : "outline"}
             size="sm"
-            className="flex-col gap-1 py-4 text-[11px]"
+            className="h-auto flex-col gap-1.5 py-5 text-[11px]"
             aria-pressed={tool === id}
             data-testid={`tool-${id}`}
             title={`${label} (${shortcut})`}

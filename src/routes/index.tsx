@@ -1,13 +1,13 @@
 import { ClientOnly } from "@tanstack/react-router";
 import { createFileRoute } from "@tanstack/react-router";
-import { Maximize2, Minimize2 } from "lucide-react";
+import { ChevronDown, Keyboard, Maximize2, Minimize2 } from "lucide-react";
 import { lazy, Suspense, useEffect, useState } from "react";
 
 import { AtlasPreview } from "@/components/skin/AtlasPreview";
 import { FrontPreview2D } from "@/components/skin/FrontPreview2D";
 import { AutoDesignPanel } from "@/components/skin/AutoDesignPanel";
 import { FloatingPanel } from "@/components/skin/FloatingPanel";
-import { KeyboardShortcutsPanel } from "@/components/skin/KeyboardShortcutsPanel";
+import { KeyboardShortcutsPanel, ShortcutsList } from "@/components/skin/KeyboardShortcutsPanel";
 import { ProjectsPanel } from "@/components/skin/ProjectsPanel";
 import { ReferencePanel } from "@/components/skin/ReferencePanel";
 import { SkinFileBar } from "@/components/skin/SkinFileBar";
@@ -153,6 +153,16 @@ function SkinPainterPage() {
       {focusMode && (
         <FloatingPanel title="Tools" onClose={() => setFocusMode(false)}>
           <ToolPanel bare />
+          <details className="group border-t border-border">
+            <summary className="flex cursor-pointer list-none items-center gap-2 px-4 py-2.5 text-xs font-semibold text-foreground hover:bg-accent">
+              <Keyboard className="size-3.5 text-muted-foreground" />
+              Keyboard shortcuts
+              <ChevronDown className="ml-auto size-3.5 text-muted-foreground transition-transform group-open:rotate-180" />
+            </summary>
+            <div className="px-4 pb-4">
+              <ShortcutsList />
+            </div>
+          </details>
         </FloatingPanel>
       )}
     </div>
