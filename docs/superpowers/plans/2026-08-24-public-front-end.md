@@ -54,10 +54,10 @@
 
 | File | Change |
 | --- | --- |
-| `src/routes/index.tsx` | Becomes the new home page |
-| `src/routes/ai-helper.tsx` | Rebuilt on the design system (currently checkpointed only) |
-| `src/routes/build.tsx` | Rebuilt on the design system (currently checkpointed only) |
-| `src/routes/editor.tsx` | Read `?start=`; gate on session |
+| `src/routes/index.tsx` | Currently **is the editor**. Task 1.5 moves it to `editor.tsx`; Task 11 rebuilds it as the home page |
+| `src/routes/ai-helper.tsx` | Created fresh in Task 12 (the checkpoint copy is not reused) |
+| `src/routes/build.tsx` | Created fresh in Task 12 (the checkpoint copy is not reused) |
+| `src/routes/editor.tsx` | Created by the Task 1.5 move. Then: read `?start=`; gate on session |
 | `src/routes/auth.tsx` | Redirect to `/join` |
 | `src/styles.css` | Import `site.css` |
 | `src/lib/validation.ts` | Add the new event names |
@@ -110,6 +110,83 @@ Expected: both numbers equal, and equal to 15. Every token row has a source cell
 ```bash
 git add docs/design-system.md
 git commit -m "Add sourced design system from competitor visual pass"
+```
+
+---
+
+## Task 1.5: Reconcile the checkpoint branch
+
+**Files:**
+- Rename: `src/routes/index.tsx` → `src/routes/editor.tsx`
+- Restore from `checkpoint/codex-validation-shell`: `src/lib/validation.ts`, `docs/voice-of-customer.md`, `docs/validation-funnel.md`, `docs/program-map.md`
+
+**Interfaces:**
+- Produces: the `/editor` route, and `recordValidationEvent` from `@/lib/validation`. Tasks 6, 7, 10, 11, 12, 14 and 15 all import one or the other; none of them can run until this task completes.
+
+**Why this exists:** on `main` today the editor is served at `/`, not `/editor` — `src/routes/index.tsx` *is* the editor. The public shell needs `/` for the home page. `src/lib/validation.ts` and the research docs live only on the checkpoint branch. This task moves the editor out of the way and brings the reusable pieces across, without disturbing the editor's contents.
+
+- [ ] **Step 1: Confirm the starting state**
+
+Run: `ls src/routes/` and `head -5 src/routes/index.tsx`
+Expected: routes are `__root.tsx`, `auth.tsx`, `index.tsx`, `README.md`, and `index.tsx` imports from `@/components/skin/`. If `editor.tsx` already exists, this task has already run — skip it.
+
+- [ ] **Step 2: Move the editor to its own route**
+
+Use `main`'s copy, not the checkpoint's. `main` has Antigravity's newer canvas panning, tool fixes and shortcuts drawer; the checkpoint's copy is a slightly older fork of the same file.
+
+```bash
+git mv src/routes/index.tsx src/routes/editor.tsx
+```
+
+Then change the route id on the first `createFileRoute` call in `src/routes/editor.tsx`:
+
+```tsx
+export const Route = createFileRoute("/editor")({
+```
+
+Change nothing else in the file. The editor's internals are out of scope.
+
+- [ ] **Step 3: Restore the reusable pieces**
+
+```bash
+git checkout checkpoint/codex-validation-shell -- \
+  src/lib/validation.ts \
+  docs/voice-of-customer.md \
+  docs/validation-funnel.md \
+  docs/program-map.md
+```
+
+Do **not** restore `docs/design-dna.md` (superseded by Task 1), `src/components/marketing/` (replaced by Task 6), or `src/routes/{ai-helper,build,personal}.tsx` (rewritten in Tasks 12 and 14). Task 12 creates `ai-helper.tsx` and `build.tsx` from scratch.
+
+- [ ] **Step 4: Add a placeholder home route**
+
+`/` must resolve to something while Tasks 6–11 are built, or the site 404s at its root.
+
+```tsx
+// src/routes/index.tsx
+import { createFileRoute, redirect } from "@tanstack/react-router";
+
+// Temporary. Task 11 replaces this with the real home page.
+export const Route = createFileRoute("/")({
+  beforeLoad: () => {
+    throw redirect({ to: "/editor" });
+  },
+});
+```
+
+- [ ] **Step 5: Verify the editor still works**
+
+Run: `npm run build`
+Expected: `built in`, and `src/routeTree.gen.ts` now lists both `/` and `/editor`.
+
+Run: `npm run dev`, open `/editor` in a browser.
+Expected: the editor loads exactly as it did at `/` — tools, UV grid, 3D preview, no new console errors.
+
+- [ ] **Step 6: Commit**
+
+```bash
+git add -A src/routes src/lib/validation.ts docs/ src/routeTree.gen.ts
+git commit -m "Move editor to /editor and restore validation lib and research docs"
 ```
 
 ---
@@ -2743,5 +2820,11 @@ No spec section is unimplemented.
 **Placeholder scan:** The only intentional placeholders are the `/* from design-system.md */` token values in Task 6 Step 1, which Task 6 Step 4 verifies are all replaced. Task 3 Step 2 carries `<mike-user-id>` and `<grace-user-id>`, which cannot be known until the accounts exist and are supplied in Task 16 Step 2.
 
 **Type consistency:** `OfferId` (Task 4) is used unchanged in Tasks 5, 9, 10, 15. `Platform` is defined once in Task 5 and imported by Tasks 13 and 14. `GallerySkin` field names match `fromRow` and the SQL columns. `nextStatus` signature matches its use in Task 15. `record_offer_view` takes `_offer` in both the SQL and the `SiteShell` RPC call. `has_role` takes `_user_id` and `_role` in both.
+
+**Repository reality check (added after the plan was first written):** `main` serves the
+editor at `/`, not `/editor`, and `src/lib/validation.ts` plus three research docs exist
+only on `checkpoint/codex-validation-shell`. Task 1.5 reconciles both before any task
+depends on them. Verified with `git ls-tree -r --name-only checkpoint/codex-validation-shell`
+against the working tree.
 
 **Known gap carried deliberately:** the order-release notification to Mike is not implemented — the spec leaves the channel open, and Task 15 gives him a working `/orders` view to check instead. Wire an email trigger once the channel is decided.
