@@ -14,7 +14,13 @@ import {
 } from "@/domain/skin/layout";
 import { getPixel } from "@/domain/skin/skinBuffer";
 import { cn } from "@/lib/utils";
-import { MAX_CELL, MIN_CELL, useEditorStore, useSelectedFace } from "@/store/editorStore";
+import {
+  DEFAULT_CELL,
+  MAX_CELL,
+  MIN_CELL,
+  useEditorStore,
+  useSelectedFace,
+} from "@/store/editorStore";
 
 const COLOR_PANEL_BORDER = "#4b5563";
 const COLOR_GRID = "#e2e5ea";
@@ -63,31 +69,89 @@ export function UVEditor({ fullBleed = false }: { fullBleed?: boolean } = {}) {
   const beginStroke = useEditorStore((s) => s.beginStroke);
   const selected = useSelectedFace();
 
-  // Fit the exploded map to narrow viewports and center it in the available
-  // space on first paint (client only).
-  const initialized = useRef(false);
-  useEffect(() => {
-    if (initialized.current) return;
+  // Centers the exploded map (at the given zoom) in whatever space the
+  // viewport currently has — shared by first paint and the view shortcuts.
+  const centerAt = useCallback((cell: number) => {
     const viewport = viewportRef.current;
     if (!viewport) return;
-    initialized.current = true;
-
-    let cell = cellSize;
-    const available = window.innerWidth - 80;
-    const needed = (LAYOUT_CELLS_W + LAYOUT_PADDING * 2) * cell;
-    if (needed > available) {
-      cell = Math.max(MIN_CELL, Math.floor(available / (LAYOUT_CELLS_W + LAYOUT_PADDING * 2)));
-      setCellSize(cell);
-    }
-
     const contentW = (LAYOUT_CELLS_W + LAYOUT_PADDING * 2) * cell;
     const contentH = (LAYOUT_CELLS_H + LAYOUT_PADDING * 2) * cell + 40;
     setPan({
       x: Math.max(24, (viewport.clientWidth - contentW) / 2),
       y: Math.max(24, (viewport.clientHeight - contentH) / 2),
     });
+  }, []);
+
+  // Largest cell size (clamped to [MIN_CELL, MAX_CELL]) that fits the whole
+  // exploded map inside the current viewport, on both axes.
+  const fitCellSize = useCallback(() => {
+    const viewport = viewportRef.current;
+    if (!viewport) return DEFAULT_CELL;
+    const vw = viewport.clientWidth - 48;
+    const vh = viewport.clientHeight - 48 - 40;
+    const cellsW = LAYOUT_CELLS_W + LAYOUT_PADDING * 2;
+    const cellsH = LAYOUT_CELLS_H + LAYOUT_PADDING * 2;
+    const byWidth = Math.floor(vw / cellsW);
+    const byHeight = Math.floor(vh / cellsH);
+    return Math.max(MIN_CELL, Math.min(MAX_CELL, Math.min(byWidth, byHeight)));
+  }, []);
+
+  // Fit the exploded map to narrow viewports and center it in the available
+  // space on first paint (client only).
+  const initialized = useRef(false);
+  useEffect(() => {
+    if (initialized.current) return;
+    if (!viewportRef.current) return;
+    initialized.current = true;
+
+    const cell = fitCellSize();
+    if (cell !== cellSize) setCellSize(cell);
+    centerAt(cell);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
+
+  // View shortcuts: C centers without changing zoom, Shift+0 resets to the
+  // default zoom, Shift+1 fits the whole map to the viewport, +/- step zoom —
+  // all mirroring conventions from Figma/Photoshop-style canvas apps.
+  useEffect(() => {
+    const isEditable = (el: EventTarget | null) => {
+      const tag = (el as HTMLElement | null)?.tagName;
+      return tag === "INPUT" || tag === "TEXTAREA" || tag === "SELECT";
+    };
+    const onKeyDown = (e: KeyboardEvent) => {
+      if (e.ctrlKey || e.metaKey || e.altKey || isEditable(document.activeElement)) return;
+      const state = useEditorStore.getState();
+      if (!e.shiftKey && (e.key === "c" || e.key === "C")) {
+        centerAt(state.cellSize);
+        return;
+      }
+      // Shift+digit keys report the shifted symbol in e.key (e.g. ")", "!"),
+      // not the digit — check the physical key via e.code instead.
+      if (e.shiftKey && e.code === "Digit0") {
+        e.preventDefault();
+        state.setCellSize(DEFAULT_CELL);
+        centerAt(DEFAULT_CELL);
+        return;
+      }
+      if (e.shiftKey && e.code === "Digit1") {
+        e.preventDefault();
+        const cell = fitCellSize();
+        state.setCellSize(cell);
+        centerAt(cell);
+        return;
+      }
+      if (e.key === "+" || e.key === "=") {
+        state.setCellSize(state.cellSize + 2);
+        return;
+      }
+      if (e.key === "-" || e.key === "_") {
+        state.setCellSize(state.cellSize - 2);
+        return;
+      }
+    };
+    window.addEventListener("keydown", onKeyDown);
+    return () => window.removeEventListener("keydown", onKeyDown);
+  }, [centerAt, fitCellSize]);
 
   // Hold space for grab-to-pan, like other canvas apps.
   useEffect(() => {
