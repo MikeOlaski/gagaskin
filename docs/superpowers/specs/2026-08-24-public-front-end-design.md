@@ -53,7 +53,8 @@ Rules for pairs:
 ## 3. Information architecture
 
 ```
-/                    Home. Hero pair, trust line, scroll band, gallery, three portals
+/                    Home. Hero pair, trust line, scroll band, curated gallery, three portals
+/skins               The directory. Every skin Grace has published
 /ai-helper           Landing A — leads with the translation sequence
 /build               Landing B — leads with the tool itself, no mention of AI
 /custom              Landing C — leads with Grace and her finished work
@@ -65,6 +66,27 @@ Rules for pairs:
 
 Home is the more experimental page. The three landing pages share the design system but
 vary structure — each makes a different argument.
+
+### /skins — the directory
+
+**Public, in front of the gate.** It is the proof surface and the only page worth linking
+to from outside — Grace's other listings, her profile on other skin sites, anywhere she
+already has an audience.
+
+Same simple shell as home, no separate chrome. A grid of before → after pairs, each
+labelled with the path that made it, each linking to the offer that produced it. Home shows
+a curated handful; `/skins` shows everything. Newest first, no filtering, no search, no
+pagination until there are enough entries to need it.
+
+Per-skin detail pages (`/skins/:slug`) are **out of this round**. They are the obvious next
+step for SEO and sharing, and the data model below supports them without change, but the
+directory does not need them to be useful at 8–12 entries.
+
+**Grace publishes them herself.** A `gallery_skins` table — title, inspiration image,
+in-game screenshot, skin PNG, path label, published flag, sort order — readable by anyone,
+writable only by the `creator` role. She publishes from a minimal form in her creator area,
+alongside `/orders`. Hard-coding the gallery in the repo would be faster, but it would make
+every update depend on Mike and a deploy, which defeats the point of Creator Zero.
 
 The app route stays `/editor` to avoid churn against Lovable. `/build` carries the Awesome
 Editor pitch.
@@ -208,15 +230,16 @@ report rates from this round as validation.
 
 ## 10. Scope
 
-**In:** home, three landing pages, `/join` with cap and waitlist, offer attribution,
-adult attestation, platform field, `?start=` pitch honouring, `user_roles`, `skin_orders`
-with guardian release, `/orders` creator inbox, server-side offer counters, design system
-document, live two-account RLS verification, one end-to-end order.
+**In:** home, `/skins` directory, three landing pages, `/join` with cap and waitlist, offer
+attribution, adult attestation, platform field, `?start=` pitch honouring, `user_roles`,
+`skin_orders` with guardian release, `/orders` creator inbox, `gallery_skins` with a
+creator publish form, server-side offer counters, design system document, live two-account
+RLS verification, one end-to-end order.
 
 **Out:** payment, analytics SaaS, order messaging or status tracking, turnaround promises,
-public gallery submissions, remixing or attribution lineage, mobile editor work, Java/Bedrock
-conversion in the editor, wardrobe/character model, marketplace, additional artists,
-cohort-readiness hardening.
+per-skin detail pages, gallery search/filter/pagination, public gallery submissions,
+remixing or attribution lineage, mobile editor work, Java/Bedrock conversion in the editor,
+wardrobe/character model, marketplace, additional artists, cohort-readiness hardening.
 
 The out list is drawn from the research's own "what I would not prioritise first."
 
@@ -227,7 +250,7 @@ The out list is drawn from the research's own "what I would not prioritise first
 | 0 — Safety net | The 25 loose working-tree files are committed to `checkpoint/codex-validation-shell` |
 | 1 — Research | `docs/design-system.md` exists with a sourced token table |
 | 2 — Gate & multi-user | `/join` works with cap, waitlist, attribution, platform field; `?start=` honoured; two live accounts verified isolated against the hosted database |
-| 3 — Front end | Home and three landing pages built on the design system, gallery populated, LCP budget met |
+| 3 — Front end | Home, `/skins` and three landing pages built on the design system, gallery populated by Grace through the publish form, LCP budget met |
 | 4 — Orders loop | Mike submits an order, releases it, Grace builds and delivers it, Mike receives it — once, end to end |
 | 5 — Ship | Build green, QA recorded, merged to `main`, Lovable deploy confirmed |
 
