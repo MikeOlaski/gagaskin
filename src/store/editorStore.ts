@@ -30,7 +30,7 @@ import {
   type SkinBuffer,
 } from "@/domain/skin/skinBuffer";
 
-export type Tool = "select" | "pencil" | "eraser" | "fill" | "eyedropper";
+export type Tool = "select" | "pencil" | "eraser" | "fill" | "eyedropper" | "hand";
 
 export const MIN_CELL = 6;
 export const MAX_CELL = 22;
@@ -164,6 +164,7 @@ export const useEditorStore = create<EditorState>((set, get) => {
 
       switch (state.tool) {
         case "select":
+        case "hand":
           break;
         case "pencil":
           mutate((skin) => setPixel(skin, ax, ay, activeColor(state)));
@@ -365,9 +366,9 @@ function toDataUrl(source: CanvasImageSource, maxSize: number): string | null {
 }
 
 function selectedFace(state: { selectedFaceId: string | null }): SkinFace | null {
-  return state.selectedFaceId ? FACE_BY_ID[state.selectedFaceId] ?? null : null;
+  return state.selectedFaceId ? (FACE_BY_ID[state.selectedFaceId] ?? null) : null;
 }
 
 export function useSelectedFace(): SkinFace | null {
-  return useEditorStore((s) => (s.selectedFaceId ? FACE_BY_ID[s.selectedFaceId] ?? null : null));
+  return useEditorStore((s) => (s.selectedFaceId ? (FACE_BY_ID[s.selectedFaceId] ?? null) : null));
 }

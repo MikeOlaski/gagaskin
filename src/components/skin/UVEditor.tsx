@@ -13,12 +13,8 @@ import {
   groupBounds,
 } from "@/domain/skin/layout";
 import { getPixel } from "@/domain/skin/skinBuffer";
-import {
-  MAX_CELL,
-  MIN_CELL,
-  useEditorStore,
-  useSelectedFace,
-} from "@/store/editorStore";
+import { cn } from "@/lib/utils";
+import { MAX_CELL, MIN_CELL, useEditorStore, useSelectedFace } from "@/store/editorStore";
 
 const COLOR_PANEL_BORDER = "#4b5563";
 const COLOR_GRID = "#e2e5ea";
@@ -29,7 +25,7 @@ const COLOR_GROUP_LABEL = "#374151";
 const CHECKER_A = "#ffffff";
 const CHECKER_B = "#f1f2f4";
 
-export function UVEditor() {
+export function UVEditor({ fullBleed = false }: { fullBleed?: boolean } = {}) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const viewportRef = useRef<HTMLDivElement>(null);
   const drawingRef = useRef(false);
@@ -40,9 +36,12 @@ export function UVEditor() {
     scrollLeft: number;
     scrollTop: number;
   } | null>(null);
-  const zoomAnchorRef = useRef<{ cellX: number; cellY: number; clientX: number; clientY: number } | null>(
-    null,
-  );
+  const zoomAnchorRef = useRef<{
+    cellX: number;
+    cellY: number;
+    clientX: number;
+    clientY: number;
+  } | null>(null);
   const [spaceHeld, setSpaceHeld] = useState(false);
   const [isPanning, setIsPanning] = useState(false);
   const skin = useEditorStore((s) => s.skin);
@@ -214,14 +213,24 @@ export function UVEditor() {
       if (face.front) {
         ctx.strokeStyle = COLOR_FRONT;
         ctx.lineWidth = 2;
-        ctx.strokeRect(Math.round(px) - 1, Math.round(py) - 1, Math.round(w) + 2, Math.round(h) + 2);
+        ctx.strokeRect(
+          Math.round(px) - 1,
+          Math.round(py) - 1,
+          Math.round(w) + 2,
+          Math.round(h) + 2,
+        );
       }
 
       // selection accent: inner outline, can coexist with FRONT
       if (face.id === selectedFaceId) {
         ctx.strokeStyle = COLOR_SELECTED;
         ctx.lineWidth = 2;
-        ctx.strokeRect(Math.round(px) + 2, Math.round(py) + 2, Math.round(w) - 4, Math.round(h) - 4);
+        ctx.strokeRect(
+          Math.round(px) + 2,
+          Math.round(py) + 2,
+          Math.round(w) - 4,
+          Math.round(h) - 4,
+        );
       }
 
       // technical labels — drawn in the gutters, never over texels
@@ -241,7 +250,6 @@ export function UVEditor() {
           }
         }
       }
-
     }
   }, [skin, cellSize, selectedFaceId, showCoords, width, height, pad]);
 
@@ -273,7 +281,7 @@ export function UVEditor() {
   );
 
   const onPointerDown = (e: React.PointerEvent<HTMLCanvasElement>) => {
-    if (spaceHeldRef.current || e.button === 1) {
+    if (spaceHeldRef.current || e.button === 1 || tool === "hand") {
       const viewport = viewportRef.current;
       if (!viewport) return;
       e.preventDefault();
@@ -321,11 +329,16 @@ export function UVEditor() {
   };
 
   return (
-    <section className="flex min-h-0 w-full min-w-0 flex-col rounded-xl border border-border bg-card shadow-sm">
+    <section
+      className={cn(
+        "flex min-h-0 w-full min-w-0 flex-col bg-card",
+        !fullBleed && "rounded-xl border border-border shadow-sm",
+      )}
+    >
       <header className="flex flex-wrap items-center gap-3 border-b border-border px-4 py-3">
         <h2 className="text-sm font-semibold text-foreground">Exploded UV editor</h2>
         <span className="text-xs text-muted-foreground">
-          scroll to pan · space + drag or middle-click to grab · ⌘/ctrl + scroll to zoom
+          scroll to pan · space, hand tool or middle-click to grab · ⌘/ctrl + scroll to zoom
         </span>
         <div className="ml-auto flex items-center gap-2">
           <Button
@@ -374,7 +387,7 @@ export function UVEditor() {
           style={{
             cursor: isPanning
               ? "grabbing"
-              : spaceHeld
+              : spaceHeld || tool === "hand"
                 ? "grab"
                 : tool === "select"
                   ? "default"

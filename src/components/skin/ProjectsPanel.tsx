@@ -1,12 +1,11 @@
 import { Link } from "@tanstack/react-router";
-import { FolderOpen, Loader2, LogOut, Save, SaveAll, Trash2, Pencil } from "lucide-react";
+import { FolderOpen, Loader2, Save, SaveAll, Trash2, Pencil } from "lucide-react";
 import { useCallback, useEffect, useState } from "react";
 import { toast } from "sonner";
 
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { useSession } from "@/hooks/useSession";
-import { supabase } from "@/integrations/supabase/client";
 import {
   createProject,
   decodeSkin,
@@ -142,21 +141,9 @@ export function ProjectsPanel() {
       toast.success("Project deleted");
     });
 
-  const onSignOut = async () => {
-    await supabase.auth.signOut();
-    toast.success("Signed out");
-  };
-
   return (
     <section className="rounded-xl border border-border bg-card p-4 shadow-sm">
-      <div className="flex items-center justify-between gap-2">
-        <h2 className="text-sm font-semibold text-foreground">Projects</h2>
-        {user ? (
-          <Button variant="ghost" size="sm" onClick={() => void onSignOut()}>
-            <LogOut className="mr-1 size-3.5" /> Sign out
-          </Button>
-        ) : null}
-      </div>
+      <h2 className="text-sm font-semibold text-foreground">Projects</h2>
 
       {loading ? (
         <p className="mt-3 text-xs text-muted-foreground">Checking your session…</p>
@@ -171,8 +158,6 @@ export function ProjectsPanel() {
         </div>
       ) : (
         <>
-          <p className="mt-2 truncate text-xs text-muted-foreground">{user.email}</p>
-
           <div className="mt-3 space-y-2">
             <Input
               value={name}

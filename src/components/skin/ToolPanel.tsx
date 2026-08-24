@@ -4,6 +4,7 @@ import {
   Eraser,
   FlipHorizontal2,
   FlipVertical2,
+  Hand,
   type LucideIcon,
   MousePointer2,
   PaintBucket,
@@ -20,12 +21,13 @@ import { OPPOSITE_PART, PART_LABELS } from "@/domain/skin/faceRegistry";
 import { cn } from "@/lib/utils";
 import { useEditorStore, useSelectedFace, type Tool } from "@/store/editorStore";
 
-const TOOLS: Array<{ id: Tool; label: string; icon: LucideIcon }> = [
-  { id: "select", label: "Select", icon: MousePointer2 },
-  { id: "pencil", label: "Pencil", icon: Pencil },
-  { id: "eraser", label: "Eraser", icon: Eraser },
-  { id: "fill", label: "Fill", icon: PaintBucket },
-  { id: "eyedropper", label: "Picker", icon: Droplet },
+export const TOOLS: Array<{ id: Tool; label: string; icon: LucideIcon; shortcut: string }> = [
+  { id: "select", label: "Select", icon: MousePointer2, shortcut: "V" },
+  { id: "pencil", label: "Pencil", icon: Pencil, shortcut: "B" },
+  { id: "eraser", label: "Eraser", icon: Eraser, shortcut: "E" },
+  { id: "fill", label: "Fill", icon: PaintBucket, shortcut: "G" },
+  { id: "eyedropper", label: "Picker", icon: Droplet, shortcut: "I" },
+  { id: "hand", label: "Hand", icon: Hand, shortcut: "H" },
 ];
 
 /** `bare` drops the card chrome for use inside a wrapper that already provides it (e.g. FloatingPanel). */
@@ -55,7 +57,7 @@ export function ToolPanel({ bare = false }: { bare?: boolean } = {}) {
       <h2 className="text-sm font-semibold text-foreground">Tools</h2>
 
       <div className="mt-3 grid grid-cols-3 gap-2">
-        {TOOLS.map(({ id, label, icon: Icon }) => (
+        {TOOLS.map(({ id, label, icon: Icon, shortcut }) => (
           <Button
             key={id}
             variant={tool === id ? "default" : "outline"}
@@ -63,6 +65,7 @@ export function ToolPanel({ bare = false }: { bare?: boolean } = {}) {
             className="flex-col gap-1 py-4 text-[11px]"
             aria-pressed={tool === id}
             data-testid={`tool-${id}`}
+            title={`${label} (${shortcut})`}
             onClick={() => setTool(id)}
           >
             <Icon className="size-4" />
