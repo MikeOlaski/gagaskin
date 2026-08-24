@@ -1,5 +1,5 @@
 import { Minus, Plus } from "lucide-react";
-import { useCallback, useEffect, useRef } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 
 import { Button } from "@/components/ui/button";
 import { Slider } from "@/components/ui/slider";
@@ -31,7 +31,20 @@ const CHECKER_B = "#f1f2f4";
 
 export function UVEditor() {
   const canvasRef = useRef<HTMLCanvasElement>(null);
+  const viewportRef = useRef<HTMLDivElement>(null);
   const drawingRef = useRef(false);
+  const spaceHeldRef = useRef(false);
+  const panRef = useRef<{
+    startX: number;
+    startY: number;
+    scrollLeft: number;
+    scrollTop: number;
+  } | null>(null);
+  const zoomAnchorRef = useRef<{ cellX: number; cellY: number; clientX: number; clientY: number } | null>(
+    null,
+  );
+  const [spaceHeld, setSpaceHeld] = useState(false);
+  const [isPanning, setIsPanning] = useState(false);
   const skin = useEditorStore((s) => s.skin);
   const cellSize = useEditorStore((s) => s.cellSize);
   const setCellSize = useEditorStore((s) => s.setCellSize);
@@ -56,6 +69,63 @@ export function UVEditor() {
     }
   }, [setCellSize]);
 
+  // Hold space for grab-to-pan, like other canvas apps.
+  useEffect(() => {
+    const isEditable = (el: EventTarget | null) => {
+      const tag = (el as HTMLElement | null)?.tagName;
+      return tag === "INPUT" || tag === "TEXTAREA" || tag === "SELECT";
+    };
+    const onKeyDown = (e: KeyboardEvent) => {
+      if (e.code !== "Space" || e.repeat || isEditable(document.activeElement)) return;
+      spaceHeldRef.current = true;
+      setSpaceHeld(true);
+      e.preventDefault();
+    };
+    const onKeyUp = (e: KeyboardEvent) => {
+      if (e.code !== "Space") return;
+      spaceHeldRef.current = false;
+      setSpaceHeld(false);
+    };
+    window.addEventListener("keydown", onKeyDown);
+    window.addEventListener("keyup", onKeyUp);
+    return () => {
+      window.removeEventListener("keydown", onKeyDown);
+      window.removeEventListener("keyup", onKeyUp);
+    };
+  }, []);
+
+  // Ctrl/Cmd + scroll to zoom toward the cursor; plain scroll pans natively.
+  useEffect(() => {
+    const viewport = viewportRef.current;
+    if (!viewport) return;
+    const onWheel = (e: WheelEvent) => {
+      if (!(e.ctrlKey || e.metaKey)) return;
+      e.preventDefault();
+      const rect = viewport.getBoundingClientRect();
+      const clientX = e.clientX - rect.left;
+      const clientY = e.clientY - rect.top;
+      const state = useEditorStore.getState();
+      zoomAnchorRef.current = {
+        cellX: (viewport.scrollLeft + clientX) / state.cellSize,
+        cellY: (viewport.scrollTop + clientY) / state.cellSize,
+        clientX,
+        clientY,
+      };
+      state.setCellSize(state.cellSize + (e.deltaY > 0 ? -1 : 1));
+    };
+    viewport.addEventListener("wheel", onWheel, { passive: false });
+    return () => viewport.removeEventListener("wheel", onWheel);
+  }, []);
+
+  // Re-anchor scroll after a wheel-zoom so the point under the cursor stays put.
+  useEffect(() => {
+    const anchor = zoomAnchorRef.current;
+    const viewport = viewportRef.current;
+    if (!anchor || !viewport) return;
+    zoomAnchorRef.current = null;
+    viewport.scrollLeft = anchor.cellX * cellSize - anchor.clientX;
+    viewport.scrollTop = anchor.cellY * cellSize - anchor.clientY;
+  }, [cellSize]);
 
   const pad = LAYOUT_PADDING;
   const width = (LAYOUT_CELLS_W + pad * 2) * cellSize;
@@ -203,16 +273,39 @@ export function UVEditor() {
   );
 
   const onPointerDown = (e: React.PointerEvent<HTMLCanvasElement>) => {
+    if (spaceHeldRef.current || e.button === 1) {
+      const viewport = viewportRef.current;
+      if (!viewport) return;
+      e.preventDefault();
+      e.currentTarget.setPointerCapture(e.pointerId);
+      panRef.current = {
+        startX: e.clientX,
+        startY: e.clientY,
+        scrollLeft: viewport.scrollLeft,
+        scrollTop: viewport.scrollTop,
+      };
+      setIsPanning(true);
+      return;
+    }
+    if (e.button !== 0) return;
     const target = hit(e.clientX, e.clientY);
     if (!target) return;
     e.currentTarget.setPointerCapture(e.pointerId);
     selectFace(target.faceId);
+    if (tool === "select") return;
     if (tool !== "eyedropper") beginStroke();
     applyToolAt(target.faceId, target.localX, target.localY);
     drawingRef.current = tool === "pencil" || tool === "eraser";
   };
 
   const onPointerMove = (e: React.PointerEvent<HTMLCanvasElement>) => {
+    if (panRef.current) {
+      const viewport = viewportRef.current;
+      if (!viewport) return;
+      viewport.scrollLeft = panRef.current.scrollLeft - (e.clientX - panRef.current.startX);
+      viewport.scrollTop = panRef.current.scrollTop - (e.clientY - panRef.current.startY);
+      return;
+    }
     if (!drawingRef.current) return;
     const target = hit(e.clientX, e.clientY);
     if (!target || target.faceId !== useEditorStore.getState().selectedFaceId) return;
@@ -221,12 +314,19 @@ export function UVEditor() {
 
   const endStroke = () => {
     drawingRef.current = false;
+    if (panRef.current) {
+      panRef.current = null;
+      setIsPanning(false);
+    }
   };
 
   return (
     <section className="flex min-h-0 w-full min-w-0 flex-col rounded-xl border border-border bg-card shadow-sm">
       <header className="flex flex-wrap items-center gap-3 border-b border-border px-4 py-3">
         <h2 className="text-sm font-semibold text-foreground">Exploded UV editor</h2>
+        <span className="text-xs text-muted-foreground">
+          scroll to pan · space + drag or middle-click to grab · ⌘/ctrl + scroll to zoom
+        </span>
         <div className="ml-auto flex items-center gap-2">
           <Button
             variant="outline"
@@ -266,12 +366,22 @@ export function UVEditor() {
           </span>
         </div>
       </header>
-      <div className="min-h-0 flex-1 overflow-auto p-4">
+      <div ref={viewportRef} className="min-h-0 flex-1 overflow-auto p-4">
         <canvas
           ref={canvasRef}
           data-testid="uv-editor-canvas"
           className="touch-none select-none"
-          style={{ cursor: tool === "eyedropper" ? "crosshair" : "cell" }}
+          style={{
+            cursor: isPanning
+              ? "grabbing"
+              : spaceHeld
+                ? "grab"
+                : tool === "select"
+                  ? "default"
+                  : tool === "eyedropper"
+                    ? "crosshair"
+                    : "cell",
+          }}
           onPointerDown={onPointerDown}
           onPointerMove={onPointerMove}
           onPointerUp={endStroke}

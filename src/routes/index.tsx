@@ -64,10 +64,14 @@ function SkinPainterPage() {
 
       <main className="mx-auto grid max-w-[1800px] gap-4 overflow-x-hidden px-4 py-4 lg:px-6 xl:grid-cols-[300px_minmax(0,1fr)_360px]">
         <div className="flex min-w-0 flex-col gap-4">
-          <ProjectsPanel />
+          <div className="sticky top-4 z-10">
+            <ToolPanel />
+          </div>
           <ReferencePanel />
           <AutoDesignPanel />
-          <ToolPanel />
+          <div className="sticky bottom-4 z-10 mt-auto">
+            <ProjectsPanel />
+          </div>
         </div>
 
         <UVEditor />

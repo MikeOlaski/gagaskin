@@ -105,6 +105,46 @@ export function putFacePixels(
   }
 }
 
+/** Mirror a face-sized RGBA block left-to-right. */
+export function flipPixelsHorizontal(
+  pixels: Uint8ClampedArray,
+  w: number,
+  h: number,
+): Uint8ClampedArray {
+  const out = new Uint8ClampedArray(pixels.length);
+  for (let y = 0; y < h; y++) {
+    for (let x = 0; x < w; x++) {
+      const src = (y * w + (w - 1 - x)) * 4;
+      const dst = (y * w + x) * 4;
+      out[dst] = pixels[src]!;
+      out[dst + 1] = pixels[src + 1]!;
+      out[dst + 2] = pixels[src + 2]!;
+      out[dst + 3] = pixels[src + 3]!;
+    }
+  }
+  return out;
+}
+
+/** Mirror a face-sized RGBA block top-to-bottom. */
+export function flipPixelsVertical(
+  pixels: Uint8ClampedArray,
+  w: number,
+  h: number,
+): Uint8ClampedArray {
+  const out = new Uint8ClampedArray(pixels.length);
+  for (let y = 0; y < h; y++) {
+    for (let x = 0; x < w; x++) {
+      const src = ((h - 1 - y) * w + x) * 4;
+      const dst = (y * w + x) * 4;
+      out[dst] = pixels[src]!;
+      out[dst + 1] = pixels[src + 1]!;
+      out[dst + 2] = pixels[src + 2]!;
+      out[dst + 3] = pixels[src + 3]!;
+    }
+  }
+  return out;
+}
+
 export function fillRect(skin: SkinBuffer, rect: AtlasRect, color: RGBA): void {
   for (let y = 0; y < rect.h; y++) {
     for (let x = 0; x < rect.w; x++) {

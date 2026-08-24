@@ -16,6 +16,8 @@ import {
   cloneSkin,
   createBlankSkin,
   fillRect,
+  flipPixelsHorizontal,
+  flipPixelsVertical,
   floodFillFace,
   getFacePixels,
   getPixel,
@@ -28,7 +30,7 @@ import {
   type SkinBuffer,
 } from "@/domain/skin/skinBuffer";
 
-export type Tool = "pencil" | "eraser" | "fill" | "eyedropper";
+export type Tool = "select" | "pencil" | "eraser" | "fill" | "eyedropper";
 
 export const MIN_CELL = 6;
 export const MAX_CELL = 22;
@@ -75,6 +77,8 @@ interface EditorState {
 
   clearSelectedFace: () => void;
   copyToOppositeLimb: () => void;
+  flipSelectedFaceHorizontal: () => void;
+  flipSelectedFaceVertical: () => void;
   fitReferenceToSelectedFace: () => void;
 
   buildAutoPlan: () => void;
@@ -159,6 +163,8 @@ export const useEditorStore = create<EditorState>((set, get) => {
       const ay = face.atlas.y + localY;
 
       switch (state.tool) {
+        case "select":
+          break;
         case "pencil":
           mutate((skin) => setPixel(skin, ax, ay, activeColor(state)));
           break;
@@ -195,6 +201,30 @@ export const useEditorStore = create<EditorState>((set, get) => {
       const pixels = getFacePixels(get().skin, face.atlas);
       snapshot();
       mutate((skin) => putFacePixels(skin, target.atlas, pixels));
+    },
+
+    flipSelectedFaceHorizontal: () => {
+      const face = selectedFace(get());
+      if (!face) return;
+      const flipped = flipPixelsHorizontal(
+        getFacePixels(get().skin, face.atlas),
+        face.atlas.w,
+        face.atlas.h,
+      );
+      snapshot();
+      mutate((skin) => putFacePixels(skin, face.atlas, flipped));
+    },
+
+    flipSelectedFaceVertical: () => {
+      const face = selectedFace(get());
+      if (!face) return;
+      const flipped = flipPixelsVertical(
+        getFacePixels(get().skin, face.atlas),
+        face.atlas.w,
+        face.atlas.h,
+      );
+      snapshot();
+      mutate((skin) => putFacePixels(skin, face.atlas, flipped));
     },
 
     fitReferenceToSelectedFace: () => {

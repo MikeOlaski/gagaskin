@@ -2,7 +2,10 @@ import {
   Copy,
   Droplet,
   Eraser,
+  FlipHorizontal2,
+  FlipVertical2,
   type LucideIcon,
+  MousePointer2,
   PaintBucket,
   Pencil,
   Redo2,
@@ -17,6 +20,7 @@ import { OPPOSITE_PART, PART_LABELS } from "@/domain/skin/faceRegistry";
 import { useEditorStore, useSelectedFace, type Tool } from "@/store/editorStore";
 
 const TOOLS: Array<{ id: Tool; label: string; icon: LucideIcon }> = [
+  { id: "select", label: "Select", icon: MousePointer2 },
   { id: "pencil", label: "Pencil", icon: Pencil },
   { id: "eraser", label: "Eraser", icon: Eraser },
   { id: "fill", label: "Fill", icon: PaintBucket },
@@ -35,6 +39,8 @@ export function ToolPanel() {
   const undoCount = useEditorStore((s) => s.undoStack.length);
   const redoCount = useEditorStore((s) => s.redoStack.length);
   const copyToOppositeLimb = useEditorStore((s) => s.copyToOppositeLimb);
+  const flipSelectedFaceHorizontal = useEditorStore((s) => s.flipSelectedFaceHorizontal);
+  const flipSelectedFaceVertical = useEditorStore((s) => s.flipSelectedFaceVertical);
   const clearSelectedFace = useEditorStore((s) => s.clearSelectedFace);
   const showCoords = useEditorStore((s) => s.showCoords);
   const toggleCoords = useEditorStore((s) => s.toggleCoords);
@@ -46,7 +52,7 @@ export function ToolPanel() {
     <section className="rounded-xl border border-border bg-card p-4 shadow-sm">
       <h2 className="text-sm font-semibold text-foreground">Tools</h2>
 
-      <div className="mt-3 grid grid-cols-4 gap-2">
+      <div className="mt-3 grid grid-cols-3 gap-2">
         {TOOLS.map(({ id, label, icon: Icon }) => (
           <Button
             key={id}
@@ -116,6 +122,24 @@ export function ToolPanel() {
         >
           <Copy className="mr-1 size-3.5" />
           {opposite ? `Copy to ${PART_LABELS[opposite]}` : "Copy to opposite limb"}
+        </Button>
+        <Button
+          variant="outline"
+          size="sm"
+          onClick={flipSelectedFaceHorizontal}
+          disabled={!selected}
+          title="Flip the selected surface left-to-right"
+        >
+          <FlipHorizontal2 className="mr-1 size-3.5" /> Flip H
+        </Button>
+        <Button
+          variant="outline"
+          size="sm"
+          onClick={flipSelectedFaceVertical}
+          disabled={!selected}
+          title="Flip the selected surface top-to-bottom"
+        >
+          <FlipVertical2 className="mr-1 size-3.5" /> Flip V
         </Button>
         <Button
           variant="outline"
