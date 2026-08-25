@@ -24,10 +24,9 @@ export function SiteShell({ view, children }: { view: ViewName; children: ReactN
       <a className="gs-skip" href="#main">Skip to content</a>
       <header className="gs-header">
         <Link to="/" aria-label="GagaSkin home">GagaSkin</Link>
-        {/* Remaining nav entries land with their routes: /skins in Task 10,
-            /custom in Task 14. A typed Link to a route that does not exist yet
-            fails the typecheck. */}
         <nav aria-label="Primary">
+          <Link to="/skins">Skins</Link>
+          <Link to="/custom">Custom orders</Link>
           <Link to="/join" search={{ from: "unknown" }}>Sign in</Link>
         </nav>
       </header>

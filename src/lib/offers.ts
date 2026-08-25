@@ -3,10 +3,12 @@
  *  each argues for the editor in the language of a different visitor. */
 export type OfferId = "ai-helper" | "custom" | "build";
 export type EditorStart = "ai-helper" | "build";
+/** Must stay a literal union: TanStack Router's typed Link rejects `/${string}`. */
+export type OfferRoute = "/ai-helper" | "/custom" | "/build";
 
 export interface Offer {
   id: OfferId;
-  route: `/${string}`;
+  route: OfferRoute;
   name: string;
   levelOfHelp: string;
   /** Which editor entry mode this offer sold. Null when it does not lead to the editor. */

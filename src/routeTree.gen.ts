@@ -10,18 +10,37 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as AiHelperRouteImport } from './routes/ai-helper'
 import { Route as AuthRouteImport } from './routes/auth'
+import { Route as BuildRouteImport } from './routes/build'
+import { Route as CustomRouteImport } from './routes/custom'
 import { Route as EditorRouteImport } from './routes/editor'
 import { Route as JoinRouteImport } from './routes/join'
+import { Route as SkinsRouteImport } from './routes/skins'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const AiHelperRoute = AiHelperRouteImport.update({
+  id: '/ai-helper',
+  path: '/ai-helper',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const AuthRoute = AuthRouteImport.update({
   id: '/auth',
   path: '/auth',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const BuildRoute = BuildRouteImport.update({
+  id: '/build',
+  path: '/build',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const CustomRoute = CustomRouteImport.update({
+  id: '/custom',
+  path: '/custom',
   getParentRoute: () => rootRouteImport,
 } as any)
 const EditorRoute = EditorRouteImport.update({
@@ -34,39 +53,85 @@ const JoinRoute = JoinRouteImport.update({
   path: '/join',
   getParentRoute: () => rootRouteImport,
 } as any)
+const SkinsRoute = SkinsRouteImport.update({
+  id: '/skins',
+  path: '/skins',
+  getParentRoute: () => rootRouteImport,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/ai-helper': typeof AiHelperRoute
   '/auth': typeof AuthRoute
+  '/build': typeof BuildRoute
+  '/custom': typeof CustomRoute
   '/editor': typeof EditorRoute
   '/join': typeof JoinRoute
+  '/skins': typeof SkinsRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/ai-helper': typeof AiHelperRoute
   '/auth': typeof AuthRoute
+  '/build': typeof BuildRoute
+  '/custom': typeof CustomRoute
   '/editor': typeof EditorRoute
   '/join': typeof JoinRoute
+  '/skins': typeof SkinsRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/ai-helper': typeof AiHelperRoute
   '/auth': typeof AuthRoute
+  '/build': typeof BuildRoute
+  '/custom': typeof CustomRoute
   '/editor': typeof EditorRoute
   '/join': typeof JoinRoute
+  '/skins': typeof SkinsRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/auth' | '/editor' | '/join'
+  fullPaths:
+    | '/'
+    | '/ai-helper'
+    | '/auth'
+    | '/build'
+    | '/custom'
+    | '/editor'
+    | '/join'
+    | '/skins'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/auth' | '/editor' | '/join'
-  id: '__root__' | '/' | '/auth' | '/editor' | '/join'
+  to:
+    | '/'
+    | '/ai-helper'
+    | '/auth'
+    | '/build'
+    | '/custom'
+    | '/editor'
+    | '/join'
+    | '/skins'
+  id:
+    | '__root__'
+    | '/'
+    | '/ai-helper'
+    | '/auth'
+    | '/build'
+    | '/custom'
+    | '/editor'
+    | '/join'
+    | '/skins'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  AiHelperRoute: typeof AiHelperRoute
   AuthRoute: typeof AuthRoute
+  BuildRoute: typeof BuildRoute
+  CustomRoute: typeof CustomRoute
   EditorRoute: typeof EditorRoute
   JoinRoute: typeof JoinRoute
+  SkinsRoute: typeof SkinsRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -78,11 +143,32 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/ai-helper': {
+      id: '/ai-helper'
+      path: '/ai-helper'
+      fullPath: '/ai-helper'
+      preLoaderRoute: typeof AiHelperRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/auth': {
       id: '/auth'
       path: '/auth'
       fullPath: '/auth'
       preLoaderRoute: typeof AuthRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/build': {
+      id: '/build'
+      path: '/build'
+      fullPath: '/build'
+      preLoaderRoute: typeof BuildRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/custom': {
+      id: '/custom'
+      path: '/custom'
+      fullPath: '/custom'
+      preLoaderRoute: typeof CustomRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/editor': {
@@ -99,14 +185,25 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof JoinRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/skins': {
+      id: '/skins'
+      path: '/skins'
+      fullPath: '/skins'
+      preLoaderRoute: typeof SkinsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
   }
 }
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  AiHelperRoute: AiHelperRoute,
   AuthRoute: AuthRoute,
+  BuildRoute: BuildRoute,
+  CustomRoute: CustomRoute,
   EditorRoute: EditorRoute,
   JoinRoute: JoinRoute,
+  SkinsRoute: SkinsRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

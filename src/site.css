@@ -80,3 +80,75 @@
     scroll-behavior: auto !important;
   }
 }
+
+/* ---------- layout ---------- */
+.gs-header,
+.gs-footer {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--gs-gutter);
+  padding: var(--gs-gutter);
+  border-bottom: 1px solid var(--gs-line);
+}
+.gs-footer { border-bottom: none; border-top: 1px solid var(--gs-line); }
+.gs-header a { color: inherit; text-decoration: none; font-weight: 600; }
+.gs-header nav { display: flex; gap: var(--gs-gutter); }
+
+.gs-section {
+  max-width: 68rem;
+  margin: 0 auto;
+  padding: calc(var(--gs-gutter) * 2) var(--gs-gutter);
+}
+.gs-lead { font-size: 18px; line-height: 28px; color: var(--gs-ink-muted); max-width: 46ch; }
+.gs-trust { color: var(--gs-ink-muted); }
+.gs-hint { font-size: 14px; line-height: 20px; color: var(--gs-ink-muted); }
+.gs-empty { color: var(--gs-ink-muted); }
+
+.gs-steps, .gs-features { display: grid; gap: 12px; padding-left: 1.25rem; }
+.gs-pair__caption {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 8px;
+  padding: 12px;
+}
+.gs-pair__path { color: var(--gs-ink-muted); }
+.gs-hero__pair { max-width: 40rem; margin-top: var(--gs-gutter); }
+
+/* Signal colours identify a path; they are borders and rules, never text. */
+.gs-pair--assist { border-top: 3px solid var(--gs-signal-assist); }
+.gs-pair--human  { border-top: 3px solid var(--gs-signal-human); }
+.gs-pair--build  { border-top: 3px solid var(--gs-signal-build); }
+
+.gs-portals { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: var(--gs-gutter); }
+.gs-portal {
+  display: grid;
+  gap: 6px;
+  padding: var(--gs-gutter);
+  background: var(--gs-surface);
+  border: 1px solid var(--gs-line);
+  border-radius: var(--gs-radius);
+  color: inherit;
+  text-decoration: none;
+}
+.gs-portal--assist { border-left: 4px solid var(--gs-signal-assist); }
+.gs-portal--human  { border-left: 4px solid var(--gs-signal-human); }
+.gs-portal--build  { border-left: 4px solid var(--gs-signal-build); }
+.gs-portal strong { font-family: var(--gs-font-display); font-size: 18px; line-height: 28px; }
+
+.gs-more { display: inline-block; margin-top: var(--gs-gutter); color: var(--gs-ink-muted); }
+
+.gs-join, .gs-order { max-width: 28rem; margin: 0 auto; padding: calc(var(--gs-gutter) * 2) var(--gs-gutter); }
+.gs-join form, .gs-order form { display: grid; gap: 12px; margin-top: var(--gs-gutter); }
+.gs-join fieldset, .gs-order fieldset { border: 1px solid var(--gs-line); border-radius: var(--gs-radius); padding: 12px; display: grid; gap: 6px; }
+.gs-join label, .gs-order label { display: flex; align-items: center; gap: 8px; }
+.gs-attest { align-items: flex-start !important; font-size: 14px; line-height: 20px; }
+
+@media (max-width: 520px) {
+  .gs-section { padding: var(--gs-gutter); }
+  .gs h1 { font-size: 32px; line-height: 38px; }
+  .gs h2 { font-size: 24px; line-height: 30px; }
+}
