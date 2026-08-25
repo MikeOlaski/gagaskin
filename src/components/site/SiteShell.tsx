@@ -32,11 +32,12 @@ export function SiteShell({ view, children }: { view: ViewName; children: ReactN
       <a className="gs-skip" href="#main">Skip to content</a>
       <header className="gs-header">
         <Link to="/" aria-label="GagaSkin home">GagaSkin</Link>
-        {/* Nav entries are added by the task that creates each route: /join in
-            Task 7, /skins in Task 10, /custom in Task 14. A typed Link to a
-            route that does not exist yet fails the typecheck, so they land
-            with their routes rather than ahead of them. */}
-        <nav aria-label="Primary" />
+        {/* Remaining nav entries land with their routes: /skins in Task 10,
+            /custom in Task 14. A typed Link to a route that does not exist yet
+            fails the typecheck. */}
+        <nav aria-label="Primary">
+          <Link to="/join" search={{ from: "unknown" }}>Sign in</Link>
+        </nav>
       </header>
       <main id="main">{children}</main>
       <footer className="gs-footer">

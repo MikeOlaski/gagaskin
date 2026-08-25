@@ -1,5 +1,4 @@
-import { ClientOnly } from "@tanstack/react-router";
-import { createFileRoute } from "@tanstack/react-router";
+import { ClientOnly, createFileRoute, useNavigate } from "@tanstack/react-router";
 import { ChevronDown, Keyboard, Maximize2, Minimize2 } from "lucide-react";
 import { lazy, Suspense, useEffect, useState } from "react";
 
@@ -16,6 +15,7 @@ import { UserMenu } from "@/components/skin/UserMenu";
 import { UVEditor } from "@/components/skin/UVEditor";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
+import { useSession } from "@/hooks/useSession";
 import { useEditorStore, type Tool } from "@/store/editorStore";
 
 const ModelPreview3D = lazy(() => import("@/components/skin/ModelPreview3D"));
@@ -25,6 +25,12 @@ const SHORTCUT_TOOL: Record<string, Tool> = Object.fromEntries(
 );
 
 export const Route = createFileRoute("/editor")({
+  // exactOptionalPropertyTypes is on, so the key is omitted rather than set to
+  // undefined — that keeps `search` optional when navigating to /editor.
+  validateSearch: (search: Record<string, unknown>): { start?: "ai-helper" | "build" } => {
+    const raw = search["start"];
+    return raw === "ai-helper" || raw === "build" ? { start: raw } : {};
+  },
   head: () => ({
     meta: [
       { title: "Minecraft Skin Painter — Exploded UV Skin Editor" },
@@ -56,6 +62,24 @@ function PreviewFallback({ label }: { label: string }) {
 
 function SkinPainterPage() {
   const [focusMode, setFocusMode] = useState(false);
+  const { user, loading } = useSession();
+  const navigate = useNavigate();
+  const { start } = Route.useSearch();
+
+  // Hard gate: the editor is not reachable without an account.
+  useEffect(() => {
+    if (!loading && !user) {
+      void navigate({
+        to: "/join",
+        search: { from: start === "ai-helper" ? "ai-helper" : start === "build" ? "build" : "unknown" },
+        replace: true,
+      });
+    }
+  }, [loading, user, start, navigate]);
+
+  // The editor honours the pitch it was sold under. Arriving via Awesome Editor
+  // means a paint-first view with no assist chrome and no mention of AI.
+  const assistOpen = start !== "build";
 
   useEffect(() => {
     const isEditable = (el: EventTarget | null) => {
@@ -128,8 +152,8 @@ function SkinPainterPage() {
             <div className="sticky top-0 z-10">
               <ToolPanel />
             </div>
-            <ReferencePanel />
-            <AutoDesignPanel />
+            {assistOpen && <ReferencePanel />}
+            {assistOpen && <AutoDesignPanel />}
             <KeyboardShortcutsPanel />
             <div className="mt-auto">
               <ProjectsPanel />

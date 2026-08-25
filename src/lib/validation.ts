@@ -10,6 +10,12 @@ export const VALIDATION_EVENTS = [
   "reference_loaded",
   "skin_exported",
   "project_saved",
+  "gallery_skin_published",
+  "order_delivered",
+  "order_released",
+  "order_submitted",
+  "waitlist_joined",
+  "account_created",
 ] as const;
 
 export type ValidationEventName = (typeof VALIDATION_EVENTS)[number];
