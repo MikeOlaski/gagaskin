@@ -1,23 +1,15 @@
 import { Link } from "@tanstack/react-router";
 import { useEffect, type ReactNode } from "react";
 
-import { supabase } from "@/integrations/supabase/client";
+import { rpc } from "@/lib/db";
 import { recordValidationEvent } from "@/lib/validation";
 
 type ViewName = "home" | "skins" | "ai-helper" | "build" | "custom";
 
 /** Server-side view counting. Traffic is driven from outside, so a visitor who
  *  bounces must still be counted; localStorage cannot see them. Failure here is
- *  never allowed to affect the page.
- *
- *  The generated Supabase types do not yet name this function — they regenerate
- *  once the schema script is applied through Lovable. Cast narrowly here rather
- *  than widening the client's types everywhere. */
+ *  never allowed to affect the page. */
 function recordView(view: ViewName) {
-  const rpc = supabase.rpc as unknown as (
-    fn: string,
-    args: Record<string, string>,
-  ) => PromiseLike<unknown>;
   void Promise.resolve(rpc("record_offer_view", { _offer: view })).catch(() => {});
 }
 
