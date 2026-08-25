@@ -1,6 +1,6 @@
 # Handoff — public front end build
 
-Last updated: 2026-08-25. Read this first if you are a new session picking up this work.
+Last updated: 2026-08-25 (session 1 end). Read this first if you are a new session picking up this work.
 
 ## What is being built
 
@@ -21,7 +21,7 @@ releases them to Grace. That is enforced in RLS, not just UI.
 
 ## Current state
 
-**Branch `feat/public-front-end`**, 9 commits ahead of `main`. Not pushed.
+**Branch `feat/public-front-end`**, 11 commits ahead of `main`. Not pushed.
 
 | Task | State |
 | --- | --- |
@@ -34,12 +34,18 @@ releases them to Grace. That is enforced in RLS, not just UI.
 | 6 Tokens + site shell | done — `src/site.css`, `src/components/site/SiteShell.tsx` |
 | 7 `/join` gate | done — verified in browser |
 | 8 Editor gated + pitch modes | done — verified in browser |
-| 9–15 | **not started** — gallery, `/skins`, home, landing pages, orders loop |
+| 9 Gallery lib | done — `src/lib/gallery.ts` |
+| 10 `/skins` + BeforeAfter/SkinGrid | done — verified in browser |
+| 11 Home page | done — verified in browser |
+| 12 `/ai-helper` + `/build` | done — `/build` mentions no AI |
+| 13 Orders + roles lib | done — `src/lib/orders.ts`, `src/lib/roles.ts` |
+| 14 `/custom` + order form | done — verified in browser |
+| 15 `/orders` creator inbox | **not started — start here** |
 | 16 Live two-account QA | not started — blocked on Mike creating accounts |
 | 16.5 Privacy/terms/OG | not started |
 | 17 Ship | not started |
 
-Build green. 57 tests pass. `tsc --noEmit` clean except two pre-existing `ModelPreview3D`
+Build green. 66 tests pass. `tsc --noEmit` clean except two pre-existing `ModelPreview3D`
 errors that were on `main` before this work began — do not try to fix those here.
 
 ## Environment facts that will bite you
@@ -110,3 +116,17 @@ npm run build && npx tsc --noEmit && npx vitest run
 
 Then open `docs/superpowers/plans/2026-08-24-public-front-end.md` at the first unchecked
 task and continue. Each task ends with its own commit.
+
+## Verified in a browser, not assumed
+
+At 375px, all six public pages render with no horizontal overflow and zero console
+errors: `/`, `/skins`, `/ai-helper`, `/build`, `/custom`, `/join`. `/editor` signed out
+redirects to `/join`. `registration_open()` executes against the live database and the
+gate renders in register mode. Tokens resolve — canvas is `rgb(250, 247, 242)`.
+
+## Next session: start at Task 15
+
+`/orders` — the creator inbox. Guardian releases a submitted order to Grace; she starts it,
+builds in the editor, and delivers it by linking a saved project. Full code is in the plan.
+Then Task 16.5 (privacy/terms/OG), Task 16 (live two-account QA, needs Mike's user ids),
+Task 17 (merge to `main`, which deploys).
