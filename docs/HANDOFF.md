@@ -21,7 +21,8 @@ releases them to Grace. That is enforced in RLS, not just UI.
 
 ## Current state
 
-**Branch `feat/public-front-end`**, 11 commits ahead of `main`. Not pushed.
+**Merged to `main` and pushed (`40cb01a`). Live at gagaskin.lovable.app.**
+Work continues on `feat/public-front-end`.
 
 | Task | State |
 | --- | --- |
@@ -43,7 +44,8 @@ releases them to Grace. That is enforced in RLS, not just UI.
 | 15 `/orders` creator inbox | **not started — start here** |
 | 16 Live two-account QA | not started — blocked on Mike creating accounts |
 | 16.5 Privacy/terms/OG | not started |
-| 17 Ship | not started |
+| **VISUAL DESIGN PASS** | **not done — see below. This is the top priority.** |
+| 17 Ship | **partly done — merged and pushed; Lovable needs a manual Publish for each release** |
 
 Build green. 66 tests pass. `tsc --noEmit` clean except two pre-existing `ModelPreview3D`
 errors that were on `main` before this work began — do not try to fix those here.
@@ -130,3 +132,28 @@ gate renders in register mode. Tokens resolve — canvas is `rgb(250, 247, 242)`
 builds in the editor, and delivers it by linking a saved project. Full code is in the plan.
 Then Task 16.5 (privacy/terms/OG), Task 16 (live two-account QA, needs Mike's user ids),
 Task 17 (merge to `main`, which deploys).
+
+## Open criticism from Mike, 2026-08-25 — read this before writing any UI
+
+Mike's verdict on the first pass: **"The pages look rather weak."** He is right, and he came
+to this project specifically because a previous agent (Codex) shipped something that looked
+generic. The first pass repeated that failure.
+
+What actually went wrong, so it is not repeated:
+
+1. **Design was treated as scaffolding, not as the deliverable.** The layout CSS in
+   `src/site.css` was appended at the end of a batch of route work. It sets type sizes and
+   box borders and nothing else. There is no composition, no imagery, no depth, no motion.
+2. **The home page was designed only for its populated state.** The hero before/after pair
+   renders only `{hero && ...}`, so with an empty gallery the most important element on the
+   page is simply absent and the hero collapses to a headline on a bare canvas. The empty
+   state must be designed, not defaulted.
+3. **The three portals read as static cards**, not as the primary conversion surface.
+4. **None of the agreed direction was built:** "ultra-modern with retro throwbacks",
+   generous whitespace with real craft, and the scrollcraft band showing
+   inspiration → palette → pixels → in-world. The spec calls for that band explicitly and
+   it does not exist.
+5. **Single-column everywhere.** At desktop width the right half of every page is empty.
+
+The tokens in `docs/design-system.md` are sound and sourced — the failure is that almost
+nothing was built with them. Do not re-derive the palette. Build with it.
