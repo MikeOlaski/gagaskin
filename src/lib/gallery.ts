@@ -14,6 +14,7 @@ export interface GallerySkin {
   renderDuoPath: string | null;
   madeWith: OfferId;
   published: boolean;
+  featured: boolean;
   sortOrder: number;
   createdAt: string;
 }
