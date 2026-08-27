@@ -135,7 +135,12 @@ export function SkinDirectory({ skins }: { skins: readonly GallerySkin[] }) {
               className={`gs-pair gs-pair--${getOffer(skin.madeWith).tone}`}
             >
               {view === "inspo" ? (
-                <div className="gs-pair__stage gs-pair__stage--split">
+                <Link
+                  to="/skin/$id"
+                  params={{ id: skin.id }}
+                  className="gs-pair__stage gs-pair__stage--split gs-pair__link"
+                  aria-label={`Open ${skin.title}`}
+                >
                   <img
                     src={publicImageUrl(skin.inspirationPath)}
                     alt={`Source image for ${skin.title}`}
@@ -148,20 +153,29 @@ export function SkinDirectory({ skins }: { skins: readonly GallerySkin[] }) {
                     loading="lazy"
                     decoding="async"
                   />
-                </div>
+                </Link>
               ) : (
-                <div className="gs-pair__stage">
+                <Link
+                  to="/skin/$id"
+                  params={{ id: skin.id }}
+                  className="gs-pair__stage gs-pair__link"
+                  aria-label={`Open ${skin.title}`}
+                >
                   <img
                     src={publicImageUrl(galleryViewPath(skin, renderView))}
                     alt={`${skin.title} rendered in Minecraft`}
                     loading="lazy"
                     decoding="async"
                   />
-                </div>
+                </Link>
               )}
 
               <figcaption className="gs-pair__caption">
-                <strong>{skin.title}</strong>
+                <strong>
+                  <Link to="/skin/$id" params={{ id: skin.id }} className="gs-pair__title">
+                    {skin.title}
+                  </Link>
+                </strong>
                 {skin.authorHandle && (
                   <span className="gs-pixel gs-pair__handle">@{skin.authorHandle}</span>
                 )}
@@ -192,7 +206,11 @@ export function SkinDirectory({ skins }: { skins: readonly GallerySkin[] }) {
               />
 
               <div className="gs-dirrow__body">
-                <strong>{skin.title}</strong>
+                <strong>
+                  <Link to="/skin/$id" params={{ id: skin.id }} className="gs-pair__title">
+                    {skin.title}
+                  </Link>
+                </strong>
                 <p className="gs-hint">
                   {MADE_WITH_LABEL[skin.madeWith]}
                   {skin.authorHandle ? ` · @${skin.authorHandle}` : ""}
