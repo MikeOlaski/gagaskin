@@ -16,7 +16,12 @@ import {
 import { getOffer } from "@/lib/offers";
 
 const SORTS: DirectorySort[] = ["newest", "downloads", "featured", "title"];
-const VIEWS: GalleryView[] = ["iso", "quad", "duo"];
+
+/** "Inspo" is a directory-only view: it pairs the source image the skin was
+ *  made from with the posed render, so the leap is visible on one card. */
+type DirectoryView = GalleryView | "inspo";
+const VIEWS: DirectoryView[] = ["iso", "quad", "duo", "inspo"];
+const VIEW_LABEL: Record<DirectoryView, string> = { ...GALLERY_VIEW_LABEL, inspo: "Inspo" };
 const MADE_WITH_LABEL: Record<GallerySkin["madeWith"], string> = {
   "ai-helper": "Made with AI Helper",
   custom: "Made by Grace",
@@ -27,9 +32,11 @@ const MADE_WITH_LABEL: Record<GallerySkin["madeWith"], string> = {
  *  behind a menu, and nothing appears until there is something to filter. */
 export function SkinDirectory({ skins }: { skins: readonly GallerySkin[] }) {
   const [sort, setSort] = useState<DirectorySort>("newest");
-  const [view, setView] = useState<GalleryView>("iso");
+  const [view, setView] = useState<DirectoryView>("iso");
   const [layout, setLayout] = useState<"grid" | "list">("grid");
   const [maker, setMaker] = useState<string | null>(null);
+  const renderView: GalleryView = view === "inspo" ? "iso" : view;
+
 
   const makers = makerHandles(skins);
   const shown = useMemo(() => {
