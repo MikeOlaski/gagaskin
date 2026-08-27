@@ -14,6 +14,7 @@ function skin(over: Partial<GallerySkin>): GallerySkin {
     renderDuoPath: null,
     madeWith: "custom",
     published: true,
+    featured: false,
     sortOrder: 0,
     createdAt: "2026-01-01T00:00:00Z",
     ...over,
