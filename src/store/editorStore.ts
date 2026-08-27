@@ -127,6 +127,8 @@ export const useEditorStore = create<EditorState>((set, get) => {
     skin: createDemoSkin(),
     version: 0,
     selectedFaceId: "head.front",
+    currentProjectId: null,
+    currentProjectName: "Untitled skin",
     tool: "pencil",
     color: "#3b82f6",
     alpha: 1,
