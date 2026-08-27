@@ -82,7 +82,8 @@ const LIMBS: Limb[] = [
 ];
 
 const CENTRE = new THREE.Vector3(0, 17, 0);
-const FRAME_HEIGHT = 44; // world units visible vertically
+const MODEL_HEIGHT = 44; // world units the posed model needs vertically
+const MODEL_WIDTH = 24; // ...and horizontally, arms swung out
 
 function buildScene(texture: THREE.Texture) {
   const scene = new THREE.Scene();
@@ -116,7 +117,8 @@ function buildScene(texture: THREE.Texture) {
 }
 
 function makeCamera(dir: Direction, aspect: number) {
-  const height = FRAME_HEIGHT;
+  // Fit both axes: a narrow cell zooms out rather than clipping the model.
+  const height = Math.max(MODEL_HEIGHT, MODEL_WIDTH / aspect);
   const width = height * aspect;
   const camera = new THREE.OrthographicCamera(-width / 2, width / 2, height / 2, -height / 2, 0.1, 500);
   const v = new THREE.Vector3(dir[0], dir[1], dir[2]).normalize().multiplyScalar(120);
@@ -162,7 +164,8 @@ export async function renderGalleryView(skin: SkinBuffer, view: GalleryView): Pr
 
   try {
     const dirs = VIEW_DIRECTIONS[view];
-    const columns = dirs.length <= 2 ? dirs.length : 2;
+    // 2 up stacks front over back; 4 up is a 2×2 sheet.
+    const columns = dirs.length >= 4 ? 2 : 1;
     const rows = Math.ceil(dirs.length / columns);
     const cellW = Math.floor(GALLERY_WIDTH / columns);
     const cellH = Math.floor(GALLERY_HEIGHT / rows);
