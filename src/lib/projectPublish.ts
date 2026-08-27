@@ -1,4 +1,5 @@
 import { getFace, type BodyPart } from "@/domain/skin/faceRegistry";
+import { renderAllGalleryViews } from "@/domain/skin/poseRender";
 import { writeSkinToCanvas, type SkinBuffer } from "@/domain/skin/skinBuffer";
 import { supabase } from "@/integrations/supabase/client";
 import { table } from "@/lib/db";
