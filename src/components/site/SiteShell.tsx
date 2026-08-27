@@ -4,7 +4,7 @@ import { useEffect, type ReactNode } from "react";
 import { rpc } from "@/lib/db";
 import { recordValidationEvent } from "@/lib/validation";
 
-type ViewName = "home" | "skins" | "ai-helper" | "build" | "custom";
+type ViewName = "home" | "skins" | "ai-helper" | "build" | "custom" | "pricing";
 
 /** Server-side view counting. Traffic is driven from outside, so a visitor who
  *  bounces must still be counted; localStorage cannot see them. Failure here is
@@ -29,6 +29,7 @@ export function SiteShell({ view, children }: { view: ViewName; children: ReactN
         </Link>
         <nav aria-label="Primary">
           <Link to="/skins">Skins</Link>
+          <Link to="/pricing">Pricing</Link>
           <Link to="/custom">Custom orders</Link>
           <Link to="/join" search={{ from: "unknown" }}>Sign in</Link>
         </nav>
