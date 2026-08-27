@@ -128,7 +128,7 @@ export function SkinDirectory({ skins }: { skins: readonly GallerySkin[] }) {
       </p>
 
       {layout === "grid" ? (
-        <div className="gs-grid">
+        <div className={`gs-grid${view === "inspo" ? " gs-grid--wide" : ""}`}>
           {shown.map((skin) => (
             <figure
               key={skin.id}
