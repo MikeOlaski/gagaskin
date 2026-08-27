@@ -42,6 +42,7 @@ export function BeforeAfter({ skin, view }: { skin: GallerySkin; view: GalleryVi
         >
           {MADE_WITH_LABEL[skin.madeWith]}
         </Link>
+        <SkinDownloadButton skin={skin} />
       </figcaption>
     </figure>
   );
