@@ -40,10 +40,18 @@ function AiHelperPage() {
           </p>
 
           <ol className="gs-steps" style={{ marginTop: "var(--gs-s2)" }}>
-            <li><strong>Bring a reference.</strong> A drawing, a character, an outfit.</li>
-            <li><strong>Get its palette.</strong> Pulled out and made Minecraft-ready.</li>
-            <li><strong>Get a starting point.</strong> Laid across every face of the model.</li>
-            <li><strong>Change whatever you want.</strong> It is your skin from there.</li>
+            <li>
+              <span><strong>Bring a reference.</strong> A drawing, a character, an outfit.</span>
+            </li>
+            <li>
+              <span><strong>Get its palette.</strong> Pulled out and made Minecraft-ready.</span>
+            </li>
+            <li>
+              <span><strong>Get a starting point.</strong> Laid across every face of the model.</span>
+            </li>
+            <li>
+              <span><strong>Change whatever you want.</strong> It is your skin from there.</span>
+            </li>
           </ol>
 
           <Link
