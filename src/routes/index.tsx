@@ -37,7 +37,7 @@ function HomePage() {
       .catch(() => setSkins([]));
   }, []);
 
-  const hero = skins[0];
+  const hero = skins.find((s) => s.featured) ?? skins[0];
 
   return (
     <SiteShell view="home">
@@ -56,26 +56,36 @@ function HomePage() {
         </div>
 
         <div className="gs-hero__stage">
-          <span className="gs-pixel gs-hero__stagelabel">In game</span>
           {hero ? (
-            <figure className="gs-pair" style={{ width: "min(100%, 340px)", border: "none", boxShadow: "none" }}>
-              <div className="gs-pair__stage">
+            <figure className="gs-hero__pair">
+              <div className="gs-hero__side">
+                <span className="gs-pixel gs-hero__sidelabel">The idea</span>
                 <img
-                  src={publicImageUrl(galleryViewPath(hero, "quad"))}
-                  alt={`${hero.title} rendered in Minecraft, from four sides`}
+                  src={publicImageUrl(hero.inspirationPath)}
+                  alt={`The reference image behind ${hero.title}`}
+                  fetchPriority="high"
+                  decoding="async"
+                />
+              </div>
+              <div className="gs-hero__side">
+                <span className="gs-pixel gs-hero__sidelabel">In game</span>
+                <img
+                  src={publicImageUrl(galleryViewPath(hero, "iso"))}
+                  alt={`${hero.title} rendered in Minecraft`}
                   width={576}
                   height={1024}
                   fetchPriority="high"
                   decoding="async"
                 />
               </div>
-              <figcaption className="gs-pair__caption gs-pixel">{hero.title} — every side</figcaption>
+              <figcaption className="gs-pair__caption gs-pixel">{hero.title}</figcaption>
             </figure>
           ) : (
             <PixelSkin />
           )}
         </div>
       </section>
+
 
       <section className="gs-section" aria-labelledby="translate-heading">
         <div className="gs-section__head">
