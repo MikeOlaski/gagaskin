@@ -83,9 +83,10 @@ export async function fetchSkinById(id: string): Promise<GallerySkin | null> {
     .select("*")
     .eq("id", id)
     .eq("published", true)
-    .maybeSingle();
+    .limit(1);
   if (error) throw new Error(error.message);
-  return data ? fromRow(data) : null;
+  const row = (data ?? [])[0];
+  return row ? fromRow(row) : null;
 }
 
 /** Creator-only. RLS rejects this for anyone without the creator role. */
