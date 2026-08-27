@@ -76,6 +76,18 @@ export async function fetchPublishedSkins(): Promise<GallerySkin[]> {
   return sortGallery((data ?? []).map(fromRow));
 }
 
+/** One published skin for the single-skin view. Returns null when it is
+ *  missing or unpublished. */
+export async function fetchSkinById(id: string): Promise<GallerySkin | null> {
+  const { data, error } = await table("gallery_skins")
+    .select("*")
+    .eq("id", id)
+    .eq("published", true)
+    .maybeSingle();
+  if (error) throw new Error(error.message);
+  return data ? fromRow(data) : null;
+}
+
 /** Creator-only. RLS rejects this for anyone without the creator role. */
 export async function publishSkin(input: PublishSkinInput): Promise<void> {
   const { error } = await table("gallery_skins").insert({

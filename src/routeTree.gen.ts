@@ -21,6 +21,7 @@ import { Route as JoinRouteImport } from './routes/join'
 import { Route as PricingRouteImport } from './routes/pricing'
 import { Route as SkinsRouteImport } from './routes/skins'
 import { Route as CheckoutReturnRouteImport } from './routes/checkout.return'
+import { Route as SkinIdRouteImport } from './routes/skin.$id'
 import { Route as ApiPublicPaymentsWebhookRouteImport } from './routes/api/public/payments/webhook'
 
 const IndexRoute = IndexRouteImport.update({
@@ -83,6 +84,11 @@ const CheckoutReturnRoute = CheckoutReturnRouteImport.update({
   path: '/return',
   getParentRoute: () => CheckoutRoute,
 } as any)
+const SkinIdRoute = SkinIdRouteImport.update({
+  id: '/skin/$id',
+  path: '/skin/$id',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ApiPublicPaymentsWebhookRoute =
   ApiPublicPaymentsWebhookRouteImport.update({
     id: '/api/public/payments/webhook',
@@ -103,6 +109,7 @@ export interface FileRoutesByFullPath {
   '/pricing': typeof PricingRoute
   '/skins': typeof SkinsRoute
   '/checkout/return': typeof CheckoutReturnRoute
+  '/skin/$id': typeof SkinIdRoute
   '/api/public/payments/webhook': typeof ApiPublicPaymentsWebhookRoute
 }
 export interface FileRoutesByTo {
@@ -118,6 +125,7 @@ export interface FileRoutesByTo {
   '/pricing': typeof PricingRoute
   '/skins': typeof SkinsRoute
   '/checkout/return': typeof CheckoutReturnRoute
+  '/skin/$id': typeof SkinIdRoute
   '/api/public/payments/webhook': typeof ApiPublicPaymentsWebhookRoute
 }
 export interface FileRoutesById {
@@ -134,6 +142,7 @@ export interface FileRoutesById {
   '/pricing': typeof PricingRoute
   '/skins': typeof SkinsRoute
   '/checkout/return': typeof CheckoutReturnRoute
+  '/skin/$id': typeof SkinIdRoute
   '/api/public/payments/webhook': typeof ApiPublicPaymentsWebhookRoute
 }
 export interface FileRouteTypes {
@@ -151,6 +160,7 @@ export interface FileRouteTypes {
     | '/pricing'
     | '/skins'
     | '/checkout/return'
+    | '/skin/$id'
     | '/api/public/payments/webhook'
   fileRoutesByTo: FileRoutesByTo
   to:
@@ -166,6 +176,7 @@ export interface FileRouteTypes {
     | '/pricing'
     | '/skins'
     | '/checkout/return'
+    | '/skin/$id'
     | '/api/public/payments/webhook'
   id:
     | '__root__'
@@ -181,6 +192,7 @@ export interface FileRouteTypes {
     | '/pricing'
     | '/skins'
     | '/checkout/return'
+    | '/skin/$id'
     | '/api/public/payments/webhook'
   fileRoutesById: FileRoutesById
 }
@@ -196,6 +208,7 @@ export interface RootRouteChildren {
   JoinRoute: typeof JoinRoute
   PricingRoute: typeof PricingRoute
   SkinsRoute: typeof SkinsRoute
+  SkinIdRoute: typeof SkinIdRoute
   ApiPublicPaymentsWebhookRoute: typeof ApiPublicPaymentsWebhookRoute
 }
 
@@ -285,6 +298,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof CheckoutReturnRouteImport
       parentRoute: typeof CheckoutRoute
     }
+    '/skin/$id': {
+      id: '/skin/$id'
+      path: '/skin/$id'
+      fullPath: '/skin/$id'
+      preLoaderRoute: typeof SkinIdRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/api/public/payments/webhook': {
       id: '/api/public/payments/webhook'
       path: '/api/public/payments/webhook'
@@ -319,6 +339,7 @@ const rootRouteChildren: RootRouteChildren = {
   JoinRoute: JoinRoute,
   PricingRoute: PricingRoute,
   SkinsRoute: SkinsRoute,
+  SkinIdRoute: SkinIdRoute,
   ApiPublicPaymentsWebhookRoute: ApiPublicPaymentsWebhookRoute,
 }
 export const routeTree = rootRouteImport
