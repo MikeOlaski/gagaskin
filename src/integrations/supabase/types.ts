@@ -38,6 +38,9 @@ export type Database = {
           made_with: string
           project_id: string | null
           published: boolean
+          render_duo_path: string | null
+          render_iso_path: string | null
+          render_quad_path: string | null
           skin_png_path: string | null
           sort_order: number
           title: string
@@ -50,6 +53,9 @@ export type Database = {
           made_with: string
           project_id?: string | null
           published?: boolean
+          render_duo_path?: string | null
+          render_iso_path?: string | null
+          render_quad_path?: string | null
           skin_png_path?: string | null
           sort_order?: number
           title: string
@@ -62,6 +68,9 @@ export type Database = {
           made_with?: string
           project_id?: string | null
           published?: boolean
+          render_duo_path?: string | null
+          render_iso_path?: string | null
+          render_quad_path?: string | null
           skin_png_path?: string | null
           sort_order?: number
           title?: string
