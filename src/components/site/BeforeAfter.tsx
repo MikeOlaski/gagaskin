@@ -1,5 +1,6 @@
 import { Link } from "@tanstack/react-router";
 
+import { SkinDownloadButton } from "@/components/site/SkinDownloadButton";
 import type { GalleryView } from "@/domain/skin/poseRender";
 import { galleryViewPath, publicImageUrl, type GallerySkin } from "@/lib/gallery";
 import { getOffer } from "@/lib/offers";

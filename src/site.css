@@ -309,3 +309,78 @@
   margin-top: var(--gs-s2);
   text-align: center;
 }
+
+/* ---------- skins directory ---------- */
+.gs-dir__bar {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--gs-s2);
+  align-items: center;
+  justify-content: space-between;
+  padding-bottom: var(--gs-s2);
+  border-bottom: 1px solid var(--gs-line);
+}
+.gs-dir__right { display: flex; flex-wrap: wrap; gap: var(--gs-s2); align-items: center; }
+.gs-dir__select { display: inline-flex; align-items: center; gap: 6px; }
+.gs-dir__select select {
+  font: inherit;
+  font-size: 0.9rem;
+  color: var(--gs-ink);
+  background: var(--gs-surface);
+  border: 1px solid var(--gs-line);
+  border-radius: var(--gs-radius);
+  padding: 5px 8px;
+}
+.gs-dir__count { margin: var(--gs-s2) 0; }
+.gs-views__btn--icon { display: inline-flex; align-items: center; padding: 6px 9px; }
+
+.gs-dl {
+  margin-top: var(--gs-s1);
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font: inherit;
+  font-size: 0.85rem;
+  padding: 6px 10px;
+  cursor: pointer;
+  color: var(--gs-ink);
+  background: var(--gs-surface);
+  border: 1px solid var(--gs-line);
+  border-radius: var(--gs-radius);
+  transition: background-color .12s ease, border-color .12s ease;
+}
+.gs-dl:hover:not(:disabled) { border-color: var(--gs-accent); background: color-mix(in oklab, var(--gs-accent) 8%, var(--gs-surface)); }
+.gs-dl:disabled { opacity: .6; cursor: progress; }
+.gs-dl__count {
+  font-family: var(--gs-font-pixel);
+  font-size: 0.8rem;
+  color: var(--gs-ink-muted);
+  padding-left: 6px;
+  border-left: 1px solid var(--gs-line);
+}
+
+.gs-dirlist { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: var(--gs-s1); }
+.gs-dirrow {
+  display: grid;
+  grid-template-columns: 48px minmax(0, 1fr) auto;
+  gap: var(--gs-s2);
+  align-items: center;
+  padding: var(--gs-s2);
+  background: var(--gs-surface);
+  border: 1px solid var(--gs-line);
+  border-radius: var(--gs-radius);
+}
+.gs-dirrow img {
+  width: 48px;
+  height: 85px;
+  object-fit: contain;
+  image-rendering: pixelated;
+  background: color-mix(in oklab, var(--gs-canvas) 70%, var(--gs-surface));
+  border-radius: 4px;
+}
+.gs-dirrow__body { min-width: 0; }
+.gs-dirrow__body p { margin: 2px 0 0; }
+.gs-dirrow .gs-dl { margin-top: 0; }
+.gs-dirrow--assist { border-left: 3px solid var(--gs-signal-assist); }
+.gs-dirrow--human { border-left: 3px solid var(--gs-signal-human); }
+.gs-dirrow--build { border-left: 3px solid var(--gs-signal-build); }
