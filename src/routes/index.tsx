@@ -7,7 +7,12 @@ import { PixelSkin } from "@/components/site/PixelArt";
 import { SiteShell } from "@/components/site/SiteShell";
 import { SkinGrid } from "@/components/site/SkinGrid";
 import { TransformBand } from "@/components/site/TransformBand";
-import { fetchPublishedSkins, publicImageUrl, type GallerySkin } from "@/lib/gallery";
+import {
+  fetchPublishedSkins,
+  galleryViewPath,
+  publicImageUrl,
+  type GallerySkin,
+} from "@/lib/gallery";
 
 export const Route = createFileRoute("/")({
   head: () => ({
