@@ -1,5 +1,6 @@
 import { supabase } from "@/integrations/supabase/client";
 import { table } from "@/lib/db";
+import type { GalleryView } from "@/domain/skin/poseRender";
 import type { OfferId } from "@/lib/offers";
 
 export interface GallerySkin {
@@ -8,6 +9,9 @@ export interface GallerySkin {
   inspirationPath: string;
   ingamePath: string;
   skinPngPath: string | null;
+  renderIsoPath: string | null;
+  renderQuadPath: string | null;
+  renderDuoPath: string | null;
   madeWith: OfferId;
   published: boolean;
   sortOrder: number;
@@ -33,6 +37,16 @@ export function publicImageUrl(path: string): string {
   return supabase.storage.from("gallery").getPublicUrl(path).data.publicUrl;
 }
 
+/**
+ * The gallery shows a posed render only. Entries published before posed
+ * rendering existed fall back to their stored in-game render.
+ */
+export function galleryViewPath(skin: GallerySkin, view: GalleryView): string {
+  const byView =
+    view === "iso" ? skin.renderIsoPath : view === "quad" ? skin.renderQuadPath : skin.renderDuoPath;
+  return byView ?? skin.renderIsoPath ?? skin.ingamePath;
+}
+
 function fromRow(row: Record<string, unknown>): GallerySkin {
   return {
     id: row["id"] as string,
@@ -40,6 +54,9 @@ function fromRow(row: Record<string, unknown>): GallerySkin {
     inspirationPath: row["inspiration_path"] as string,
     ingamePath: row["ingame_path"] as string,
     skinPngPath: (row["skin_png_path"] as string | null) ?? null,
+    renderIsoPath: (row["render_iso_path"] as string | null) ?? null,
+    renderQuadPath: (row["render_quad_path"] as string | null) ?? null,
+    renderDuoPath: (row["render_duo_path"] as string | null) ?? null,
     madeWith: row["made_with"] as OfferId,
     published: row["published"] as boolean,
     sortOrder: row["sort_order"] as number,
