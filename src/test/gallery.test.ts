@@ -13,6 +13,7 @@ function skin(over: Partial<GallerySkin>): GallerySkin {
     renderQuadPath: null,
     renderDuoPath: null,
     madeWith: "custom",
+    authorHandle: null,
     published: true,
     featured: false,
     sortOrder: 0,
