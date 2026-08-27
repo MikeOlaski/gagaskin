@@ -83,7 +83,7 @@ const LIMBS: Limb[] = [
 
 const CENTRE = new THREE.Vector3(0, 17, 0);
 /** Breathing room around the model, in skin texels (1 world unit = 1 texel). */
-const PADDING = 5;
+const PADDING = 1.5;
 const MODEL_HEIGHT = 44 + PADDING * 2; // world units the posed model needs vertically
 const MODEL_WIDTH = 24 + PADDING * 2; // ...and horizontally, arms swung out
 
