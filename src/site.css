@@ -292,3 +292,20 @@
 .gs-tier__list li { display: grid; grid-template-columns: 18px minmax(0, 1fr); gap: 10px; align-items: start; line-height: 1.5; font-size: .9375rem; }
 .gs-tier__list svg { margin-top: 3px; color: var(--tone, var(--gs-ink-muted)); }
 .gs-tier .gs-cta { justify-self: start; margin-top: var(--gs-s1); }
+
+/* Payments */
+.gs-paybanner {
+  padding: var(--gs-s2) var(--gs-s3);
+  text-align: center;
+  font-size: 0.85rem;
+  background: color-mix(in oklab, var(--gs-accent) 14%, transparent);
+  border-bottom: 1px solid color-mix(in oklab, var(--gs-accent) 35%, transparent);
+}
+.gs-paybanner--error {
+  background: color-mix(in oklab, var(--gs-signal-human) 14%, transparent);
+  border-bottom-color: color-mix(in oklab, var(--gs-signal-human) 35%, transparent);
+}
+.gs-tier__pay {
+  margin-top: var(--gs-s2);
+  text-align: center;
+}
