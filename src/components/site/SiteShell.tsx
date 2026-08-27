@@ -23,7 +23,10 @@ export function SiteShell({ view, children }: { view: ViewName; children: ReactN
     <div className="gs">
       <a className="gs-skip" href="#main">Skip to content</a>
       <header className="gs-header">
-        <Link to="/" aria-label="GagaSkin home">GagaSkin</Link>
+        <Link to="/" className="gs-brand" aria-label="GagaSkin home">
+          <span className="gs-brand__mark" aria-hidden="true" />
+          GagaSkin
+        </Link>
         <nav aria-label="Primary">
           <Link to="/skins">Skins</Link>
           <Link to="/custom">Custom orders</Link>
@@ -33,6 +36,7 @@ export function SiteShell({ view, children }: { view: ViewName; children: ReactN
       <main id="main">{children}</main>
       <footer className="gs-footer">
         <p className="gs-pixel">No ads. No redirects. Your skin is yours.</p>
+        <p className="gs-hint">Made by Grace, who is twelve, and her dad.</p>
       </footer>
     </div>
   );

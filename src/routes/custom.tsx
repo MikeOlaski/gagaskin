@@ -80,22 +80,42 @@ function CustomPage() {
   return (
     <SiteShell view="custom">
       <section className="gs-section gs-offer gs-offer--human">
-        <p className="gs-pixel">Do it for me</p>
-        <h1>Tell Grace what you want. She makes it by hand.</h1>
-        <p className="gs-lead">
-          Grace is twelve, she has been making Minecraft skins for years, and she does this
-          the slow way — pixel by pixel, reading what you wrote, until it looks like the
-          thing you described.
-        </p>
-        <p>No generator. No template with your colours swapped in. A person.</p>
+        <div className="gs-offer__copy">
+          <span className="gs-rule" aria-hidden="true" />
+          <p className="gs-pixel">Do it for me</p>
+          <h1>Tell Grace what you want. She makes it by hand.</h1>
+          <p className="gs-lead">
+            Grace is twelve, she has been making Minecraft skins for years, and she does this
+            the slow way — pixel by pixel, reading what you wrote, until it looks like the
+            thing you described.
+          </p>
+          <p>No generator. No template with your colours swapped in. A person.</p>
+        </div>
+
+        <aside className="gs-offer__aside">
+          <p className="gs-pixel">How it works</p>
+          <ol className="gs-steps">
+            <li>You describe the character, and add a picture if you have one.</li>
+            <li>Her dad reads every order before she sees it.</li>
+            <li>Grace builds it by hand in the editor.</li>
+            <li>It comes back to your account as a finished skin.</li>
+          </ol>
+          <p className="gs-hint">
+            Nothing is charged on this site and no price is agreed here.
+          </p>
+        </aside>
       </section>
 
       <section className="gs-section" aria-labelledby="her-work">
-        <h2 id="her-work">Skins she has made.</h2>
+        <div className="gs-section__head">
+          <p className="gs-pixel">Her work</p>
+          <h2 id="her-work">Skins she has made.</h2>
+        </div>
         <SkinGrid skins={skins} />
       </section>
 
-      <section className="gs-order" aria-labelledby="order-heading">
+      <section className="gs-form-page" aria-labelledby="order-heading">
+        <div className="gs-card">
         <h2 id="order-heading">Start an order</h2>
 
         {sent ? (
@@ -121,7 +141,7 @@ function CustomPage() {
             </Link>
           </>
         ) : (
-          <form onSubmit={submit}>
+          <form className="gs-form" onSubmit={submit}>
             <label htmlFor="brief">What do you want it to be?</label>
             <textarea
               id="brief"
@@ -148,7 +168,7 @@ function CustomPage() {
             <fieldset>
               <legend>Where do you play?</legend>
               {(["java", "bedrock", "unsure"] as const).map((value) => (
-                <label key={value}>
+                <label key={value} className="gs-choice">
                   <input
                     type="radio"
                     name="platform"
@@ -164,7 +184,7 @@ function CustomPage() {
             <fieldset>
               <legend>What were you thinking of paying?</legend>
               {PRICE_INTENTS.map((option) => (
-                <label key={option.value}>
+                <label key={option.value} className="gs-choice">
                   <input
                     type="radio"
                     name="price"
@@ -184,6 +204,7 @@ function CustomPage() {
             <Button type="submit" disabled={busy}>Send my order</Button>
           </form>
         )}
+        </div>
       </section>
     </SiteShell>
   );

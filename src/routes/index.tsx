@@ -1,9 +1,12 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
+import { ArrowRight } from "lucide-react";
 import { useEffect, useState } from "react";
 
 import { OfferPortals } from "@/components/site/OfferPortals";
+import { PixelSkin } from "@/components/site/PixelArt";
 import { SiteShell } from "@/components/site/SiteShell";
 import { SkinGrid } from "@/components/site/SkinGrid";
+import { TransformBand } from "@/components/site/TransformBand";
 import { fetchPublishedSkins, publicImageUrl, type GallerySkin } from "@/lib/gallery";
 
 export const Route = createFileRoute("/")({
@@ -34,59 +37,75 @@ function HomePage() {
   return (
     <SiteShell view="home">
       <section className="gs-section gs-hero">
-        <h1>I have a vision. Help me express it in a skin.</h1>
-        <p className="gs-lead">
-          Bring an idea — a drawing, a character, an outfit you have pictured — and end up
-          with a Minecraft skin that still feels like it once it is 64 pixels wide.
-        </p>
-        <p className="gs-trust gs-pixel">
-          No ads. No redirects. Nothing sold. Every skin is yours to keep.
-        </p>
-        {hero && (
-          <figure className="gs-pair gs-hero__pair">
-            <div className="gs-pair__images">
-              <img
-                src={publicImageUrl(hero.inspirationPath)}
-                alt={`Inspiration for ${hero.title}`}
-                width={512}
-                height={512}
-                fetchPriority="high"
-                decoding="async"
-              />
-              <img
-                src={publicImageUrl(hero.ingamePath)}
-                alt={`${hero.title} worn in Minecraft`}
-                width={512}
-                height={512}
-                fetchPriority="high"
-                decoding="async"
-              />
-            </div>
-            <figcaption className="gs-pair__caption gs-pixel">
-              The idea, and the skin in the game.
-            </figcaption>
-          </figure>
-        )}
+        <div className="gs-hero__copy">
+          <p className="gs-pixel">Minecraft skins</p>
+          <h1>I have a vision. Help me express it in a skin.</h1>
+          <p className="gs-lead">
+            Bring an idea — a drawing, a character, an outfit you have pictured — and end up
+            with a Minecraft skin that still feels like it once it is 64 pixels wide.
+          </p>
+          <Link to="/join" search={{ from: "unknown" }} className="gs-cta">
+            Start yours <ArrowRight size={18} className="gs-cta__arrow" aria-hidden="true" />
+          </Link>
+          <p className="gs-trust">No ads. No redirects. Nothing sold. Every skin is yours to keep.</p>
+        </div>
+
+        <div className="gs-hero__stage">
+          <span className="gs-pixel gs-hero__stagelabel">64 × 64</span>
+          {hero ? (
+            <figure className="gs-pair" style={{ width: "100%", border: "none", boxShadow: "none" }}>
+              <div className="gs-pair__images">
+                <img
+                  src={publicImageUrl(hero.inspirationPath)}
+                  alt={`Inspiration for ${hero.title}`}
+                  width={512}
+                  height={512}
+                  fetchPriority="high"
+                  decoding="async"
+                />
+                <img
+                  src={publicImageUrl(hero.ingamePath)}
+                  alt={`${hero.title} worn in Minecraft`}
+                  width={512}
+                  height={512}
+                  fetchPriority="high"
+                  decoding="async"
+                />
+              </div>
+              <figcaption className="gs-pair__caption gs-pixel">The idea, and the skin in the game</figcaption>
+            </figure>
+          ) : (
+            <PixelSkin />
+          )}
+        </div>
       </section>
 
-      <section className="gs-section gs-translate" aria-labelledby="translate-heading">
-        <h2 id="translate-heading">How an idea becomes a skin.</h2>
-        <ol className="gs-steps">
-          <li><strong>The idea.</strong> A picture, a character, a description.</li>
-          <li><strong>The colours.</strong> Pulled out and made Minecraft-ready.</li>
-          <li><strong>The pixels.</strong> Every face of the model, yours to change.</li>
-          <li><strong>In the game.</strong> Exported and worn.</li>
-        </ol>
+      <section className="gs-section" aria-labelledby="translate-heading">
+        <div className="gs-section__head">
+          <p className="gs-pixel">The work</p>
+          <h2 id="translate-heading">How an idea becomes a skin.</h2>
+        </div>
+        <TransformBand />
       </section>
 
       <section className="gs-section" aria-labelledby="gallery-heading">
-        <h2 id="gallery-heading">Skins Grace has made.</h2>
+        <div className="gs-section__head">
+          <p className="gs-pixel">Proof</p>
+          <h2 id="gallery-heading">Skins Grace has made.</h2>
+        </div>
         <SkinGrid skins={skins.slice(0, 6)} />
-        <Link to="/skins" className="gs-pixel gs-more">See every skin</Link>
+        {skins.length > 0 && (
+          <p style={{ marginTop: "var(--gs-s3)" }}>
+            <Link to="/skins" className="gs-pixel">See every skin</Link>
+          </p>
+        )}
       </section>
 
       <section className="gs-section" aria-labelledby="choose-heading">
-        <h2 id="choose-heading">Three ways to get there.</h2>
+        <div className="gs-section__head">
+          <p className="gs-pixel">Choose your path</p>
+          <h2 id="choose-heading">Three ways to get there.</h2>
+        </div>
         <OfferPortals location="home" />
       </section>
     </SiteShell>

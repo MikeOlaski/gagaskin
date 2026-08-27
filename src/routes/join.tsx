@@ -124,21 +124,21 @@ function JoinPage() {
   if (joined) {
     return (
       <SiteShell view="home">
-        <section className="gs-join">
+        <section className="gs-form-page"><div className="gs-card">
           <h1>{mode === "waitlist" ? "You are on the list." : "Check your email."}</h1>
           <p>
             {mode === "waitlist"
               ? "We will email you as soon as a place opens up."
               : "Confirm your address, then sign in and start building."}
           </p>
-        </section>
+        </div></section>
       </SiteShell>
     );
   }
 
   return (
     <SiteShell view="home">
-      <section className="gs-join">
+      <section className="gs-form-page"><div className="gs-card">
         <h1>{signingIn ? "Sign in" : "Create your account"}</h1>
         <p className="gs-trust">
           No ads. No redirects. Nothing sold. Every skin you make is yours to download and
@@ -148,7 +148,7 @@ function JoinPage() {
         {mode === null && <p>Checking availability…</p>}
 
         {mode === "waitlist" && !signingIn && (
-          <form onSubmit={joinWaitlist}>
+          <form className="gs-form" onSubmit={joinWaitlist}>
             <p>
               We are keeping the group small while we build. Leave your email and we will
               open a place for you.
@@ -167,7 +167,7 @@ function JoinPage() {
         )}
 
         {mode === "register" && !signingIn && (
-          <form onSubmit={register}>
+          <form className="gs-form" onSubmit={register}>
             <Label htmlFor="email">Email</Label>
             <Input
               id="email"
@@ -192,7 +192,7 @@ function JoinPage() {
             <fieldset>
               <legend>Where do you play?</legend>
               {(["java", "bedrock", "unsure"] as const).map((value) => (
-                <label key={value}>
+                <label key={value} className="gs-choice">
                   <input
                     type="radio"
                     name="platform"
@@ -225,7 +225,7 @@ function JoinPage() {
         )}
 
         {signingIn && (
-          <form onSubmit={signIn}>
+          <form className="gs-form" onSubmit={signIn}>
             <Label htmlFor="email">Email</Label>
             <Input
               id="email"
@@ -248,9 +248,10 @@ function JoinPage() {
           </form>
         )}
 
-        <button type="button" onClick={() => setSigningIn(!signingIn)}>
+        <button type="button" className="gs-linkbtn" onClick={() => setSigningIn(!signingIn)}>
           {signingIn ? "Need an account?" : "Already have an account? Sign in"}
         </button>
+        </div>
       </section>
     </SiteShell>
   );

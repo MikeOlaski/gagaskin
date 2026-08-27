@@ -30,11 +30,14 @@ function SkinsPage() {
 
   return (
     <SiteShell view="skins">
-      <section className="gs-section">
-        <h1>Every skin, and the idea it came from.</h1>
-        <p className="gs-lead">
-          Each one is shown twice: what it started as, and what it looks like in the game.
-        </p>
+      <section className="gs-section" style={{ paddingTop: "var(--gs-s5)" }}>
+        <div className="gs-section__head">
+          <p className="gs-pixel">The directory</p>
+          <h1>Every skin, and the idea it came from.</h1>
+          <p className="gs-lead">
+            Each one is shown twice: what it started as, and what it looks like in the game.
+          </p>
+        </div>
         {skins === null ? <p>Loading…</p> : <SkinGrid skins={skins} />}
       </section>
     </SiteShell>
