@@ -1,4 +1,4 @@
-import { Download, Globe, Loader2, MoreHorizontal, Pencil, Save, SaveAll, Trash2 } from "lucide-react";
+import { Download, Globe, Loader2, MoreHorizontal, Pencil, Save, SaveAll, Star, Trash2 } from "lucide-react";
 import { useCallback, useEffect, useState } from "react";
 import { toast } from "sonner";
 
@@ -16,6 +16,7 @@ import type { SkinBuffer } from "@/domain/skin/skinBuffer";
 import {
   fetchProjectGalleryEntry,
   publishProject,
+  setFeaturedEntry,
   setProjectPublished,
   type ProjectGalleryEntry,
 } from "@/lib/projectPublish";
@@ -93,6 +94,14 @@ export function ProjectMenu({
       toast.success(entry.published ? "Hidden from the gallery" : "Shown in the gallery");
     });
 
+  const onFeature = () =>
+    run(async () => {
+      if (!entry) return;
+      await setFeaturedEntry(entry.id);
+      await refreshEntry();
+      toast.success(`“${name}” is now the featured skin`);
+    });
+
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
@@ -146,6 +155,12 @@ export function ProjectMenu({
           <DropdownMenuItem onSelect={() => void onToggle()}>
             <Globe className="mr-2 size-3.5" />
             {entry.published ? "Unpublish (hide)" : "Publish (show)"}
+          </DropdownMenuItem>
+        ) : null}
+        {entry ? (
+          <DropdownMenuItem disabled={entry.featured} onSelect={() => void onFeature()}>
+            <Star className="mr-2 size-3.5" />
+            {entry.featured ? "Featured on homepage" : "Feature on homepage"}
           </DropdownMenuItem>
         ) : null}
 
