@@ -1,10 +1,11 @@
 import { Link } from "@tanstack/react-router";
 
-import { publicImageUrl, type GallerySkin } from "@/lib/gallery";
+import type { GalleryView } from "@/domain/skin/poseRender";
+import { galleryViewPath, publicImageUrl, type GallerySkin } from "@/lib/gallery";
 import { getOffer } from "@/lib/offers";
 import { recordValidationEvent } from "@/lib/validation";
 
-/** Every pair names the path that produced it. An unlabelled pair would imply an
+/** Every card names the path that produced it. An unlabelled card would imply an
  *  outcome-fidelity claim the product has not validated. */
 const MADE_WITH_LABEL: Record<GallerySkin["madeWith"], string> = {
   "ai-helper": "Made with AI Helper",
@@ -12,20 +13,14 @@ const MADE_WITH_LABEL: Record<GallerySkin["madeWith"], string> = {
   build: "Made in the editor",
 };
 
-export function BeforeAfter({ skin }: { skin: GallerySkin }) {
+export function BeforeAfter({ skin, view }: { skin: GallerySkin; view: GalleryView }) {
   const offer = getOffer(skin.madeWith);
   return (
     <figure className={`gs-pair gs-pair--${offer.tone}`}>
-      <div className="gs-pair__images">
+      <div className="gs-pair__stage">
         <img
-          src={publicImageUrl(skin.inspirationPath)}
-          alt={`Inspiration for ${skin.title}`}
-          loading="lazy"
-          decoding="async"
-        />
-        <img
-          src={publicImageUrl(skin.ingamePath)}
-          alt={`${skin.title} worn in Minecraft`}
+          src={publicImageUrl(galleryViewPath(skin, view))}
+          alt={`${skin.title} rendered in Minecraft`}
           loading="lazy"
           decoding="async"
         />

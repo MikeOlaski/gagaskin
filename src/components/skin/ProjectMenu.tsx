@@ -140,7 +140,7 @@ export function ProjectMenu({
         </DropdownMenuLabel>
         <DropdownMenuItem disabled={!projectId} onSelect={() => void onPublish()}>
           <Globe className="mr-2 size-3.5" />
-          {entry ? "Update gallery images" : "Publish to gallery"}
+          {entry ? "Re-render & update gallery" : "Publish to gallery"}
         </DropdownMenuItem>
         {entry ? (
           <DropdownMenuItem onSelect={() => void onToggle()}>

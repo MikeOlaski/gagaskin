@@ -7,7 +7,12 @@ import { PixelSkin } from "@/components/site/PixelArt";
 import { SiteShell } from "@/components/site/SiteShell";
 import { SkinGrid } from "@/components/site/SkinGrid";
 import { TransformBand } from "@/components/site/TransformBand";
-import { fetchPublishedSkins, publicImageUrl, type GallerySkin } from "@/lib/gallery";
+import {
+  fetchPublishedSkins,
+  galleryViewPath,
+  publicImageUrl,
+  type GallerySkin,
+} from "@/lib/gallery";
 
 export const Route = createFileRoute("/")({
   head: () => ({
@@ -51,28 +56,20 @@ function HomePage() {
         </div>
 
         <div className="gs-hero__stage">
-          <span className="gs-pixel gs-hero__stagelabel">64 × 64</span>
+          <span className="gs-pixel gs-hero__stagelabel">In game</span>
           {hero ? (
-            <figure className="gs-pair" style={{ width: "100%", border: "none", boxShadow: "none" }}>
-              <div className="gs-pair__images">
+            <figure className="gs-pair" style={{ width: "min(100%, 340px)", border: "none", boxShadow: "none" }}>
+              <div className="gs-pair__stage">
                 <img
-                  src={publicImageUrl(hero.inspirationPath)}
-                  alt={`Inspiration for ${hero.title}`}
-                  width={512}
-                  height={512}
-                  fetchPriority="high"
-                  decoding="async"
-                />
-                <img
-                  src={publicImageUrl(hero.ingamePath)}
-                  alt={`${hero.title} worn in Minecraft`}
-                  width={512}
-                  height={512}
+                  src={publicImageUrl(galleryViewPath(hero, "quad"))}
+                  alt={`${hero.title} rendered in Minecraft, from four sides`}
+                  width={576}
+                  height={1024}
                   fetchPriority="high"
                   decoding="async"
                 />
               </div>
-              <figcaption className="gs-pair__caption gs-pixel">The idea, and the skin in the game</figcaption>
+              <figcaption className="gs-pair__caption gs-pixel">{hero.title} — every side</figcaption>
             </figure>
           ) : (
             <PixelSkin />
