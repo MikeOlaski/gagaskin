@@ -174,7 +174,7 @@ export function SkinDirectory({ skins }: { skins: readonly GallerySkin[] }) {
       ) : (
         <ul className="gs-dirlist">
           {shown.map((skin) => (
-            <li key={skin.id} className={`gs-dirrow gs-dirrow--${getOffer(skin.madeWith).tone}`}>
+            <li key={skin.id} className={`gs-dirrow gs-dirrow--${getOffer(skin.madeWith).tone}${view === "inspo" ? " gs-dirrow--inspo" : ""}`}>
               {view === "inspo" && (
                 <img
                   className="gs-dirrow__inspo"
