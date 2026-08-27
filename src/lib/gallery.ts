@@ -13,6 +13,7 @@ export interface GallerySkin {
   renderQuadPath: string | null;
   renderDuoPath: string | null;
   madeWith: OfferId;
+  authorHandle: string | null;
   published: boolean;
   featured: boolean;
   sortOrder: number;
@@ -59,6 +60,7 @@ function fromRow(row: Record<string, unknown>): GallerySkin {
     renderQuadPath: (row["render_quad_path"] as string | null) ?? null,
     renderDuoPath: (row["render_duo_path"] as string | null) ?? null,
     madeWith: row["made_with"] as OfferId,
+    authorHandle: (row["author_handle"] as string | null) ?? null,
     published: row["published"] as boolean,
     featured: (row["featured"] as boolean | null) ?? false,
     sortOrder: row["sort_order"] as number,
@@ -91,4 +93,13 @@ export async function uploadGalleryImage(file: File, prefix: string): Promise<st
   const { error } = await supabase.storage.from("gallery").upload(path, file);
   if (error) throw error;
   return path;
+}
+
+/** Handles of makers who have at least one published skin, in gallery order. */
+export function makerHandles(skins: readonly GallerySkin[]): string[] {
+  const seen: string[] = [];
+  for (const s of skins) {
+    if (s.authorHandle && !seen.includes(s.authorHandle)) seen.push(s.authorHandle);
+  }
+  return seen;
 }

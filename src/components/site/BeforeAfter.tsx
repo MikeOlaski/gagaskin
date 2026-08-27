@@ -27,6 +27,9 @@ export function BeforeAfter({ skin, view }: { skin: GallerySkin; view: GalleryVi
       </div>
       <figcaption className="gs-pair__caption">
         <strong>{skin.title}</strong>
+        {skin.authorHandle && (
+          <span className="gs-pixel gs-pair__handle">@{skin.authorHandle}</span>
+        )}
         <Link
           to={offer.route}
           className="gs-pixel gs-pair__path"

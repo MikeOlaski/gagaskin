@@ -1,0 +1,1 @@
+REVOKE EXECUTE ON FUNCTION public.set_gallery_author_handle() FROM anon, authenticated, PUBLIC;

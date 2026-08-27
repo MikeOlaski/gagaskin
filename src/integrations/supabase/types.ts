@@ -31,6 +31,7 @@ export type Database = {
       }
       gallery_skins: {
         Row: {
+          author_handle: string | null
           created_at: string
           featured: boolean
           id: string
@@ -47,6 +48,7 @@ export type Database = {
           title: string
         }
         Insert: {
+          author_handle?: string | null
           created_at?: string
           featured?: boolean
           id?: string
@@ -63,6 +65,7 @@ export type Database = {
           title: string
         }
         Update: {
+          author_handle?: string | null
           created_at?: string
           featured?: boolean
           id?: string
@@ -106,18 +109,21 @@ export type Database = {
       profiles: {
         Row: {
           created_at: string
+          handle: string | null
           id: string
           platform: string
           source_offer: string
         }
         Insert: {
           created_at?: string
+          handle?: string | null
           id: string
           platform?: string
           source_offer?: string
         }
         Update: {
           created_at?: string
+          handle?: string | null
           id?: string
           platform?: string
           source_offer?: string

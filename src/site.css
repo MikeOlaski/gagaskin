@@ -173,7 +173,10 @@
 /* Every card renders at 9:16, so rows never jump height. */
 .gs-pair__stage { background: var(--gs-canvas); border-bottom: 1px solid var(--gs-line); }
 .gs-pair__stage img { width: 100%; aspect-ratio: 9 / 16; object-fit: contain; display: block; image-rendering: pixelated; }
-.gs-views { display: flex; gap: 6px; margin-bottom: var(--gs-s3); }
+.gs-filters { display: flex; flex-wrap: wrap; gap: var(--gs-s3); align-items: center; margin-bottom: var(--gs-s3); }
+.gs-views { display: flex; flex-wrap: wrap; gap: 6px; }
+.gs-pair__handle { opacity: 0.7; text-transform: none; }
+.gs-views__btn--maker { text-transform: none; }
 .gs-views__btn {
   background: var(--gs-surface); color: var(--gs-ink-muted); cursor: pointer;
   border: 1px solid var(--gs-line); border-radius: 999px; padding: 6px 14px;
