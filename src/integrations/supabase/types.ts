@@ -32,6 +32,7 @@ export type Database = {
       gallery_skins: {
         Row: {
           created_at: string
+          featured: boolean
           id: string
           ingame_path: string
           inspiration_path: string
@@ -47,6 +48,7 @@ export type Database = {
         }
         Insert: {
           created_at?: string
+          featured?: boolean
           id?: string
           ingame_path: string
           inspiration_path: string
@@ -62,6 +64,7 @@ export type Database = {
         }
         Update: {
           created_at?: string
+          featured?: boolean
           id?: string
           ingame_path?: string
           inspiration_path?: string

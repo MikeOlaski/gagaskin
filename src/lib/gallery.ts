@@ -14,6 +14,7 @@ export interface GallerySkin {
   renderDuoPath: string | null;
   madeWith: OfferId;
   published: boolean;
+  featured: boolean;
   sortOrder: number;
   createdAt: string;
 }
@@ -59,6 +60,7 @@ function fromRow(row: Record<string, unknown>): GallerySkin {
     renderDuoPath: (row["render_duo_path"] as string | null) ?? null,
     madeWith: row["made_with"] as OfferId,
     published: row["published"] as boolean,
+    featured: (row["featured"] as boolean | null) ?? false,
     sortOrder: row["sort_order"] as number,
     createdAt: row["created_at"] as string,
   };
