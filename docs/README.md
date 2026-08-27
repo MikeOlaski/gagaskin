@@ -11,6 +11,11 @@ spec, UV mapping spec, UX requirements, QA plan) isn't present in this repo.
   preview, auto-design, persistence
 - **[ROADMAP.md](./ROADMAP.md)** — shipped vs. next vs. backlog, kept honest
   about what's actually committed vs. just discussed
+- **[PRICING_RESEARCH.md](./PRICING_RESEARCH.md)** — market research behind
+  the three published prices: what skin artists actually charge, what
+  competing editors cost, and what we chose
+- **[MONETISATION.md](./MONETISATION.md)** — payments status (nothing is
+  wired yet) and exactly what turning them on requires
 - **[AI_PLAN_NOTES.md](./AI_PLAN_NOTES.md)** — deep dive on the AI Plan
   feature specifically: current implementation, ideas for improving result
   quality, and the custom-instructions plan agreed with Mike but not yet built

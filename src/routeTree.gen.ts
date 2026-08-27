@@ -17,6 +17,7 @@ import { Route as CustomRouteImport } from './routes/custom'
 import { Route as EditorRouteImport } from './routes/editor'
 import { Route as GalleryAdminRouteImport } from './routes/gallery-admin'
 import { Route as JoinRouteImport } from './routes/join'
+import { Route as PricingRouteImport } from './routes/pricing'
 import { Route as SkinsRouteImport } from './routes/skins'
 
 const IndexRoute = IndexRouteImport.update({
@@ -59,6 +60,11 @@ const JoinRoute = JoinRouteImport.update({
   path: '/join',
   getParentRoute: () => rootRouteImport,
 } as any)
+const PricingRoute = PricingRouteImport.update({
+  id: '/pricing',
+  path: '/pricing',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const SkinsRoute = SkinsRouteImport.update({
   id: '/skins',
   path: '/skins',
@@ -74,6 +80,7 @@ export interface FileRoutesByFullPath {
   '/editor': typeof EditorRoute
   '/gallery-admin': typeof GalleryAdminRoute
   '/join': typeof JoinRoute
+  '/pricing': typeof PricingRoute
   '/skins': typeof SkinsRoute
 }
 export interface FileRoutesByTo {
@@ -85,6 +92,7 @@ export interface FileRoutesByTo {
   '/editor': typeof EditorRoute
   '/gallery-admin': typeof GalleryAdminRoute
   '/join': typeof JoinRoute
+  '/pricing': typeof PricingRoute
   '/skins': typeof SkinsRoute
 }
 export interface FileRoutesById {
@@ -97,6 +105,7 @@ export interface FileRoutesById {
   '/editor': typeof EditorRoute
   '/gallery-admin': typeof GalleryAdminRoute
   '/join': typeof JoinRoute
+  '/pricing': typeof PricingRoute
   '/skins': typeof SkinsRoute
 }
 export interface FileRouteTypes {
@@ -110,6 +119,7 @@ export interface FileRouteTypes {
     | '/editor'
     | '/gallery-admin'
     | '/join'
+    | '/pricing'
     | '/skins'
   fileRoutesByTo: FileRoutesByTo
   to:
@@ -121,6 +131,7 @@ export interface FileRouteTypes {
     | '/editor'
     | '/gallery-admin'
     | '/join'
+    | '/pricing'
     | '/skins'
   id:
     | '__root__'
@@ -132,6 +143,7 @@ export interface FileRouteTypes {
     | '/editor'
     | '/gallery-admin'
     | '/join'
+    | '/pricing'
     | '/skins'
   fileRoutesById: FileRoutesById
 }
@@ -144,6 +156,7 @@ export interface RootRouteChildren {
   EditorRoute: typeof EditorRoute
   GalleryAdminRoute: typeof GalleryAdminRoute
   JoinRoute: typeof JoinRoute
+  PricingRoute: typeof PricingRoute
   SkinsRoute: typeof SkinsRoute
 }
 
@@ -205,6 +218,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof JoinRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/pricing': {
+      id: '/pricing'
+      path: '/pricing'
+      fullPath: '/pricing'
+      preLoaderRoute: typeof PricingRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/skins': {
       id: '/skins'
       path: '/skins'
@@ -224,6 +244,7 @@ const rootRouteChildren: RootRouteChildren = {
   EditorRoute: EditorRoute,
   GalleryAdminRoute: GalleryAdminRoute,
   JoinRoute: JoinRoute,
+  PricingRoute: PricingRoute,
   SkinsRoute: SkinsRoute,
 }
 export const routeTree = rootRouteImport

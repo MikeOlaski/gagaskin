@@ -80,10 +80,31 @@ face boundaries, correct wrapping.
   state — RLS-scoped to the owning user)
 - Header user menu (avatar, sign out)
 
+### Public site
+- Landing page with the three offer portals, skins gallery, transform band
+- `/pricing` — the three tiers and prices (no checkout)
+- `/skins` gallery with per-maker (@handle) filtering
+- Per-offer landing pages: `/ai-helper`, `/build`, `/custom`
+
 ### Workspace
 - Full-bleed responsive layout, no artificial max-width
 - **Focus mode**: hide every side panel, canvas fills the screen, Tools
   becomes a floating draggable palette with its own keyboard-shortcuts drawer
+
+## Pricing & business model
+
+Three published prices, researched in `docs/PRICING_RESEARCH.md`:
+
+- **Awesome Editor — free forever.** Every competing editor is free; no ads
+  either way.
+- **AI Helper — $5/month ($40/year).** The only per-use cost in the product
+  is model inference.
+- **Human Creator Custom Orders — $18/skin.** Skin artists publicly charge
+  $12–$19; delivery, guardian review and a revision round justify the top of
+  the band.
+
+No payment provider is connected yet — `/pricing` states the prices and
+`/custom` measures price intent. See `docs/MONETISATION.md`.
 
 ## Explicit non-goals (today)
 

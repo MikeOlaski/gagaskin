@@ -26,7 +26,11 @@ backlog ordered by best current guess at impact vs. effort.
 3. **AI plan quality investigation** — input image resolution/format,
    structured-output support, few-shot examples, deterministic symmetry
    post-pass. See `docs/AI_PLAN_NOTES.md` "What might improve results."
-4. **Per-face AI regeneration** — fix one bad face without re-rolling the
+4. **Payments** — no provider is connected today. Prices are published on
+   `/pricing` (see `docs/PRICING_RESEARCH.md`) but nothing charges. Sequence
+   and requirements are in `docs/MONETISATION.md`; needs a Pro plan and an
+   entitlements table before the AI plan can be gated.
+5. **Per-face AI regeneration** — fix one bad face without re-rolling the
    whole plan.
 
 ## Later / under-considered
