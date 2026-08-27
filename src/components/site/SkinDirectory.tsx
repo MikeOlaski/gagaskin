@@ -175,12 +175,22 @@ export function SkinDirectory({ skins }: { skins: readonly GallerySkin[] }) {
         <ul className="gs-dirlist">
           {shown.map((skin) => (
             <li key={skin.id} className={`gs-dirrow gs-dirrow--${getOffer(skin.madeWith).tone}`}>
+              {view === "inspo" && (
+                <img
+                  className="gs-dirrow__inspo"
+                  src={publicImageUrl(skin.inspirationPath)}
+                  alt={`Source image for ${skin.title}`}
+                  loading="lazy"
+                  decoding="async"
+                />
+              )}
               <img
-                src={publicImageUrl(galleryViewPath(skin, view))}
+                src={publicImageUrl(galleryViewPath(skin, renderView))}
                 alt={`${skin.title} rendered in Minecraft`}
                 loading="lazy"
                 decoding="async"
               />
+
               <div className="gs-dirrow__body">
                 <strong>{skin.title}</strong>
                 <p className="gs-hint">
