@@ -53,26 +53,18 @@ function HomePage() {
         <div className="gs-hero__stage">
           <span className="gs-pixel gs-hero__stagelabel">64 × 64</span>
           {hero ? (
-            <figure className="gs-pair" style={{ width: "100%", border: "none", boxShadow: "none" }}>
-              <div className="gs-pair__images">
+            <figure className="gs-pair" style={{ width: "min(100%, 340px)", border: "none", boxShadow: "none" }}>
+              <div className="gs-pair__stage">
                 <img
-                  src={publicImageUrl(hero.inspirationPath)}
-                  alt={`Inspiration for ${hero.title}`}
-                  width={512}
-                  height={512}
-                  fetchPriority="high"
-                  decoding="async"
-                />
-                <img
-                  src={publicImageUrl(hero.ingamePath)}
-                  alt={`${hero.title} worn in Minecraft`}
-                  width={512}
-                  height={512}
+                  src={publicImageUrl(galleryViewPath(hero, "quad"))}
+                  alt={`${hero.title} rendered in Minecraft, from four sides`}
+                  width={576}
+                  height={1024}
                   fetchPriority="high"
                   decoding="async"
                 />
               </div>
-              <figcaption className="gs-pair__caption gs-pixel">The idea, and the skin in the game</figcaption>
+              <figcaption className="gs-pair__caption gs-pixel">{hero.title} — every side</figcaption>
             </figure>
           ) : (
             <PixelSkin />
