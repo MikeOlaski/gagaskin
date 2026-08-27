@@ -134,14 +134,32 @@ export function SkinDirectory({ skins }: { skins: readonly GallerySkin[] }) {
               key={skin.id}
               className={`gs-pair gs-pair--${getOffer(skin.madeWith).tone}`}
             >
-              <div className="gs-pair__stage">
-                <img
-                  src={publicImageUrl(galleryViewPath(skin, view))}
-                  alt={`${skin.title} rendered in Minecraft`}
-                  loading="lazy"
-                  decoding="async"
-                />
-              </div>
+              {view === "inspo" ? (
+                <div className="gs-pair__stage gs-pair__stage--split">
+                  <img
+                    src={publicImageUrl(skin.inspirationPath)}
+                    alt={`Source image for ${skin.title}`}
+                    loading="lazy"
+                    decoding="async"
+                  />
+                  <img
+                    src={publicImageUrl(galleryViewPath(skin, renderView))}
+                    alt={`${skin.title} rendered in Minecraft`}
+                    loading="lazy"
+                    decoding="async"
+                  />
+                </div>
+              ) : (
+                <div className="gs-pair__stage">
+                  <img
+                    src={publicImageUrl(galleryViewPath(skin, renderView))}
+                    alt={`${skin.title} rendered in Minecraft`}
+                    loading="lazy"
+                    decoding="async"
+                  />
+                </div>
+              )}
+
               <figcaption className="gs-pair__caption">
                 <strong>{skin.title}</strong>
                 {skin.authorHandle && (
