@@ -1,5 +1,5 @@
 import { ClientOnly, createFileRoute, useNavigate } from "@tanstack/react-router";
-import { ChevronDown, Keyboard, Maximize2, Minimize2 } from "lucide-react";
+import { ChevronDown, Image as ImageIcon, Keyboard, Maximize2, Minimize2 } from "lucide-react";
 import { lazy, Suspense, useEffect, useState } from "react";
 
 import { AtlasPreview } from "@/components/skin/AtlasPreview";
@@ -10,6 +10,7 @@ import { KeyboardShortcutsPanel, ShortcutsList } from "@/components/skin/Keyboar
 import { ProjectsPanel } from "@/components/skin/ProjectsPanel";
 import { ReferencePanel } from "@/components/skin/ReferencePanel";
 import { SkinFileBar } from "@/components/skin/SkinFileBar";
+import { SourceImagePanel } from "@/components/skin/SourceImagePanel";
 import { ToolPanel, TOOLS } from "@/components/skin/ToolPanel";
 import { UserMenu } from "@/components/skin/UserMenu";
 import { UVEditor } from "@/components/skin/UVEditor";
@@ -62,6 +63,7 @@ function PreviewFallback({ label }: { label: string }) {
 
 function SkinPainterPage() {
   const [focusMode, setFocusMode] = useState(false);
+  const [sourceOpen, setSourceOpen] = useState(false);
   const { user, loading } = useSession();
   const navigate = useNavigate();
   const { start } = Route.useSearch();
@@ -125,6 +127,16 @@ function SkinPainterPage() {
           <div className="ml-auto flex items-center gap-2">
             {!focusMode && <SkinFileBar />}
             <Button
+              variant={sourceOpen ? "default" : "outline"}
+              size="sm"
+              onClick={() => setSourceOpen((v) => !v)}
+              aria-pressed={sourceOpen}
+              title="Float the source image above the canvas with zoom and color picking"
+            >
+              <ImageIcon className="mr-1 size-3.5" />
+              Source view
+            </Button>
+            <Button
               variant={focusMode ? "default" : "outline"}
               size="sm"
               onClick={() => setFocusMode((v) => !v)}
@@ -173,6 +185,8 @@ function SkinPainterPage() {
           </div>
         </main>
       )}
+
+      {sourceOpen && <SourceImagePanel onClose={() => setSourceOpen(false)} />}
 
       {focusMode && (
         <FloatingPanel title="Tools" onClose={() => setFocusMode(false)}>
