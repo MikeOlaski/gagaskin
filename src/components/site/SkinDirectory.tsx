@@ -16,7 +16,12 @@ import {
 import { getOffer } from "@/lib/offers";
 
 const SORTS: DirectorySort[] = ["newest", "downloads", "featured", "title"];
-const VIEWS: GalleryView[] = ["iso", "quad", "duo"];
+
+/** "Inspo" is a directory-only view: it pairs the source image the skin was
+ *  made from with the posed render, so the leap is visible on one card. */
+type DirectoryView = GalleryView | "inspo";
+const VIEWS: DirectoryView[] = ["iso", "quad", "duo", "inspo"];
+const VIEW_LABEL: Record<DirectoryView, string> = { ...GALLERY_VIEW_LABEL, inspo: "Inspo" };
 const MADE_WITH_LABEL: Record<GallerySkin["madeWith"], string> = {
   "ai-helper": "Made with AI Helper",
   custom: "Made by Grace",
@@ -27,9 +32,11 @@ const MADE_WITH_LABEL: Record<GallerySkin["madeWith"], string> = {
  *  behind a menu, and nothing appears until there is something to filter. */
 export function SkinDirectory({ skins }: { skins: readonly GallerySkin[] }) {
   const [sort, setSort] = useState<DirectorySort>("newest");
-  const [view, setView] = useState<GalleryView>("iso");
+  const [view, setView] = useState<DirectoryView>("iso");
   const [layout, setLayout] = useState<"grid" | "list">("grid");
   const [maker, setMaker] = useState<string | null>(null);
+  const renderView: GalleryView = view === "inspo" ? "iso" : view;
+
 
   const makers = makerHandles(skins);
   const shown = useMemo(() => {
@@ -88,7 +95,7 @@ export function SkinDirectory({ skins }: { skins: readonly GallerySkin[] }) {
                 aria-pressed={v === view}
                 onClick={() => setView(v)}
               >
-                {GALLERY_VIEW_LABEL[v]}
+                {VIEW_LABEL[v]}
               </button>
             ))}
           </div>
@@ -121,20 +128,38 @@ export function SkinDirectory({ skins }: { skins: readonly GallerySkin[] }) {
       </p>
 
       {layout === "grid" ? (
-        <div className="gs-grid">
+        <div className={`gs-grid${view === "inspo" ? " gs-grid--wide" : ""}`}>
           {shown.map((skin) => (
             <figure
               key={skin.id}
               className={`gs-pair gs-pair--${getOffer(skin.madeWith).tone}`}
             >
-              <div className="gs-pair__stage">
-                <img
-                  src={publicImageUrl(galleryViewPath(skin, view))}
-                  alt={`${skin.title} rendered in Minecraft`}
-                  loading="lazy"
-                  decoding="async"
-                />
-              </div>
+              {view === "inspo" ? (
+                <div className="gs-pair__stage gs-pair__stage--split">
+                  <img
+                    src={publicImageUrl(skin.inspirationPath)}
+                    alt={`Source image for ${skin.title}`}
+                    loading="lazy"
+                    decoding="async"
+                  />
+                  <img
+                    src={publicImageUrl(galleryViewPath(skin, renderView))}
+                    alt={`${skin.title} rendered in Minecraft`}
+                    loading="lazy"
+                    decoding="async"
+                  />
+                </div>
+              ) : (
+                <div className="gs-pair__stage">
+                  <img
+                    src={publicImageUrl(galleryViewPath(skin, renderView))}
+                    alt={`${skin.title} rendered in Minecraft`}
+                    loading="lazy"
+                    decoding="async"
+                  />
+                </div>
+              )}
+
               <figcaption className="gs-pair__caption">
                 <strong>{skin.title}</strong>
                 {skin.authorHandle && (
@@ -149,13 +174,23 @@ export function SkinDirectory({ skins }: { skins: readonly GallerySkin[] }) {
       ) : (
         <ul className="gs-dirlist">
           {shown.map((skin) => (
-            <li key={skin.id} className={`gs-dirrow gs-dirrow--${getOffer(skin.madeWith).tone}`}>
+            <li key={skin.id} className={`gs-dirrow gs-dirrow--${getOffer(skin.madeWith).tone}${view === "inspo" ? " gs-dirrow--inspo" : ""}`}>
+              {view === "inspo" && (
+                <img
+                  className="gs-dirrow__inspo"
+                  src={publicImageUrl(skin.inspirationPath)}
+                  alt={`Source image for ${skin.title}`}
+                  loading="lazy"
+                  decoding="async"
+                />
+              )}
               <img
-                src={publicImageUrl(galleryViewPath(skin, view))}
+                src={publicImageUrl(galleryViewPath(skin, renderView))}
                 alt={`${skin.title} rendered in Minecraft`}
                 loading="lazy"
                 decoding="async"
               />
+
               <div className="gs-dirrow__body">
                 <strong>{skin.title}</strong>
                 <p className="gs-hint">
