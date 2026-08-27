@@ -1,5 +1,6 @@
 import { Link } from "@tanstack/react-router";
 
+import { SkinDownloadButton } from "@/components/site/SkinDownloadButton";
 import type { GalleryView } from "@/domain/skin/poseRender";
 import { galleryViewPath, publicImageUrl, type GallerySkin } from "@/lib/gallery";
 import { getOffer } from "@/lib/offers";
@@ -42,6 +43,7 @@ export function BeforeAfter({ skin, view }: { skin: GallerySkin; view: GalleryVi
         >
           {MADE_WITH_LABEL[skin.madeWith]}
         </Link>
+        <SkinDownloadButton skin={skin} />
       </figcaption>
     </figure>
   );
