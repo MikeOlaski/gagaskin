@@ -302,8 +302,8 @@
   border-bottom: 1px solid color-mix(in oklab, var(--gs-accent) 35%, transparent);
 }
 .gs-paybanner--error {
-  background: color-mix(in oklab, var(--gs-human) 14%, transparent);
-  border-bottom-color: color-mix(in oklab, var(--gs-human) 35%, transparent);
+  background: color-mix(in oklab, var(--gs-signal-human) 14%, transparent);
+  border-bottom-color: color-mix(in oklab, var(--gs-signal-human) 35%, transparent);
 }
 .gs-tier__pay {
   margin-top: var(--gs-s2);
