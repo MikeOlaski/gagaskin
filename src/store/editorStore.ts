@@ -49,6 +49,9 @@ interface EditorState {
   /** bumped on every canonical-texture mutation; drives all derived renders */
   version: number;
   selectedFaceId: string | null;
+  /** id/name of the saved cloud project the editor is currently working on */
+  currentProjectId: string | null;
+  currentProjectName: string;
   tool: Tool;
   color: string;
   alpha: number;
@@ -124,6 +127,8 @@ export const useEditorStore = create<EditorState>((set, get) => {
     skin: createDemoSkin(),
     version: 0,
     selectedFaceId: "head.front",
+    currentProjectId: null,
+    currentProjectName: "Untitled skin",
     tool: "pencil",
     color: "#3b82f6",
     alpha: 1,

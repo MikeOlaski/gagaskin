@@ -2,6 +2,7 @@ import { Download, FileImage, FilePlus2, TestTube2, User } from "lucide-react";
 import { useRef } from "react";
 import { toast } from "sonner";
 
+import { ProjectMenu } from "@/components/skin/ProjectMenu";
 import { Button } from "@/components/ui/button";
 import {
   exportSkinPng,
@@ -18,6 +19,8 @@ export function SkinFileBar() {
   const newBlankSkin = useEditorStore((s) => s.newBlankSkin);
   const loadDemoSkin = useEditorStore((s) => s.loadDemoSkin);
   const loadDiagnosticSkin = useEditorStore((s) => s.loadDiagnosticSkin);
+  const projectId = useEditorStore((s) => s.currentProjectId);
+  const projectName = useEditorStore((s) => s.currentProjectName);
 
   const onImport = async (file: File | undefined) => {
     if (!file) return;
@@ -64,6 +67,12 @@ export function SkinFileBar() {
       <Button size="sm" onClick={() => exportSkinPng(skin)} data-testid="export-button">
         <Download className="mr-1 size-3.5" /> Export skin PNG
       </Button>
+      <ProjectMenu
+        projectId={projectId}
+        name={projectName}
+        skin={skin}
+        label="Project settings"
+      />
     </div>
   );
 }

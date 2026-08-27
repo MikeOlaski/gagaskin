@@ -435,9 +435,6 @@ export function UVEditor({ fullBleed = false }: { fullBleed?: boolean } = {}) {
     >
       <header className="flex flex-wrap items-center gap-3 border-b border-border px-4 py-3">
         <h2 className="text-sm font-semibold text-foreground">Exploded UV editor</h2>
-        <span className="text-xs text-muted-foreground">
-          scroll to pan · space, hand tool or middle-click to grab · ⌘/ctrl + scroll to zoom
-        </span>
         <div className="ml-auto flex items-center gap-2">
           <Button
             variant="outline"

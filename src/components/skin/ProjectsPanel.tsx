@@ -1,8 +1,9 @@
 import { Link } from "@tanstack/react-router";
-import { FolderOpen, Loader2, Save, SaveAll, Trash2, Pencil } from "lucide-react";
+import { FolderOpen, Loader2, Save, SaveAll } from "lucide-react";
 import { useCallback, useEffect, useState } from "react";
 import { toast } from "sonner";
 
+import { ProjectMenu } from "@/components/skin/ProjectMenu";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { useSession } from "@/hooks/useSession";
@@ -27,6 +28,11 @@ export function ProjectsPanel() {
   const [busy, setBusy] = useState(false);
   const [currentId, setCurrentId] = useState<string | null>(null);
   const [name, setName] = useState("Untitled skin");
+  const skin = useEditorStore((s) => s.skin);
+
+  useEffect(() => {
+    useEditorStore.setState({ currentProjectId: currentId, currentProjectName: name });
+  }, [currentId, name]);
 
   const refresh = useCallback(async () => {
     setFetching(true);
@@ -143,7 +149,19 @@ export function ProjectsPanel() {
 
   return (
     <section className="rounded-xl border border-border bg-card p-4 shadow-sm">
-      <h2 className="text-sm font-semibold text-foreground">Projects</h2>
+      <div className="flex items-center justify-between">
+        <h2 className="text-sm font-semibold text-foreground">Projects</h2>
+        {user ? (
+          <ProjectMenu
+            projectId={currentId}
+            name={name}
+            skin={skin}
+            onSave={onSave}
+            onSaveAsNew={onSaveAsNew}
+            label="Current project options"
+          />
+        ) : null}
+      </div>
 
       {loading ? (
         <p className="mt-3 text-xs text-muted-foreground">Checking your session…</p>
@@ -217,24 +235,13 @@ export function ProjectsPanel() {
                   >
                     <FolderOpen className="size-3.5" />
                   </Button>
-                  <Button
-                    variant="ghost"
-                    size="icon"
-                    aria-label={`Rename ${row.name}`}
-                    disabled={busy}
-                    onClick={() => void onRename(row)}
-                  >
-                    <Pencil className="size-3.5" />
-                  </Button>
-                  <Button
-                    variant="ghost"
-                    size="icon"
-                    aria-label={`Delete ${row.name}`}
-                    disabled={busy}
-                    onClick={() => void onDelete(row)}
-                  >
-                    <Trash2 className="size-3.5" />
-                  </Button>
+                  <ProjectMenu
+                    projectId={row.id}
+                    name={row.name}
+                    skin={row.id === currentId ? skin : decodeSkin(row.skin_png)}
+                    onRename={() => onRename(row)}
+                    onDelete={() => onDelete(row)}
+                  />
                 </div>
               ))
             )}
