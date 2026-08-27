@@ -87,14 +87,6 @@ function HomePage() {
       </section>
 
 
-      <section className="gs-section" aria-labelledby="translate-heading">
-        <div className="gs-section__head">
-          <p className="gs-pixel">The work</p>
-          <h2 id="translate-heading">How an idea becomes a skin.</h2>
-        </div>
-        <TransformBand />
-      </section>
-
       <section className="gs-section" aria-labelledby="gallery-heading">
         <div className="gs-section__head">
           <p className="gs-pixel">Proof</p>
@@ -107,6 +99,15 @@ function HomePage() {
           </p>
         )}
       </section>
+
+      <section className="gs-section" aria-labelledby="translate-heading">
+        <div className="gs-section__head">
+          <p className="gs-pixel">The work</p>
+          <h2 id="translate-heading">How an idea becomes a skin.</h2>
+        </div>
+        <TransformBand />
+      </section>
+
 
       <section className="gs-section" aria-labelledby="choose-heading">
         <div className="gs-section__head">
