@@ -56,7 +56,7 @@ function HomePage() {
         </div>
 
         <div className="gs-hero__stage">
-          <span className="gs-pixel gs-hero__stagelabel">64 × 64</span>
+          <span className="gs-pixel gs-hero__stagelabel">In game</span>
           {hero ? (
             <figure className="gs-pair" style={{ width: "min(100%, 340px)", border: "none", boxShadow: "none" }}>
               <div className="gs-pair__stage">
