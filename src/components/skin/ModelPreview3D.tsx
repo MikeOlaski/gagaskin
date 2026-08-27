@@ -124,7 +124,7 @@ function SkinScene({
 }: {
   canvas: HTMLCanvasElement | null;
   version: number;
-  controlsRef: React.RefObject<React.ComponentRef<typeof OrbitControls>>;
+  controlsRef: React.RefObject<React.ComponentRef<typeof OrbitControls> | null>;
 }) {
   return (
     <>
