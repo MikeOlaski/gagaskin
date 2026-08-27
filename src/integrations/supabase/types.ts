@@ -33,6 +33,7 @@ export type Database = {
         Row: {
           author_handle: string | null
           created_at: string
+          download_count: number
           featured: boolean
           id: string
           ingame_path: string
@@ -50,6 +51,7 @@ export type Database = {
         Insert: {
           author_handle?: string | null
           created_at?: string
+          download_count?: number
           featured?: boolean
           id?: string
           ingame_path: string
@@ -67,6 +69,7 @@ export type Database = {
         Update: {
           author_handle?: string | null
           created_at?: string
+          download_count?: number
           featured?: boolean
           id?: string
           ingame_path?: string
@@ -168,6 +171,35 @@ export type Database = {
           source_offer?: string
         }
         Relationships: []
+      }
+      skin_downloads: {
+        Row: {
+          created_at: string
+          id: string
+          skin_id: string
+          user_id: string | null
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          skin_id: string
+          user_id?: string | null
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          skin_id?: string
+          user_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "skin_downloads_skin_id_fkey"
+            columns: ["skin_id"]
+            isOneToOne: false
+            referencedRelation: "gallery_skins"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       skin_orders: {
         Row: {
@@ -365,6 +397,7 @@ export type Database = {
         Returns: boolean
       }
       record_offer_view: { Args: { _offer: string }; Returns: undefined }
+      record_skin_download: { Args: { _skin: string }; Returns: undefined }
       registration_open: { Args: never; Returns: boolean }
     }
     Enums: {
