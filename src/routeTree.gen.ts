@@ -15,6 +15,7 @@ import { Route as AuthRouteImport } from './routes/auth'
 import { Route as BuildRouteImport } from './routes/build'
 import { Route as CustomRouteImport } from './routes/custom'
 import { Route as EditorRouteImport } from './routes/editor'
+import { Route as GalleryAdminRouteImport } from './routes/gallery-admin'
 import { Route as JoinRouteImport } from './routes/join'
 import { Route as SkinsRouteImport } from './routes/skins'
 
@@ -48,6 +49,11 @@ const EditorRoute = EditorRouteImport.update({
   path: '/editor',
   getParentRoute: () => rootRouteImport,
 } as any)
+const GalleryAdminRoute = GalleryAdminRouteImport.update({
+  id: '/gallery-admin',
+  path: '/gallery-admin',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const JoinRoute = JoinRouteImport.update({
   id: '/join',
   path: '/join',
@@ -66,6 +72,7 @@ export interface FileRoutesByFullPath {
   '/build': typeof BuildRoute
   '/custom': typeof CustomRoute
   '/editor': typeof EditorRoute
+  '/gallery-admin': typeof GalleryAdminRoute
   '/join': typeof JoinRoute
   '/skins': typeof SkinsRoute
 }
@@ -76,6 +83,7 @@ export interface FileRoutesByTo {
   '/build': typeof BuildRoute
   '/custom': typeof CustomRoute
   '/editor': typeof EditorRoute
+  '/gallery-admin': typeof GalleryAdminRoute
   '/join': typeof JoinRoute
   '/skins': typeof SkinsRoute
 }
@@ -87,6 +95,7 @@ export interface FileRoutesById {
   '/build': typeof BuildRoute
   '/custom': typeof CustomRoute
   '/editor': typeof EditorRoute
+  '/gallery-admin': typeof GalleryAdminRoute
   '/join': typeof JoinRoute
   '/skins': typeof SkinsRoute
 }
@@ -99,6 +108,7 @@ export interface FileRouteTypes {
     | '/build'
     | '/custom'
     | '/editor'
+    | '/gallery-admin'
     | '/join'
     | '/skins'
   fileRoutesByTo: FileRoutesByTo
@@ -109,6 +119,7 @@ export interface FileRouteTypes {
     | '/build'
     | '/custom'
     | '/editor'
+    | '/gallery-admin'
     | '/join'
     | '/skins'
   id:
@@ -119,6 +130,7 @@ export interface FileRouteTypes {
     | '/build'
     | '/custom'
     | '/editor'
+    | '/gallery-admin'
     | '/join'
     | '/skins'
   fileRoutesById: FileRoutesById
@@ -130,6 +142,7 @@ export interface RootRouteChildren {
   BuildRoute: typeof BuildRoute
   CustomRoute: typeof CustomRoute
   EditorRoute: typeof EditorRoute
+  GalleryAdminRoute: typeof GalleryAdminRoute
   JoinRoute: typeof JoinRoute
   SkinsRoute: typeof SkinsRoute
 }
@@ -178,6 +191,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof EditorRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/gallery-admin': {
+      id: '/gallery-admin'
+      path: '/gallery-admin'
+      fullPath: '/gallery-admin'
+      preLoaderRoute: typeof GalleryAdminRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/join': {
       id: '/join'
       path: '/join'
@@ -202,6 +222,7 @@ const rootRouteChildren: RootRouteChildren = {
   BuildRoute: BuildRoute,
   CustomRoute: CustomRoute,
   EditorRoute: EditorRoute,
+  GalleryAdminRoute: GalleryAdminRoute,
   JoinRoute: JoinRoute,
   SkinsRoute: SkinsRoute,
 }
