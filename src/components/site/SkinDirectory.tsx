@@ -95,7 +95,7 @@ export function SkinDirectory({ skins }: { skins: readonly GallerySkin[] }) {
                 aria-pressed={v === view}
                 onClick={() => setView(v)}
               >
-                {GALLERY_VIEW_LABEL[v]}
+                {VIEW_LABEL[v]}
               </button>
             ))}
           </div>
