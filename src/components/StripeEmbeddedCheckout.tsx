@@ -22,9 +22,9 @@ export function StripeEmbeddedCheckout({
     const result = await createCheckoutSession({
       data: {
         priceId,
-        quantity,
-        customerEmail,
-        userId,
+        ...(quantity !== undefined && { quantity }),
+        ...(customerEmail !== undefined && { customerEmail }),
+        ...(userId !== undefined && { userId }),
         returnUrl: returnUrl || window.location.href,
         environment: getStripeEnvironment(),
       },

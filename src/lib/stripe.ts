@@ -3,7 +3,7 @@ import { loadStripe, type Stripe } from "@stripe/stripe-js";
 /** Declared locally so this browser module has no server-tree imports. */
 type StripeEnv = "sandbox" | "live";
 
-const clientToken = import.meta.env.VITE_PAYMENTS_CLIENT_TOKEN as string | undefined;
+const clientToken = import.meta.env['VITE_PAYMENTS_CLIENT_TOKEN'] as string | undefined;
 
 /** Derived from the token prefix. A missing token is a configuration error, so
  *  never fall through to live — that fails deep inside the server instead. */
