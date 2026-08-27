@@ -19,6 +19,7 @@ type Result<T> = { data: T | null; error: { message: string } | null };
 interface UntypedQuery<T> extends PromiseLike<Result<T>> {
   eq: (column: string, value: unknown) => UntypedQuery<T>;
   order: (column: string, opts?: { ascending?: boolean }) => UntypedQuery<T>;
+  limit: (count: number) => UntypedQuery<T>;
 }
 
 interface UntypedTable {
