@@ -5,6 +5,8 @@ import { SiteShell } from "@/components/site/SiteShell";
 import { recordValidationEvent } from "@/lib/validation";
 import type { OfferId, OfferRoute } from "@/lib/offers";
 
+type PlanKey = "ai_helper_monthly" | "custom_skin";
+
 interface Tier {
   offer: OfferId;
   route: OfferRoute;
@@ -17,10 +19,12 @@ interface Tier {
   blurb: string;
   includes: readonly string[];
   cta: string;
+  /** Payment catalogue key. Absent for the free tier. */
+  plan?: PlanKey;
 }
 
-/** Prices come from docs/PRICING_RESEARCH.md. Nothing here charges yet —
- *  see docs/MONETISATION.md before wiring a provider. */
+/** Prices come from docs/PRICING_RESEARCH.md. Paid tiers go through checkout;
+ *  see docs/MONETISATION.md. */
 const TIERS: readonly Tier[] = [
   {
     offer: "build",
@@ -63,6 +67,7 @@ const TIERS: readonly Tier[] = [
       "All of it ordinary editable pixels",
     ],
     cta: "Try the AI Helper",
+    plan: "ai_helper_monthly",
   },
   {
     offer: "custom",
@@ -84,6 +89,7 @@ const TIERS: readonly Tier[] = [
       "Java and Bedrock",
     ],
     cta: "Start an order",
+    plan: "custom_skin",
   },
 ];
 
@@ -153,6 +159,13 @@ function PricingPage() {
               >
                 {tier.cta} <ArrowRight size={18} className="gs-cta__arrow" aria-hidden="true" />
               </Link>
+              {tier.plan && (
+                <p className="gs-tier__pay">
+                  <Link to="/checkout" search={{ plan: tier.plan }} className="gs-pixel">
+                    Pay now
+                  </Link>
+                </p>
+              )}
             </article>
           ))}
         </div>
@@ -166,9 +179,8 @@ function PricingPage() {
             <li>
               <Check size={15} aria-hidden="true" />
               <span>
-                <strong>Nothing is charged on this site yet.</strong> These are the prices we
-                are setting. Every button above leads to signup or an order form, not a
-                checkout.
+                <strong>Payments are in test mode for now.</strong> Checkout works end to
+                end, but no card is charged until the account finishes verification.
               </span>
             </li>
             <li>
