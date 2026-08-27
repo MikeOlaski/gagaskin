@@ -1,0 +1,2 @@
+ALTER TABLE public.gallery_skins ADD COLUMN IF NOT EXISTS featured boolean NOT NULL DEFAULT false;
+CREATE UNIQUE INDEX IF NOT EXISTS gallery_skins_one_featured ON public.gallery_skins ((featured)) WHERE featured;
