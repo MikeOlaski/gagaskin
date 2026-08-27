@@ -23,7 +23,7 @@ function isPlanKey(value: unknown): value is PlanKey {
 export const Route = createFileRoute("/checkout")({
   ssr: false,
   validateSearch: (search: Record<string, unknown>): { plan: PlanKey } => ({
-    plan: isPlanKey(search.plan) ? search.plan : "ai_helper_monthly",
+    plan: isPlanKey(search['plan']) ? (search['plan'] as PlanKey) : "ai_helper_monthly",
   }),
   head: () => ({
     meta: [
@@ -79,7 +79,7 @@ function CheckoutPage() {
           <StripeEmbeddedCheckout
             priceId={chosen.priceId}
             userId={user.id}
-            customerEmail={user.email ?? undefined}
+            {...(user.email ? { customerEmail: user.email } : {})}
             returnUrl={`${window.location.origin}/checkout/return?session_id={CHECKOUT_SESSION_ID}`}
           />
         )}

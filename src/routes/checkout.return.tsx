@@ -5,7 +5,7 @@ import { SiteShell } from "@/components/site/SiteShell";
 export const Route = createFileRoute("/checkout/return")({
   ssr: false,
   validateSearch: (search: Record<string, unknown>): { session_id?: string } => ({
-    ...(typeof search.session_id === "string" && { session_id: search.session_id }),
+    ...(typeof search['session_id'] === "string" && { session_id: search['session_id'] as string }),
   }),
   head: () => ({
     meta: [

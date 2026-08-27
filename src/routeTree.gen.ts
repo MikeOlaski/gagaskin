@@ -13,12 +13,14 @@ import { Route as IndexRouteImport } from './routes/index'
 import { Route as AiHelperRouteImport } from './routes/ai-helper'
 import { Route as AuthRouteImport } from './routes/auth'
 import { Route as BuildRouteImport } from './routes/build'
+import { Route as CheckoutRouteImport } from './routes/checkout'
 import { Route as CustomRouteImport } from './routes/custom'
 import { Route as EditorRouteImport } from './routes/editor'
 import { Route as GalleryAdminRouteImport } from './routes/gallery-admin'
 import { Route as JoinRouteImport } from './routes/join'
 import { Route as PricingRouteImport } from './routes/pricing'
 import { Route as SkinsRouteImport } from './routes/skins'
+import { Route as CheckoutReturnRouteImport } from './routes/checkout.return'
 import { Route as ApiPublicPaymentsWebhookRouteImport } from './routes/api/public/payments/webhook'
 
 const IndexRoute = IndexRouteImport.update({
@@ -39,6 +41,11 @@ const AuthRoute = AuthRouteImport.update({
 const BuildRoute = BuildRouteImport.update({
   id: '/build',
   path: '/build',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const CheckoutRoute = CheckoutRouteImport.update({
+  id: '/checkout',
+  path: '/checkout',
   getParentRoute: () => rootRouteImport,
 } as any)
 const CustomRoute = CustomRouteImport.update({
@@ -71,6 +78,11 @@ const SkinsRoute = SkinsRouteImport.update({
   path: '/skins',
   getParentRoute: () => rootRouteImport,
 } as any)
+const CheckoutReturnRoute = CheckoutReturnRouteImport.update({
+  id: '/return',
+  path: '/return',
+  getParentRoute: () => CheckoutRoute,
+} as any)
 const ApiPublicPaymentsWebhookRoute =
   ApiPublicPaymentsWebhookRouteImport.update({
     id: '/api/public/payments/webhook',
@@ -83,12 +95,14 @@ export interface FileRoutesByFullPath {
   '/ai-helper': typeof AiHelperRoute
   '/auth': typeof AuthRoute
   '/build': typeof BuildRoute
+  '/checkout': typeof CheckoutRouteWithChildren
   '/custom': typeof CustomRoute
   '/editor': typeof EditorRoute
   '/gallery-admin': typeof GalleryAdminRoute
   '/join': typeof JoinRoute
   '/pricing': typeof PricingRoute
   '/skins': typeof SkinsRoute
+  '/checkout/return': typeof CheckoutReturnRoute
   '/api/public/payments/webhook': typeof ApiPublicPaymentsWebhookRoute
 }
 export interface FileRoutesByTo {
@@ -96,12 +110,14 @@ export interface FileRoutesByTo {
   '/ai-helper': typeof AiHelperRoute
   '/auth': typeof AuthRoute
   '/build': typeof BuildRoute
+  '/checkout': typeof CheckoutRouteWithChildren
   '/custom': typeof CustomRoute
   '/editor': typeof EditorRoute
   '/gallery-admin': typeof GalleryAdminRoute
   '/join': typeof JoinRoute
   '/pricing': typeof PricingRoute
   '/skins': typeof SkinsRoute
+  '/checkout/return': typeof CheckoutReturnRoute
   '/api/public/payments/webhook': typeof ApiPublicPaymentsWebhookRoute
 }
 export interface FileRoutesById {
@@ -110,12 +126,14 @@ export interface FileRoutesById {
   '/ai-helper': typeof AiHelperRoute
   '/auth': typeof AuthRoute
   '/build': typeof BuildRoute
+  '/checkout': typeof CheckoutRouteWithChildren
   '/custom': typeof CustomRoute
   '/editor': typeof EditorRoute
   '/gallery-admin': typeof GalleryAdminRoute
   '/join': typeof JoinRoute
   '/pricing': typeof PricingRoute
   '/skins': typeof SkinsRoute
+  '/checkout/return': typeof CheckoutReturnRoute
   '/api/public/payments/webhook': typeof ApiPublicPaymentsWebhookRoute
 }
 export interface FileRouteTypes {
@@ -125,12 +143,14 @@ export interface FileRouteTypes {
     | '/ai-helper'
     | '/auth'
     | '/build'
+    | '/checkout'
     | '/custom'
     | '/editor'
     | '/gallery-admin'
     | '/join'
     | '/pricing'
     | '/skins'
+    | '/checkout/return'
     | '/api/public/payments/webhook'
   fileRoutesByTo: FileRoutesByTo
   to:
@@ -138,12 +158,14 @@ export interface FileRouteTypes {
     | '/ai-helper'
     | '/auth'
     | '/build'
+    | '/checkout'
     | '/custom'
     | '/editor'
     | '/gallery-admin'
     | '/join'
     | '/pricing'
     | '/skins'
+    | '/checkout/return'
     | '/api/public/payments/webhook'
   id:
     | '__root__'
@@ -151,12 +173,14 @@ export interface FileRouteTypes {
     | '/ai-helper'
     | '/auth'
     | '/build'
+    | '/checkout'
     | '/custom'
     | '/editor'
     | '/gallery-admin'
     | '/join'
     | '/pricing'
     | '/skins'
+    | '/checkout/return'
     | '/api/public/payments/webhook'
   fileRoutesById: FileRoutesById
 }
@@ -165,6 +189,7 @@ export interface RootRouteChildren {
   AiHelperRoute: typeof AiHelperRoute
   AuthRoute: typeof AuthRoute
   BuildRoute: typeof BuildRoute
+  CheckoutRoute: typeof CheckoutRouteWithChildren
   CustomRoute: typeof CustomRoute
   EditorRoute: typeof EditorRoute
   GalleryAdminRoute: typeof GalleryAdminRoute
@@ -202,6 +227,13 @@ declare module '@tanstack/react-router' {
       path: '/build'
       fullPath: '/build'
       preLoaderRoute: typeof BuildRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/checkout': {
+      id: '/checkout'
+      path: '/checkout'
+      fullPath: '/checkout'
+      preLoaderRoute: typeof CheckoutRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/custom': {
@@ -246,6 +278,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof SkinsRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/checkout/return': {
+      id: '/checkout/return'
+      path: '/return'
+      fullPath: '/checkout/return'
+      preLoaderRoute: typeof CheckoutReturnRouteImport
+      parentRoute: typeof CheckoutRoute
+    }
     '/api/public/payments/webhook': {
       id: '/api/public/payments/webhook'
       path: '/api/public/payments/webhook'
@@ -256,11 +295,24 @@ declare module '@tanstack/react-router' {
   }
 }
 
+interface CheckoutRouteChildren {
+  CheckoutReturnRoute: typeof CheckoutReturnRoute
+}
+
+const CheckoutRouteChildren: CheckoutRouteChildren = {
+  CheckoutReturnRoute: CheckoutReturnRoute,
+}
+
+const CheckoutRouteWithChildren = CheckoutRoute._addFileChildren(
+  CheckoutRouteChildren,
+)
+
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AiHelperRoute: AiHelperRoute,
   AuthRoute: AuthRoute,
   BuildRoute: BuildRoute,
+  CheckoutRoute: CheckoutRouteWithChildren,
   CustomRoute: CustomRoute,
   EditorRoute: EditorRoute,
   GalleryAdminRoute: GalleryAdminRoute,
