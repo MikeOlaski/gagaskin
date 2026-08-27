@@ -10,10 +10,153 @@ export type Database = {
   // Allows to automatically instantiate createClient with right options
   // instead of createClient<Database, { PostgrestVersion: 'XX' }>(URL, KEY)
   __InternalSupabase: {
-    PostgrestVersion: "14.15"
+    PostgrestVersion: "14.17"
   }
   public: {
     Tables: {
+      app_settings: {
+        Row: {
+          id: number
+          registration_cap: number
+        }
+        Insert: {
+          id?: number
+          registration_cap?: number
+        }
+        Update: {
+          id?: number
+          registration_cap?: number
+        }
+        Relationships: []
+      }
+      gallery_skins: {
+        Row: {
+          created_at: string
+          id: string
+          ingame_path: string
+          inspiration_path: string
+          made_with: string
+          published: boolean
+          skin_png_path: string | null
+          sort_order: number
+          title: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          ingame_path: string
+          inspiration_path: string
+          made_with: string
+          published?: boolean
+          skin_png_path?: string | null
+          sort_order?: number
+          title: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          ingame_path?: string
+          inspiration_path?: string
+          made_with?: string
+          published?: boolean
+          skin_png_path?: string | null
+          sort_order?: number
+          title?: string
+        }
+        Relationships: []
+      }
+      offer_views: {
+        Row: {
+          offer: string
+          views: number
+        }
+        Insert: {
+          offer: string
+          views?: number
+        }
+        Update: {
+          offer?: string
+          views?: number
+        }
+        Relationships: []
+      }
+      profiles: {
+        Row: {
+          created_at: string
+          id: string
+          platform: string
+          source_offer: string
+        }
+        Insert: {
+          created_at?: string
+          id: string
+          platform?: string
+          source_offer?: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          platform?: string
+          source_offer?: string
+        }
+        Relationships: []
+      }
+      skin_orders: {
+        Row: {
+          brief: string
+          created_at: string
+          creator_id: string | null
+          customer_id: string
+          delivered_project_id: string | null
+          id: string
+          platform: string
+          price_intent: string
+          reference_path: string | null
+          released_at: string | null
+          released_by: string | null
+          status: Database["public"]["Enums"]["order_status"]
+          updated_at: string
+        }
+        Insert: {
+          brief: string
+          created_at?: string
+          creator_id?: string | null
+          customer_id: string
+          delivered_project_id?: string | null
+          id?: string
+          platform?: string
+          price_intent?: string
+          reference_path?: string | null
+          released_at?: string | null
+          released_by?: string | null
+          status?: Database["public"]["Enums"]["order_status"]
+          updated_at?: string
+        }
+        Update: {
+          brief?: string
+          created_at?: string
+          creator_id?: string | null
+          customer_id?: string
+          delivered_project_id?: string | null
+          id?: string
+          platform?: string
+          price_intent?: string
+          reference_path?: string | null
+          released_at?: string | null
+          released_by?: string | null
+          status?: Database["public"]["Enums"]["order_status"]
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "skin_orders_delivered_project_id_fkey"
+            columns: ["delivered_project_id"]
+            isOneToOne: false
+            referencedRelation: "skin_projects"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       skin_projects: {
         Row: {
           created_at: string
@@ -53,15 +196,60 @@ export type Database = {
         }
         Relationships: []
       }
+      user_roles: {
+        Row: {
+          role: Database["public"]["Enums"]["app_role"]
+          user_id: string
+        }
+        Insert: {
+          role: Database["public"]["Enums"]["app_role"]
+          user_id: string
+        }
+        Update: {
+          role?: Database["public"]["Enums"]["app_role"]
+          user_id?: string
+        }
+        Relationships: []
+      }
+      waitlist: {
+        Row: {
+          created_at: string
+          email: string
+          id: string
+          source_offer: string
+        }
+        Insert: {
+          created_at?: string
+          email: string
+          id?: string
+          source_offer?: string
+        }
+        Update: {
+          created_at?: string
+          email?: string
+          id?: string
+          source_offer?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
     }
     Functions: {
-      [_ in never]: never
+      has_role: {
+        Args: {
+          _role: Database["public"]["Enums"]["app_role"]
+          _user_id: string
+        }
+        Returns: boolean
+      }
+      record_offer_view: { Args: { _offer: string }; Returns: undefined }
+      registration_open: { Args: never; Returns: boolean }
     }
     Enums: {
-      [_ in never]: never
+      app_role: "guardian" | "creator"
+      order_status: "submitted" | "released" | "in_progress" | "delivered"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -188,6 +376,9 @@ export type CompositeTypes<
 
 export const Constants = {
   public: {
-    Enums: {},
+    Enums: {
+      app_role: ["guardian", "creator"],
+      order_status: ["submitted", "released", "in_progress", "delivered"],
+    },
   },
 } as const
