@@ -384,7 +384,10 @@
   background: color-mix(in oklab, var(--gs-canvas) 70%, var(--gs-surface));
   border-radius: 4px;
 }
+/* Inspo rows carry a source thumbnail before the render. */
+.gs-dirrow--inspo { grid-template-columns: 48px 48px minmax(0, 1fr) auto; }
 .gs-dirrow__body { min-width: 0; }
+
 .gs-dirrow__body p { margin: 2px 0 0; }
 .gs-dirrow .gs-dl { margin-top: 0; }
 .gs-dirrow--assist { border-left: 3px solid var(--gs-signal-assist); }
