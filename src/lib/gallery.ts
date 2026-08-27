@@ -17,6 +17,7 @@ export interface GallerySkin {
   published: boolean;
   featured: boolean;
   sortOrder: number;
+  downloadCount: number;
   createdAt: string;
 }
 
@@ -64,6 +65,7 @@ function fromRow(row: Record<string, unknown>): GallerySkin {
     published: row["published"] as boolean,
     featured: (row["featured"] as boolean | null) ?? false,
     sortOrder: row["sort_order"] as number,
+    downloadCount: (row["download_count"] as number | null) ?? 0,
     createdAt: row["created_at"] as string,
   };
 }
