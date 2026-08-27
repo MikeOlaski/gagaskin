@@ -97,14 +97,19 @@ export async function publishProject(args: {
   skin: SkinBuffer;
   madeWith?: OfferId;
 }): Promise<void> {
-  const [skinBlob, renderBlob] = await Promise.all([
+  const [skinBlob, renderBlob, views] = await Promise.all([
     skinPngBlob(args.skin),
     frontRenderBlob(args.skin),
+    renderAllGalleryViews(args.skin),
   ]);
   const base = `projects/${args.projectId}`;
-  const [skinPath, ingamePath] = await Promise.all([
+  const stamp = Date.now();
+  const [skinPath, ingamePath, isoPath, quadPath, duoPath] = await Promise.all([
     upload(skinBlob, `${base}/skin.png`),
     upload(renderBlob, `${base}/ingame.png`),
+    upload(views.iso, `${base}/view-iso-${stamp}.png`),
+    upload(views.quad, `${base}/view-quad-${stamp}.png`),
+    upload(views.duo, `${base}/view-duo-${stamp}.png`),
   ]);
 
   const existing = await fetchProjectGalleryEntry(args.projectId);
@@ -113,6 +118,9 @@ export async function publishProject(args: {
     inspiration_path: ingamePath,
     ingame_path: ingamePath,
     skin_png_path: skinPath,
+    render_iso_path: isoPath,
+    render_quad_path: quadPath,
+    render_duo_path: duoPath,
     made_with: args.madeWith ?? "custom",
     published: true,
   };
