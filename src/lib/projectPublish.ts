@@ -10,6 +10,7 @@ export interface ProjectGalleryEntry {
   projectId: string;
   title: string;
   published: boolean;
+  featured: boolean;
   madeWith: OfferId;
 }
 
@@ -74,7 +75,7 @@ export async function fetchProjectGalleryEntry(
   projectId: string,
 ): Promise<ProjectGalleryEntry | null> {
   const { data, error } = await table("gallery_skins")
-    .select("id, project_id, title, published, made_with")
+    .select("id, project_id, title, published, featured, made_with")
     .eq("project_id", projectId);
   if (error) throw new Error(error.message);
   const row = (data ?? [])[0];
@@ -84,6 +85,7 @@ export async function fetchProjectGalleryEntry(
     projectId,
     title: row["title"] as string,
     published: row["published"] as boolean,
+    featured: (row["featured"] as boolean | null) ?? false,
     madeWith: row["made_with"] as OfferId,
   };
 }
@@ -128,6 +130,14 @@ export async function publishProject(args: {
   const { error } = existing
     ? await table("gallery_skins").update(values).eq("id", existing.id)
     : await table("gallery_skins").insert({ ...values, project_id: args.projectId });
+  if (error) throw new Error(error.message);
+}
+
+/** Exactly one gallery entry is the homepage hero, so featuring one clears the rest. */
+export async function setFeaturedEntry(entryId: string): Promise<void> {
+  const cleared = await table("gallery_skins").update({ featured: false }).eq("featured", true);
+  if (cleared.error) throw new Error(cleared.error.message);
+  const { error } = await table("gallery_skins").update({ featured: true }).eq("id", entryId);
   if (error) throw new Error(error.message);
 }
 
