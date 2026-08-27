@@ -36,6 +36,7 @@ export type Database = {
           ingame_path: string
           inspiration_path: string
           made_with: string
+          project_id: string | null
           published: boolean
           skin_png_path: string | null
           sort_order: number
@@ -47,6 +48,7 @@ export type Database = {
           ingame_path: string
           inspiration_path: string
           made_with: string
+          project_id?: string | null
           published?: boolean
           skin_png_path?: string | null
           sort_order?: number
@@ -58,12 +60,21 @@ export type Database = {
           ingame_path?: string
           inspiration_path?: string
           made_with?: string
+          project_id?: string | null
           published?: boolean
           skin_png_path?: string | null
           sort_order?: number
           title?: string
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "gallery_skins_project_id_fkey"
+            columns: ["project_id"]
+            isOneToOne: false
+            referencedRelation: "skin_projects"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       offer_views: {
         Row: {
