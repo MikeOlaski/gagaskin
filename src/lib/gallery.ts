@@ -1,5 +1,5 @@
 import { supabase } from "@/integrations/supabase/client";
-import { table } from "@/lib/db";
+import { rpc, table } from "@/lib/db";
 import type { GalleryView } from "@/domain/skin/poseRender";
 import type { OfferId } from "@/lib/offers";
 
@@ -104,4 +104,72 @@ export function makerHandles(skins: readonly GallerySkin[]): string[] {
     if (s.authorHandle && !seen.includes(s.authorHandle)) seen.push(s.authorHandle);
   }
   return seen;
+}
+
+/** The 64×64 skin PNG, when the entry has one. Older entries predate skin export. */
+export function skinDownloadUrl(skin: GallerySkin): string | null {
+  return skin.skinPngPath ? publicImageUrl(skin.skinPngPath) : null;
+}
+
+export function downloadFileName(skin: GallerySkin): string {
+  const slug = skin.title.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "");
+  return `${slug || "skin"}-gagaskin.png`;
+}
+
+/** Counted server-side so an anonymous visitor still registers. Never allowed to
+ *  block or fail the download itself. */
+export function recordSkinDownload(skinId: string): void {
+  void Promise.resolve(rpc("record_skin_download", { _skin: skinId })).catch(() => {});
+}
+
+/**
+ * Downloads the canonical skin PNG. Fetched as a blob so the file lands in the
+ * visitor's downloads with our filename rather than opening in a tab.
+ */
+export async function downloadSkin(skin: GallerySkin): Promise<void> {
+  const url = skinDownloadUrl(skin);
+  if (!url) throw new Error("This skin has no downloadable PNG yet.");
+  recordSkinDownload(skin.id);
+
+  const res = await fetch(url);
+  if (!res.ok) throw new Error("Could not fetch the skin file.");
+  const blob = await res.blob();
+  const href = URL.createObjectURL(blob);
+  const a = document.createElement("a");
+  a.href = href;
+  a.download = downloadFileName(skin);
+  document.body.appendChild(a);
+  a.click();
+  a.remove();
+  URL.revokeObjectURL(href);
+}
+
+export type DirectorySort = "newest" | "downloads" | "featured" | "title";
+
+export const DIRECTORY_SORT_LABEL: Record<DirectorySort, string> = {
+  newest: "Newest",
+  downloads: "Most downloaded",
+  featured: "Featured",
+  title: "A–Z",
+};
+
+export function sortDirectory(
+  skins: readonly GallerySkin[],
+  sort: DirectorySort,
+): GallerySkin[] {
+  const list = [...skins];
+  switch (sort) {
+    case "newest":
+      return list.sort((a, b) => Date.parse(b.createdAt) - Date.parse(a.createdAt));
+    case "downloads":
+      return list.sort(
+        (a, b) => b.downloadCount - a.downloadCount || a.title.localeCompare(b.title),
+      );
+    case "featured":
+      return list.sort(
+        (a, b) => Number(b.featured) - Number(a.featured) || a.sortOrder - b.sortOrder,
+      );
+    case "title":
+      return list.sort((a, b) => a.title.localeCompare(b.title));
+  }
 }
