@@ -67,7 +67,7 @@ export function SkinGrid({ skins }: { skins: readonly GallerySkin[] }) {
               <button
                 key={h}
                 type="button"
-                className={`gs-pixel gs-views__btn${maker === h ? " is-active" : ""}`}
+                className={`gs-pixel gs-views__btn gs-views__btn--maker${maker === h ? " is-active" : ""}`}
                 aria-pressed={maker === h}
                 onClick={() => setMaker(h)}
               >
