@@ -76,6 +76,7 @@ function PreviewFallback({ label }: { label: string }) {
 function SkinPainterPage() {
   const [focusMode, setFocusMode] = useState(false);
   const [sourceOpen, setSourceOpen] = useState(false);
+  const [partsOpen, setPartsOpen] = useState(false);
   const [editMode, setEditMode] = useState<EditMode>("flat");
   const { user, loading } = useSession();
   const navigate = useNavigate();
