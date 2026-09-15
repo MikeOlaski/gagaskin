@@ -7,10 +7,12 @@ import {
   Keyboard,
   Maximize2,
   Minimize2,
+  PersonStanding,
 } from "lucide-react";
 import { lazy, Suspense, useEffect, useState } from "react";
 
 import { AtlasPreview } from "@/components/skin/AtlasPreview";
+import { BodySegmentPanel } from "@/components/skin/BodySegmentPanel";
 import { FrontPreview2D } from "@/components/skin/FrontPreview2D";
 import { AutoDesignPanel } from "@/components/skin/AutoDesignPanel";
 import { FloatingPanel } from "@/components/skin/FloatingPanel";
@@ -75,6 +77,7 @@ function PreviewFallback({ label }: { label: string }) {
 function SkinPainterPage() {
   const [focusMode, setFocusMode] = useState(false);
   const [sourceOpen, setSourceOpen] = useState(false);
+  const [partsOpen, setPartsOpen] = useState(false);
   const [editMode, setEditMode] = useState<EditMode>("flat");
   const { user, loading } = useSession();
   const navigate = useNavigate();
@@ -159,6 +162,18 @@ function SkinPainterPage() {
                 3D edit mode
               </Button>
             </div>
+            {editMode === "model" && (
+              <Button
+                variant={partsOpen ? "default" : "outline"}
+                size="sm"
+                onClick={() => setPartsOpen((v) => !v)}
+                aria-pressed={partsOpen}
+                title="Show, hide and isolate body parts"
+              >
+                <PersonStanding className="mr-1 size-3.5" />
+                Body parts
+              </Button>
+            )}
             {!focusMode && <SkinFileBar />}
             <Button
               variant={sourceOpen ? "default" : "outline"}
@@ -241,6 +256,16 @@ function SkinPainterPage() {
       )}
 
       {sourceOpen && <SourceImagePanel onClose={() => setSourceOpen(false)} />}
+
+      {partsOpen && editMode === "model" && (
+        <FloatingPanel
+          title="Body parts"
+          onClose={() => setPartsOpen(false)}
+          defaultPosition={{ x: 360, y: 120 }}
+        >
+          <BodySegmentPanel bare />
+        </FloatingPanel>
+      )}
 
       {focusMode && (
         <FloatingPanel title="Tools" onClose={() => setFocusMode(false)}>

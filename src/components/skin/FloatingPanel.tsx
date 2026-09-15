@@ -5,12 +5,18 @@ interface FloatingPanelProps {
   title: string;
   onClose: () => void;
   children: ReactNode;
+  defaultPosition?: { x: number; y: number };
 }
 
 const DEFAULT_POSITION = { x: 24, y: 88 };
 
 /** A draggable, viewport-clamped palette used by focus mode. */
-export function FloatingPanel({ title, onClose, children }: FloatingPanelProps) {
+export function FloatingPanel({
+  title,
+  onClose,
+  children,
+  defaultPosition = DEFAULT_POSITION,
+}: FloatingPanelProps) {
   const panelRef = useRef<HTMLDivElement>(null);
   const dragRef = useRef<{
     startX: number;
@@ -67,8 +73,8 @@ export function FloatingPanel({ title, onClose, children }: FloatingPanelProps) 
         <span className="text-xs font-semibold text-foreground">{title}</span>
         <button
           type="button"
-          aria-label="Exit focus mode"
-          title="Exit focus mode"
+          aria-label={`Close ${title}`}
+          title={`Close ${title}`}
           onClick={onClose}
           className="ml-auto shrink-0 rounded p-1 text-muted-foreground hover:bg-accent hover:text-foreground focus:outline-none focus:ring-2 focus:ring-ring"
         >

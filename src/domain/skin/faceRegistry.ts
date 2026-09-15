@@ -142,6 +142,32 @@ export function faceAtAtlas(
   return null;
 }
 
+export const ARM_PARTS: BodyPart[] = ["LEFT_ARM", "RIGHT_ARM"];
+
+/**
+ * Slim ("Alex") model: arms are 3 texels wide instead of 4. Minecraft keeps the
+ * side faces 4 wide and shifts everything right of the front face left by one,
+ * so the same 64×64 atlas serves both models.
+ */
+export function slimAtlas(face: SkinFace): AtlasRect {
+  if (!ARM_PARTS.includes(face.part)) return face.atlas;
+  const { x, y, w, h } = face.atlas;
+  switch (face.face) {
+    case "TOP":
+      return { x, y, w: 3, h };
+    case "BOTTOM":
+      return { x: x - 1, y, w: 3, h };
+    case "FRONT":
+      return { x, y, w: 3, h };
+    case "LEFT":
+      return { x: x - 1, y, w, h };
+    case "BACK":
+      return { x: x - 1, y, w: 3, h };
+    default:
+      return face.atlas;
+  }
+}
+
 export const OPPOSITE_PART: Partial<Record<BodyPart, BodyPart>> = {
   LEFT_ARM: "RIGHT_ARM",
   RIGHT_ARM: "LEFT_ARM",
