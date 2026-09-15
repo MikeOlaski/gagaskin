@@ -139,7 +139,7 @@ function PaintablePart({
       <mesh geometry={geometry} raycast={() => null}>
         <meshLambertMaterial color="#e2e8f0" />
       </mesh>
-      <mesh geometry={geometry} material={material} onPointerDown={(e) => onHit(e, part, "down")} onPointerMove={(e) => onHit(e, part, "move")} onPointerOut={() => onHover(null)} />
+      <mesh geometry={geometry} material={material} scale={1.01} onPointerDown={(e) => onHit(e, part, "down")} onPointerMove={(e) => onHit(e, part, "move")} onPointerOut={() => onHover(null)} />
       <lineSegments geometry={edges} raycast={() => null} renderOrder={2}>
         <lineBasicMaterial color="#1f2937" transparent opacity={0.45} depthTest={false} />
       </lineSegments>
