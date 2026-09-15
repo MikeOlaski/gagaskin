@@ -75,6 +75,7 @@ function PreviewFallback({ label }: { label: string }) {
 function SkinPainterPage() {
   const [focusMode, setFocusMode] = useState(false);
   const [sourceOpen, setSourceOpen] = useState(false);
+  const [editMode, setEditMode] = useState<EditMode>("flat");
   const { user, loading } = useSession();
   const navigate = useNavigate();
   const { start } = Route.useSearch();
@@ -136,6 +137,28 @@ function SkinPainterPage() {
             )}
           </div>
           <div className="ml-auto flex items-center gap-2">
+            <div className="flex items-center rounded-md border border-border p-0.5">
+              <Button
+                variant={editMode === "flat" ? "default" : "ghost"}
+                size="sm"
+                aria-pressed={editMode === "flat"}
+                onClick={() => setEditMode("flat")}
+                title="Paint on the flat exploded layout"
+              >
+                <Grid2x2 className="mr-1 size-3.5" />
+                Flat edit
+              </Button>
+              <Button
+                variant={editMode === "model" ? "default" : "ghost"}
+                size="sm"
+                aria-pressed={editMode === "model"}
+                onClick={() => setEditMode("model")}
+                title="Fold the skin onto the 3D model and paint on it directly"
+              >
+                <Box className="mr-1 size-3.5" />
+                3D edit mode
+              </Button>
+            </div>
             {!focusMode && <SkinFileBar />}
             <Button
               variant={sourceOpen ? "default" : "outline"}
