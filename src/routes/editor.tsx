@@ -11,6 +11,7 @@ import {
 import { lazy, Suspense, useEffect, useState } from "react";
 
 import { AtlasPreview } from "@/components/skin/AtlasPreview";
+import { BodySegmentPanel } from "@/components/skin/BodySegmentPanel";
 import { FrontPreview2D } from "@/components/skin/FrontPreview2D";
 import { AutoDesignPanel } from "@/components/skin/AutoDesignPanel";
 import { FloatingPanel } from "@/components/skin/FloatingPanel";
