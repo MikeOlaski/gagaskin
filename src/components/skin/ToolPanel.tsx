@@ -155,6 +155,18 @@ export function ToolPanel({ bare = false }: { bare?: boolean } = {}) {
         >
           <Trash2 className="mr-1 size-3.5" /> Clear selected face
         </Button>
+        <Button
+          variant="outline"
+          size="sm"
+          className="col-span-2 text-destructive hover:text-destructive"
+          data-testid="clear-skin"
+          title="Erase every pixel of this skin (undoable)"
+          onClick={() => {
+            if (window.confirm("Erase the entire skin? You can undo this.")) clearSkin();
+          }}
+        >
+          <Eraser className="mr-1 size-3.5" /> Clear entire skin
+        </Button>
       </div>
 
       <button
