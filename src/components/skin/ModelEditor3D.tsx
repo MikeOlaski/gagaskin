@@ -330,12 +330,13 @@ export default function ModelEditor3D() {
   const version = useEditorStore((s) => s.version);
   const tool = useEditorStore((s) => s.tool);
   const controls = useRef<React.ComponentRef<typeof OrbitControls>>(null);
+  const zoomApi = useRef<((factor: number) => void) | null>(null);
   const [hover, setHover] = useState<HitInfo | null>(null);
 
   const paintMode = PAINT_TOOLS.includes(tool);
 
   return (
-    <section className="flex min-h-[520px] flex-col overflow-hidden rounded-xl border border-border bg-card shadow-sm">
+    <section className="flex h-full min-h-[calc(100vh-9rem)] flex-col overflow-hidden rounded-xl border border-border bg-card shadow-sm">
       <header className="flex flex-wrap items-center gap-2 border-b border-border px-4 py-3">
         <h2 className="text-sm font-semibold text-foreground">3D edit mode</h2>
         <span className="text-xs text-muted-foreground">
@@ -348,10 +349,32 @@ export default function ModelEditor3D() {
             ? `${PART_LABELS[hover.part]} · ${hover.faceLabel} · ${hover.atlasX},${hover.atlasY}`
             : "—"}
         </span>
-        <Button variant="outline" size="sm" onClick={() => controls.current?.reset()}>
-          <RotateCcw className="mr-1 size-3.5" />
-          Reset view
-        </Button>
+        <div className="flex items-center gap-1">
+          <Button
+            variant="outline"
+            size="icon"
+            className="size-8"
+            title="Zoom out"
+            aria-label="Zoom out"
+            onClick={() => zoomApi.current?.(1.25)}
+          >
+            <Minus className="size-3.5" />
+          </Button>
+          <Button
+            variant="outline"
+            size="icon"
+            className="size-8"
+            title="Zoom in"
+            aria-label="Zoom in"
+            onClick={() => zoomApi.current?.(0.8)}
+          >
+            <Plus className="size-3.5" />
+          </Button>
+          <Button variant="outline" size="sm" onClick={() => controls.current?.reset()}>
+            <RotateCcw className="mr-1 size-3.5" />
+            Reset view
+          </Button>
+        </div>
       </header>
       <div
         className="min-h-0 flex-1"
@@ -363,6 +386,7 @@ export default function ModelEditor3D() {
             canvas={canvas}
             version={version}
             controlsRef={controls}
+            zoomApi={zoomApi}
             onHover={setHover}
           />
         </Canvas>
