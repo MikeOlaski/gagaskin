@@ -118,7 +118,16 @@ function PaintablePart({
     return g;
   }, [part, size, slim]);
 
-  useEffect(() => () => geometry.dispose(), [geometry]);
+  // Wireframe edges make each cube (and so each paintable surface) readable.
+  const edges = useMemo(() => new THREE.EdgesGeometry(geometry), [geometry]);
+
+  useEffect(
+    () => () => {
+      geometry.dispose();
+      edges.dispose();
+    },
+    [geometry, edges],
+  );
 
   const quad = selectedFace ? faceQuad(selectedFace, size) : null;
 
@@ -131,6 +140,9 @@ function PaintablePart({
         onPointerMove={(e) => onHit(e, part, "move")}
         onPointerOut={() => onHover(null)}
       />
+      <lineSegments geometry={edges} raycast={() => null} renderOrder={2}>
+        <lineBasicMaterial color="#1f2937" transparent opacity={0.45} depthTest={false} />
+      </lineSegments>
       {quad ? (
         <mesh position={quad.position} rotation={quad.rotation} raycast={() => null}>
           <planeGeometry args={quad.plane} />
@@ -139,6 +151,23 @@ function PaintablePart({
       ) : null}
     </group>
   );
+}
+
+/** Bridges the toolbar zoom buttons to the live camera, matching wheel zoom limits. */
+function ZoomBridge({ api }: { api: React.RefObject<((factor: number) => void) | null> }) {
+  const camera = useThree((s) => s.camera);
+  useEffect(() => {
+    api.current = (factor: number) => {
+      const target = new THREE.Vector3(0, 1, 0);
+      const offset = camera.position.clone().sub(target);
+      const distance = Math.min(120, Math.max(14, offset.length() * factor));
+      camera.position.copy(target).add(offset.setLength(distance));
+    };
+    return () => {
+      api.current = null;
+    };
+  }, [api, camera]);
+  return null;
 }
 
 function EditorScene({
