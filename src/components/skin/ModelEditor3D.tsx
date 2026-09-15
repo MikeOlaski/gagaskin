@@ -211,12 +211,16 @@ function EditorScene({
   version,
   controlsRef,
   zoomApi,
+  paintMode,
+  onDistance,
   onHover,
 }: {
   canvas: HTMLCanvasElement | null;
   version: number;
   controlsRef: React.RefObject<React.ComponentRef<typeof OrbitControls> | null>;
-  zoomApi: React.RefObject<((factor: number) => void) | null>;
+  zoomApi: React.RefObject<ZoomApi | null>;
+  paintMode: boolean;
+  onDistance: (distance: number) => void;
   onHover: (info: HitInfo | null) => void;
 }) {
   const tool = useEditorStore((s) => s.tool);
