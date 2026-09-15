@@ -1,7 +1,13 @@
 import { create } from "zustand";
 
 import { createDemoSkin, createDiagnosticSkin } from "@/domain/skin/demoSkin";
-import { FACE_BY_ID, oppositeFace, type SkinFace } from "@/domain/skin/faceRegistry";
+import {
+  FACE_BY_ID,
+  oppositeFace,
+  PART_ORDER,
+  type BodyPart,
+  type SkinFace,
+} from "@/domain/skin/faceRegistry";
 import { fitImageToFace, type FitMode } from "@/domain/skin/imageMapping";
 import {
   applyPlan,
@@ -65,6 +71,16 @@ interface EditorState {
   planError: string | null;
   undoStack: SkinBuffer[];
   redoStack: SkinBuffer[];
+  /** 3D edit mode: which body parts are rendered/paintable (additive isolation) */
+  visibleParts: Record<BodyPart, boolean>;
+  /** slim (3px) arms — the "Alex" model — vs classic 4px */
+  slimArms: boolean;
+
+  togglePartVisibility: (part: BodyPart) => void;
+  isolatePart: (part: BodyPart) => void;
+  showAllParts: () => void;
+  setSlimArms: (slim: boolean) => void;
+  fillSelectedFace: () => void;
 
   selectFace: (id: string | null) => void;
   setTool: (tool: Tool) => void;
