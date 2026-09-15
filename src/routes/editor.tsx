@@ -190,7 +190,17 @@ function SkinPainterPage() {
 
       {focusMode ? (
         <main className="flex min-h-0 flex-1">
-          <UVEditor fullBleed />
+          {editMode === "model" ? (
+            <div className="min-h-0 flex-1 p-4">
+              <ClientOnly fallback={<PreviewFallback label="Loading 3D edit mode…" />}>
+                <Suspense fallback={<PreviewFallback label="Loading 3D edit mode…" />}>
+                  <ModelEditor3D />
+                </Suspense>
+              </ClientOnly>
+            </div>
+          ) : (
+            <UVEditor fullBleed />
+          )}
         </main>
       ) : (
         <main className="grid gap-4 overflow-x-hidden px-4 py-4 lg:px-6 xl:grid-cols-[300px_minmax(0,1fr)_360px]">
