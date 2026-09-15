@@ -222,11 +222,11 @@ function EditorScene({
         minDistance={18}
         maxDistance={120}
         target={[0, 1, 0]}
-        mouseButtons={{
-          LEFT: paintMode ? undefined : THREE.MOUSE.ROTATE,
-          MIDDLE: THREE.MOUSE.DOLLY,
-          RIGHT: THREE.MOUSE.ROTATE,
-        }}
+        mouseButtons={
+          paintMode
+            ? { MIDDLE: THREE.MOUSE.DOLLY, RIGHT: THREE.MOUSE.ROTATE }
+            : { LEFT: THREE.MOUSE.ROTATE, MIDDLE: THREE.MOUSE.DOLLY, RIGHT: THREE.MOUSE.ROTATE }
+        }
       />
     </>
   );
