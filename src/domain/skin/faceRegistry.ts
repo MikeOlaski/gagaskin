@@ -124,6 +124,24 @@ export function getFace(part: BodyPart, face: FaceName): SkinFace {
   return FACE_BY_ID[faceId(part, face)]!;
 }
 
+/**
+ * Reverse lookup: which registered face owns an atlas texel, plus that texel's
+ * coordinates inside the face. Used by 3D painting, where a ray hit yields an
+ * atlas UV rather than a face id.
+ */
+export function faceAtAtlas(
+  atlasX: number,
+  atlasY: number,
+): { face: SkinFace; localX: number; localY: number } | null {
+  for (const face of FACES) {
+    const { x, y, w, h } = face.atlas;
+    if (atlasX >= x && atlasX < x + w && atlasY >= y && atlasY < y + h) {
+      return { face, localX: atlasX - x, localY: atlasY - y };
+    }
+  }
+  return null;
+}
+
 export const OPPOSITE_PART: Partial<Record<BodyPart, BodyPart>> = {
   LEFT_ARM: "RIGHT_ARM",
   RIGHT_ARM: "LEFT_ARM",

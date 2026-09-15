@@ -1,5 +1,13 @@
 import { ClientOnly, createFileRoute, useNavigate } from "@tanstack/react-router";
-import { ChevronDown, Image as ImageIcon, Keyboard, Maximize2, Minimize2 } from "lucide-react";
+import {
+  Box,
+  ChevronDown,
+  Grid2x2,
+  Image as ImageIcon,
+  Keyboard,
+  Maximize2,
+  Minimize2,
+} from "lucide-react";
 import { lazy, Suspense, useEffect, useState } from "react";
 
 import { AtlasPreview } from "@/components/skin/AtlasPreview";
@@ -20,6 +28,9 @@ import { useSession } from "@/hooks/useSession";
 import { useEditorStore, type Tool } from "@/store/editorStore";
 
 const ModelPreview3D = lazy(() => import("@/components/skin/ModelPreview3D"));
+const ModelEditor3D = lazy(() => import("@/components/skin/ModelEditor3D"));
+
+type EditMode = "flat" | "model";
 
 const SHORTCUT_TOOL: Record<string, Tool> = Object.fromEntries(
   TOOLS.map((t) => [t.shortcut.toLowerCase(), t.id]),
@@ -64,6 +75,7 @@ function PreviewFallback({ label }: { label: string }) {
 function SkinPainterPage() {
   const [focusMode, setFocusMode] = useState(false);
   const [sourceOpen, setSourceOpen] = useState(false);
+  const [editMode, setEditMode] = useState<EditMode>("flat");
   const { user, loading } = useSession();
   const navigate = useNavigate();
   const { start } = Route.useSearch();
@@ -125,6 +137,28 @@ function SkinPainterPage() {
             )}
           </div>
           <div className="ml-auto flex items-center gap-2">
+            <div className="flex items-center rounded-md border border-border p-0.5">
+              <Button
+                variant={editMode === "flat" ? "default" : "ghost"}
+                size="sm"
+                aria-pressed={editMode === "flat"}
+                onClick={() => setEditMode("flat")}
+                title="Paint on the flat exploded layout"
+              >
+                <Grid2x2 className="mr-1 size-3.5" />
+                Flat edit
+              </Button>
+              <Button
+                variant={editMode === "model" ? "default" : "ghost"}
+                size="sm"
+                aria-pressed={editMode === "model"}
+                onClick={() => setEditMode("model")}
+                title="Fold the skin onto the 3D model and paint on it directly"
+              >
+                <Box className="mr-1 size-3.5" />
+                3D edit mode
+              </Button>
+            </div>
             {!focusMode && <SkinFileBar />}
             <Button
               variant={sourceOpen ? "default" : "outline"}
@@ -156,7 +190,17 @@ function SkinPainterPage() {
 
       {focusMode ? (
         <main className="flex min-h-0 flex-1">
-          <UVEditor fullBleed />
+          {editMode === "model" ? (
+            <div className="min-h-0 flex-1 p-4">
+              <ClientOnly fallback={<PreviewFallback label="Loading 3D edit mode…" />}>
+                <Suspense fallback={<PreviewFallback label="Loading 3D edit mode…" />}>
+                  <ModelEditor3D />
+                </Suspense>
+              </ClientOnly>
+            </div>
+          ) : (
+            <UVEditor fullBleed />
+          )}
         </main>
       ) : (
         <main className="grid gap-4 overflow-x-hidden px-4 py-4 lg:px-6 xl:grid-cols-[300px_minmax(0,1fr)_360px]">
@@ -172,14 +216,24 @@ function SkinPainterPage() {
             </div>
           </div>
 
-          <UVEditor />
-
-          <div className="flex min-w-0 flex-col gap-4">
-            <ClientOnly fallback={<PreviewFallback label="Loading 3D preview…" />}>
-              <Suspense fallback={<PreviewFallback label="Loading 3D preview…" />}>
-                <ModelPreview3D />
+          {editMode === "model" ? (
+            <ClientOnly fallback={<PreviewFallback label="Loading 3D edit mode…" />}>
+              <Suspense fallback={<PreviewFallback label="Loading 3D edit mode…" />}>
+                <ModelEditor3D />
               </Suspense>
             </ClientOnly>
+          ) : (
+            <UVEditor />
+          )}
+
+          <div className="flex min-w-0 flex-col gap-4">
+            {editMode === "flat" && (
+              <ClientOnly fallback={<PreviewFallback label="Loading 3D preview…" />}>
+                <Suspense fallback={<PreviewFallback label="Loading 3D preview…" />}>
+                  <ModelPreview3D />
+                </Suspense>
+              </ClientOnly>
+            )}
             <FrontPreview2D />
             <AtlasPreview />
           </div>
