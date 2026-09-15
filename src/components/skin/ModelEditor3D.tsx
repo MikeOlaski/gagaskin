@@ -153,6 +153,9 @@ function EditorScene({
   onHover: (info: HitInfo | null) => void;
 }) {
   const tool = useEditorStore((s) => s.tool);
+  const visibleParts = useEditorStore((s) => s.visibleParts);
+  const slimArms = useEditorStore((s) => s.slimArms);
+  const selected = useSelectedFace();
   const painting = useRef(false);
 
   const texture = useMemo(() => {
@@ -248,17 +251,23 @@ function EditorScene({
       <directionalLight position={[-16, 10, -20]} intensity={0.5} />
       {material ? (
         <group position={[0, -17, 0]}>
-          {PARTS.map((p) => (
-            <PaintablePart
-              key={p.part}
-              part={p.part}
-              size={p.size}
-              position={p.position}
-              material={material}
-              onHit={handleHit}
-              onHover={onHover}
-            />
-          ))}
+          {PARTS.filter((p) => visibleParts[p.part]).map((p) => {
+            const slimPart = slimArms && ARM_PARTS.includes(p.part);
+            const size: [number, number, number] = slimPart ? [3, p.size[1], p.size[2]] : p.size;
+            return (
+              <PaintablePart
+                key={p.part}
+                part={p.part}
+                size={size}
+                position={p.position}
+                material={material}
+                slim={slimPart}
+                selectedFace={selected?.part === p.part ? selected.face : null}
+                onHit={handleHit}
+                onHover={onHover}
+              />
+            );
+          })}
         </group>
       ) : null}
       <OrbitControls
