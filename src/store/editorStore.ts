@@ -95,6 +95,7 @@ interface EditorState {
   applyToolAt: (faceId: string, localX: number, localY: number) => void;
 
   clearSelectedFace: () => void;
+  clearSkin: () => void;
   copyToOppositeLimb: () => void;
   flipSelectedFaceHorizontal: () => void;
   flipSelectedFaceVertical: () => void;
