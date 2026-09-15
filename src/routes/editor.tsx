@@ -216,14 +216,24 @@ function SkinPainterPage() {
             </div>
           </div>
 
-          <UVEditor />
-
-          <div className="flex min-w-0 flex-col gap-4">
-            <ClientOnly fallback={<PreviewFallback label="Loading 3D preview…" />}>
-              <Suspense fallback={<PreviewFallback label="Loading 3D preview…" />}>
-                <ModelPreview3D />
+          {editMode === "model" ? (
+            <ClientOnly fallback={<PreviewFallback label="Loading 3D edit mode…" />}>
+              <Suspense fallback={<PreviewFallback label="Loading 3D edit mode…" />}>
+                <ModelEditor3D />
               </Suspense>
             </ClientOnly>
+          ) : (
+            <UVEditor />
+          )}
+
+          <div className="flex min-w-0 flex-col gap-4">
+            {editMode === "flat" && (
+              <ClientOnly fallback={<PreviewFallback label="Loading 3D preview…" />}>
+                <Suspense fallback={<PreviewFallback label="Loading 3D preview…" />}>
+                  <ModelPreview3D />
+                </Suspense>
+              </ClientOnly>
+            )}
             <FrontPreview2D />
             <AtlasPreview />
           </div>
