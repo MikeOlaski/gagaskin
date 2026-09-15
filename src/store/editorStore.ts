@@ -15,7 +15,7 @@ import {
   normalizePlan,
   type SkinPlan,
 } from "@/domain/skin/autoDesign";
-import { FACES } from "@/domain/skin/faceRegistry";
+import { FACES, SKIN_SIZE } from "@/domain/skin/faceRegistry";
 import { extractPalette } from "@/domain/skin/palette";
 import { generateSkinPlan } from "@/lib/skinPlan.functions";
 import {
@@ -95,6 +95,7 @@ interface EditorState {
   applyToolAt: (faceId: string, localX: number, localY: number) => void;
 
   clearSelectedFace: () => void;
+  clearSkin: () => void;
   copyToOppositeLimb: () => void;
   flipSelectedFaceHorizontal: () => void;
   flipSelectedFaceVertical: () => void;
@@ -243,6 +244,14 @@ export const useEditorStore = create<EditorState>((set, get) => {
       if (!face) return;
       snapshot();
       mutate((skin) => fillRect(skin, face.atlas, TRANSPARENT));
+    },
+
+    /** Wipes every texel to transparent, undoably — the project itself is kept. */
+    clearSkin: () => {
+      snapshot();
+      mutate((skin) =>
+        fillRect(skin, { x: 0, y: 0, w: SKIN_SIZE, h: SKIN_SIZE }, TRANSPARENT),
+      );
     },
 
     copyToOppositeLimb: () => {

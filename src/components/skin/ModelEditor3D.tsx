@@ -1,10 +1,11 @@
 import { OrbitControls } from "@react-three/drei";
-import { Canvas, useThree, type ThreeEvent } from "@react-three/fiber";
-import { Minus, Plus, RotateCcw } from "lucide-react";
+import { Canvas, useFrame, useThree, type ThreeEvent } from "@react-three/fiber";
+import { Brush, Minus, Move3d, Plus, RotateCcw } from "lucide-react";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import * as THREE from "three";
 
 import { Button } from "@/components/ui/button";
+import { Slider } from "@/components/ui/slider";
 import {
   ARM_PARTS,
   faceAtAtlas,
@@ -153,20 +154,55 @@ function PaintablePart({
   );
 }
 
-/** Bridges the toolbar zoom buttons to the live camera, matching wheel zoom limits. */
-function ZoomBridge({ api }: { api: React.RefObject<((factor: number) => void) | null> }) {
+export const MIN_DISTANCE = 14;
+export const MAX_DISTANCE = 120;
+
+export interface ZoomApi {
+  setDistance: (distance: number) => void;
+}
+
+/**
+ * Bridges the toolbar zoom control to the live camera and reports the current
+ * distance back, so wheel zoom and the slider always agree.
+ */
+function ZoomBridge({
+  api,
+  controlsRef,
+  onDistance,
+}: {
+  api: React.RefObject<ZoomApi | null>;
+  controlsRef: React.RefObject<React.ComponentRef<typeof OrbitControls> | null>;
+  onDistance: (distance: number) => void;
+}) {
   const camera = useThree((s) => s.camera);
+  const last = useRef(0);
+
   useEffect(() => {
-    api.current = (factor: number) => {
-      const target = new THREE.Vector3(0, 1, 0);
-      const offset = camera.position.clone().sub(target);
-      const distance = Math.min(120, Math.max(14, offset.length() * factor));
-      camera.position.copy(target).add(offset.setLength(distance));
+    api.current = {
+      setDistance: (distance) => {
+        const controls = controlsRef.current;
+        const target = controls ? controls.target.clone() : new THREE.Vector3(0, 1, 0);
+        const offset = camera.position.clone().sub(target);
+        const clamped = Math.min(MAX_DISTANCE, Math.max(MIN_DISTANCE, distance));
+        camera.position.copy(target).add(offset.setLength(clamped));
+        controls?.update();
+      },
     };
     return () => {
       api.current = null;
     };
-  }, [api, camera]);
+  }, [api, camera, controlsRef]);
+
+  useFrame(() => {
+    const controls = controlsRef.current;
+    const target = controls ? controls.target : new THREE.Vector3(0, 1, 0);
+    const distance = Math.round(camera.position.distanceTo(target));
+    if (distance !== last.current) {
+      last.current = distance;
+      onDistance(distance);
+    }
+  });
+
   return null;
 }
 
@@ -175,12 +211,16 @@ function EditorScene({
   version,
   controlsRef,
   zoomApi,
+  paintMode,
+  onDistance,
   onHover,
 }: {
   canvas: HTMLCanvasElement | null;
   version: number;
   controlsRef: React.RefObject<React.ComponentRef<typeof OrbitControls> | null>;
-  zoomApi: React.RefObject<((factor: number) => void) | null>;
+  zoomApi: React.RefObject<ZoomApi | null>;
+  paintMode: boolean;
+  onDistance: (distance: number) => void;
   onHover: (info: HitInfo | null) => void;
 }) {
   const tool = useEditorStore((s) => s.tool);
@@ -249,9 +289,11 @@ function EditorScene({
       });
 
       const store = useEditorStore.getState();
-      const isPaintTool = PAINT_TOOLS.includes(store.tool);
+      const isPaintTool = paintMode && PAINT_TOOLS.includes(store.tool);
 
       if (kind === "down") {
+        // In navigate mode the drag belongs to the camera, not the brush.
+        if (!paintMode && !e.nativeEvent.shiftKey) return;
         e.stopPropagation();
         store.selectFace(found.face.id);
         // Shift-click treats the whole cube surface as one selectable polygon.
@@ -270,10 +312,8 @@ function EditorScene({
       if (store.tool === "fill") return;
       store.applyToolAt(found.face.id, found.localX, found.localY);
     },
-    [onHover],
+    [onHover, paintMode],
   );
-
-  const paintMode = PAINT_TOOLS.includes(tool);
 
   return (
     <>
@@ -301,18 +341,18 @@ function EditorScene({
           })}
         </group>
       ) : null}
-      <ZoomBridge api={zoomApi} />
+      <ZoomBridge api={zoomApi} controlsRef={controlsRef} onDistance={onDistance} />
       <OrbitControls
         ref={controlsRef}
-        enablePan={!paintMode}
+        enablePan
         zoomSpeed={0.8}
-        minDistance={14}
-        maxDistance={120}
+        minDistance={MIN_DISTANCE}
+        maxDistance={MAX_DISTANCE}
         target={[0, 1, 0]}
         mouseButtons={
           paintMode
             ? { MIDDLE: THREE.MOUSE.PAN, RIGHT: THREE.MOUSE.ROTATE }
-            : { LEFT: THREE.MOUSE.ROTATE, MIDDLE: THREE.MOUSE.PAN, RIGHT: THREE.MOUSE.ROTATE }
+            : { LEFT: THREE.MOUSE.ROTATE, MIDDLE: THREE.MOUSE.PAN, RIGHT: THREE.MOUSE.PAN }
         }
       />
     </>
@@ -328,47 +368,79 @@ function EditorScene({
 export default function ModelEditor3D() {
   const canvas = useSkinCanvas();
   const version = useEditorStore((s) => s.version);
-  const tool = useEditorStore((s) => s.tool);
   const controls = useRef<React.ComponentRef<typeof OrbitControls>>(null);
-  const zoomApi = useRef<((factor: number) => void) | null>(null);
+  const zoomApi = useRef<ZoomApi | null>(null);
   const [hover, setHover] = useState<HitInfo | null>(null);
+  const [distance, setDistance] = useState(38);
+  // Navigate first: a stray drag moves the camera, never the paint.
+  const [paintMode, setPaintMode] = useState(false);
 
-  const paintMode = PAINT_TOOLS.includes(tool);
+  // Slider reads left-to-right as zooming in, so invert the camera distance.
+  const zoomValue = MIN_DISTANCE + MAX_DISTANCE - distance;
+  const applyZoom = (value: number) =>
+    zoomApi.current?.setDistance(MIN_DISTANCE + MAX_DISTANCE - value);
 
   return (
     <section className="flex h-full min-h-[calc(100vh-9rem)] flex-col overflow-hidden rounded-xl border border-border bg-card shadow-sm">
-      <header className="flex flex-wrap items-center gap-2 border-b border-border px-4 py-3">
+      <header className="flex flex-wrap items-center gap-3 border-b border-border px-4 py-3">
         <h2 className="text-sm font-semibold text-foreground">3D edit mode</h2>
-        <span className="text-xs text-muted-foreground">
-          {paintMode
-            ? "drag to paint · shift-click fills a whole surface · right-drag to orbit · scroll to zoom"
-            : "drag to orbit · shift-click fills a whole surface · pick a paint tool to draw"}
-        </span>
-        <span className="ml-auto font-mono text-xs text-muted-foreground">
-          {hover
-            ? `${PART_LABELS[hover.part]} · ${hover.faceLabel} · ${hover.atlasX},${hover.atlasY}`
-            : "—"}
-        </span>
-        <div className="flex items-center gap-1">
+        <div className="flex items-center rounded-md border border-border p-0.5" aria-label="Pointer mode">
           <Button
-            variant="outline"
-            size="icon"
-            className="size-8"
-            title="Zoom out"
-            aria-label="Zoom out"
-            onClick={() => zoomApi.current?.(1.25)}
+            variant={paintMode ? "ghost" : "default"}
+            size="sm"
+            aria-pressed={!paintMode}
+            title="Drag to rotate, right-drag to move the model, scroll to zoom"
+            onClick={() => setPaintMode(false)}
           >
-            <Minus className="size-3.5" />
+            <Move3d className="mr-1 size-3.5" />
+            Navigate
           </Button>
           <Button
+            variant={paintMode ? "default" : "ghost"}
+            size="sm"
+            aria-pressed={paintMode}
+            title="Drag to paint; right-drag still rotates"
+            onClick={() => setPaintMode(true)}
+          >
+            <Brush className="mr-1 size-3.5" />
+            Paint
+          </Button>
+        </div>
+        <span className="text-xs text-muted-foreground">
+          {paintMode
+            ? "drag to paint · shift-click fills a surface · right-drag rotates"
+            : "drag to rotate · right-drag to move · shift-click fills a surface"}
+        </span>
+        <div className="ml-auto flex items-center gap-2">
+          <span className="font-mono text-xs text-muted-foreground">
+            {hover
+              ? `${PART_LABELS[hover.part]} · ${hover.faceLabel} · ${hover.atlasX},${hover.atlasY}`
+              : "—"}
+          </span>
+          <Button
             variant="outline"
             size="icon"
-            className="size-8"
-            title="Zoom in"
-            aria-label="Zoom in"
-            onClick={() => zoomApi.current?.(0.8)}
+            aria-label="Zoom out"
+            onClick={() => applyZoom(zoomValue - 8)}
           >
-            <Plus className="size-3.5" />
+            <Minus className="size-4" />
+          </Button>
+          <Slider
+            className="w-28"
+            aria-label="Model zoom"
+            min={MIN_DISTANCE}
+            max={MAX_DISTANCE}
+            step={1}
+            value={[zoomValue]}
+            onValueChange={(v) => applyZoom(v[0] ?? zoomValue)}
+          />
+          <Button
+            variant="outline"
+            size="icon"
+            aria-label="Zoom in"
+            onClick={() => applyZoom(zoomValue + 8)}
+          >
+            <Plus className="size-4" />
           </Button>
           <Button variant="outline" size="sm" onClick={() => controls.current?.reset()}>
             <RotateCcw className="mr-1 size-3.5" />
@@ -387,6 +459,8 @@ export default function ModelEditor3D() {
             version={version}
             controlsRef={controls}
             zoomApi={zoomApi}
+            paintMode={paintMode}
+            onDistance={setDistance}
             onHover={setHover}
           />
         </Canvas>
