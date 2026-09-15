@@ -1,6 +1,6 @@
 import { OrbitControls } from "@react-three/drei";
-import { Canvas, type ThreeEvent } from "@react-three/fiber";
-import { RotateCcw } from "lucide-react";
+import { Canvas, useThree, type ThreeEvent } from "@react-three/fiber";
+import { Minus, Plus, RotateCcw } from "lucide-react";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import * as THREE from "three";
 
@@ -18,7 +18,7 @@ import {
 import { useSkinCanvas } from "@/hooks/useSkinCanvas";
 import { useEditorStore, useSelectedFace, type Tool } from "@/store/editorStore";
 
-const CAMERA = { position: [0, 6, 52] as [number, number, number], fov: 45 };
+const CAMERA = { position: [0, 4, 38] as [number, number, number], fov: 45 };
 
 const PAINT_TOOLS: Tool[] = ["pencil", "eraser", "fill", "eyedropper"];
 
@@ -118,7 +118,16 @@ function PaintablePart({
     return g;
   }, [part, size, slim]);
 
-  useEffect(() => () => geometry.dispose(), [geometry]);
+  // Wireframe edges make each cube (and so each paintable surface) readable.
+  const edges = useMemo(() => new THREE.EdgesGeometry(geometry), [geometry]);
+
+  useEffect(
+    () => () => {
+      geometry.dispose();
+      edges.dispose();
+    },
+    [geometry, edges],
+  );
 
   const quad = selectedFace ? faceQuad(selectedFace, size) : null;
 
@@ -131,6 +140,9 @@ function PaintablePart({
         onPointerMove={(e) => onHit(e, part, "move")}
         onPointerOut={() => onHover(null)}
       />
+      <lineSegments geometry={edges} raycast={() => null} renderOrder={2}>
+        <lineBasicMaterial color="#1f2937" transparent opacity={0.45} depthTest={false} />
+      </lineSegments>
       {quad ? (
         <mesh position={quad.position} rotation={quad.rotation} raycast={() => null}>
           <planeGeometry args={quad.plane} />
@@ -141,15 +153,34 @@ function PaintablePart({
   );
 }
 
+/** Bridges the toolbar zoom buttons to the live camera, matching wheel zoom limits. */
+function ZoomBridge({ api }: { api: React.RefObject<((factor: number) => void) | null> }) {
+  const camera = useThree((s) => s.camera);
+  useEffect(() => {
+    api.current = (factor: number) => {
+      const target = new THREE.Vector3(0, 1, 0);
+      const offset = camera.position.clone().sub(target);
+      const distance = Math.min(120, Math.max(14, offset.length() * factor));
+      camera.position.copy(target).add(offset.setLength(distance));
+    };
+    return () => {
+      api.current = null;
+    };
+  }, [api, camera]);
+  return null;
+}
+
 function EditorScene({
   canvas,
   version,
   controlsRef,
+  zoomApi,
   onHover,
 }: {
   canvas: HTMLCanvasElement | null;
   version: number;
   controlsRef: React.RefObject<React.ComponentRef<typeof OrbitControls> | null>;
+  zoomApi: React.RefObject<((factor: number) => void) | null>;
   onHover: (info: HitInfo | null) => void;
 }) {
   const tool = useEditorStore((s) => s.tool);
@@ -270,16 +301,18 @@ function EditorScene({
           })}
         </group>
       ) : null}
+      <ZoomBridge api={zoomApi} />
       <OrbitControls
         ref={controlsRef}
-        enablePan={false}
-        minDistance={18}
+        enablePan={!paintMode}
+        zoomSpeed={0.8}
+        minDistance={14}
         maxDistance={120}
         target={[0, 1, 0]}
         mouseButtons={
           paintMode
-            ? { MIDDLE: THREE.MOUSE.DOLLY, RIGHT: THREE.MOUSE.ROTATE }
-            : { LEFT: THREE.MOUSE.ROTATE, MIDDLE: THREE.MOUSE.DOLLY, RIGHT: THREE.MOUSE.ROTATE }
+            ? { MIDDLE: THREE.MOUSE.PAN, RIGHT: THREE.MOUSE.ROTATE }
+            : { LEFT: THREE.MOUSE.ROTATE, MIDDLE: THREE.MOUSE.PAN, RIGHT: THREE.MOUSE.ROTATE }
         }
       />
     </>
@@ -297,12 +330,13 @@ export default function ModelEditor3D() {
   const version = useEditorStore((s) => s.version);
   const tool = useEditorStore((s) => s.tool);
   const controls = useRef<React.ComponentRef<typeof OrbitControls>>(null);
+  const zoomApi = useRef<((factor: number) => void) | null>(null);
   const [hover, setHover] = useState<HitInfo | null>(null);
 
   const paintMode = PAINT_TOOLS.includes(tool);
 
   return (
-    <section className="flex min-h-[520px] flex-col overflow-hidden rounded-xl border border-border bg-card shadow-sm">
+    <section className="flex h-full min-h-[calc(100vh-9rem)] flex-col overflow-hidden rounded-xl border border-border bg-card shadow-sm">
       <header className="flex flex-wrap items-center gap-2 border-b border-border px-4 py-3">
         <h2 className="text-sm font-semibold text-foreground">3D edit mode</h2>
         <span className="text-xs text-muted-foreground">
@@ -315,10 +349,32 @@ export default function ModelEditor3D() {
             ? `${PART_LABELS[hover.part]} · ${hover.faceLabel} · ${hover.atlasX},${hover.atlasY}`
             : "—"}
         </span>
-        <Button variant="outline" size="sm" onClick={() => controls.current?.reset()}>
-          <RotateCcw className="mr-1 size-3.5" />
-          Reset view
-        </Button>
+        <div className="flex items-center gap-1">
+          <Button
+            variant="outline"
+            size="icon"
+            className="size-8"
+            title="Zoom out"
+            aria-label="Zoom out"
+            onClick={() => zoomApi.current?.(1.25)}
+          >
+            <Minus className="size-3.5" />
+          </Button>
+          <Button
+            variant="outline"
+            size="icon"
+            className="size-8"
+            title="Zoom in"
+            aria-label="Zoom in"
+            onClick={() => zoomApi.current?.(0.8)}
+          >
+            <Plus className="size-3.5" />
+          </Button>
+          <Button variant="outline" size="sm" onClick={() => controls.current?.reset()}>
+            <RotateCcw className="mr-1 size-3.5" />
+            Reset view
+          </Button>
+        </div>
       </header>
       <div
         className="min-h-0 flex-1"
@@ -330,6 +386,7 @@ export default function ModelEditor3D() {
             canvas={canvas}
             version={version}
             controlsRef={controls}
+            zoomApi={zoomApi}
             onHover={setHover}
           />
         </Canvas>
