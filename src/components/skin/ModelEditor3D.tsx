@@ -174,11 +174,13 @@ function EditorScene({
   canvas,
   version,
   controlsRef,
+  zoomApi,
   onHover,
 }: {
   canvas: HTMLCanvasElement | null;
   version: number;
   controlsRef: React.RefObject<React.ComponentRef<typeof OrbitControls> | null>;
+  zoomApi: React.RefObject<((factor: number) => void) | null>;
   onHover: (info: HitInfo | null) => void;
 }) {
   const tool = useEditorStore((s) => s.tool);
