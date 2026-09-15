@@ -430,6 +430,7 @@ export function UVEditor({ fullBleed = false }: { fullBleed?: boolean } = {}) {
     <section
       className={cn(
         "flex min-h-0 w-full min-w-0 flex-col bg-card",
+        fullBleed && "h-full",
         !fullBleed && "rounded-xl border border-border shadow-sm",
       )}
     >

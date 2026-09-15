@@ -243,7 +243,12 @@ function SkinPainterPage() {
           {sourceOpen && sourceLayout === "split" ? (
             <SourceImagePanel mode="docked" onClose={() => setSourceOpen(false)} />
           ) : null}
-          <div className={cn("min-h-0 min-w-0", sourceOpen && sourceLayout === "split" ? "relative" : "flex-1")}>
+          <div
+            className={cn(
+              "min-h-0 min-w-0 [&>section]:h-full",
+              sourceOpen && sourceLayout === "split" ? "relative" : "flex-1",
+            )}
+          >
             {editMode === "model" ? (
               <div className="h-full min-h-0 p-4">
                 <ClientOnly fallback={<PreviewFallback label="Loading 3D edit mode…" />}>
@@ -253,7 +258,7 @@ function SkinPainterPage() {
                 </ClientOnly>
               </div>
             ) : (
-              <UVEditor fullBleed />
+              <UVEditor key={sourceOpen && sourceLayout === "split" ? "split" : "full"} fullBleed />
             )}
           </div>
         </main>
