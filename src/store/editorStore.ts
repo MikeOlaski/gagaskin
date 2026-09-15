@@ -158,6 +158,36 @@ export const useEditorStore = create<EditorState>((set, get) => {
     planError: null,
     undoStack: [],
     redoStack: [],
+    visibleParts: Object.fromEntries(PART_ORDER.map((p) => [p, true])) as Record<BodyPart, boolean>,
+    slimArms: false,
+
+    togglePartVisibility: (part) => {
+      const visibleParts = { ...get().visibleParts, [part]: !get().visibleParts[part] };
+      set({ visibleParts });
+    },
+    isolatePart: (part) =>
+      set({
+        visibleParts: Object.fromEntries(PART_ORDER.map((p) => [p, p === part])) as Record<
+          BodyPart,
+          boolean
+        >,
+      }),
+    showAllParts: () =>
+      set({
+        visibleParts: Object.fromEntries(PART_ORDER.map((p) => [p, true])) as Record<
+          BodyPart,
+          boolean
+        >,
+      }),
+    setSlimArms: (slimArms) => set({ slimArms }),
+
+    fillSelectedFace: () => {
+      const state = get();
+      const face = selectedFace(state);
+      if (!face) return;
+      snapshot();
+      mutate((skin) => fillRect(skin, face.atlas, activeColor(state)));
+    },
 
     selectFace: (id) => set({ selectedFaceId: id }),
     setTool: (tool) => set({ tool }),
