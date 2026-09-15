@@ -246,6 +246,14 @@ export const useEditorStore = create<EditorState>((set, get) => {
       mutate((skin) => fillRect(skin, face.atlas, TRANSPARENT));
     },
 
+    /** Wipes every texel to transparent, undoably — the project itself is kept. */
+    clearSkin: () => {
+      snapshot();
+      mutate((skin) =>
+        fillRect(skin, { x: 0, y: 0, w: SKIN_SIZE, h: SKIN_SIZE }, TRANSPARENT),
+      );
+    },
+
     copyToOppositeLimb: () => {
       const face = selectedFace(get());
       if (!face) return;
