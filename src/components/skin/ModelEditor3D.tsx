@@ -1,6 +1,6 @@
 import { OrbitControls } from "@react-three/drei";
-import { Canvas, type ThreeEvent } from "@react-three/fiber";
-import { RotateCcw } from "lucide-react";
+import { Canvas, useThree, type ThreeEvent } from "@react-three/fiber";
+import { Minus, Plus, RotateCcw } from "lucide-react";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import * as THREE from "three";
 
