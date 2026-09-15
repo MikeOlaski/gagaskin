@@ -341,18 +341,18 @@ function EditorScene({
           })}
         </group>
       ) : null}
-      <ZoomBridge api={zoomApi} />
+      <ZoomBridge api={zoomApi} controlsRef={controlsRef} onDistance={onDistance} />
       <OrbitControls
         ref={controlsRef}
-        enablePan={!paintMode}
+        enablePan
         zoomSpeed={0.8}
-        minDistance={14}
-        maxDistance={120}
+        minDistance={MIN_DISTANCE}
+        maxDistance={MAX_DISTANCE}
         target={[0, 1, 0]}
         mouseButtons={
           paintMode
             ? { MIDDLE: THREE.MOUSE.PAN, RIGHT: THREE.MOUSE.ROTATE }
-            : { LEFT: THREE.MOUSE.ROTATE, MIDDLE: THREE.MOUSE.PAN, RIGHT: THREE.MOUSE.ROTATE }
+            : { LEFT: THREE.MOUSE.ROTATE, MIDDLE: THREE.MOUSE.PAN, RIGHT: THREE.MOUSE.PAN }
         }
       />
     </>
