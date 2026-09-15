@@ -15,7 +15,7 @@ import {
   normalizePlan,
   type SkinPlan,
 } from "@/domain/skin/autoDesign";
-import { FACES } from "@/domain/skin/faceRegistry";
+import { FACES, SKIN_SIZE } from "@/domain/skin/faceRegistry";
 import { extractPalette } from "@/domain/skin/palette";
 import { generateSkinPlan } from "@/lib/skinPlan.functions";
 import {
