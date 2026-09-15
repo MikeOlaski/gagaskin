@@ -16,7 +16,7 @@ import {
   type FaceName,
 } from "@/domain/skin/faceRegistry";
 import { useSkinCanvas } from "@/hooks/useSkinCanvas";
-import { useEditorStore, type Tool } from "@/store/editorStore";
+import { useEditorStore, useSelectedFace, type Tool } from "@/store/editorStore";
 
 const CAMERA = { position: [0, 6, 52] as [number, number, number], fov: 45 };
 
