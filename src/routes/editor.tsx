@@ -1,5 +1,13 @@
 import { ClientOnly, createFileRoute, useNavigate } from "@tanstack/react-router";
-import { ChevronDown, Image as ImageIcon, Keyboard, Maximize2, Minimize2 } from "lucide-react";
+import {
+  Box,
+  ChevronDown,
+  Grid2x2,
+  Image as ImageIcon,
+  Keyboard,
+  Maximize2,
+  Minimize2,
+} from "lucide-react";
 import { lazy, Suspense, useEffect, useState } from "react";
 
 import { AtlasPreview } from "@/components/skin/AtlasPreview";
