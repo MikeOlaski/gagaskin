@@ -73,8 +73,8 @@ export function FloatingPanel({
         <span className="text-xs font-semibold text-foreground">{title}</span>
         <button
           type="button"
-          aria-label="Exit focus mode"
-          title="Exit focus mode"
+          aria-label={`Close ${title}`}
+          title={`Close ${title}`}
           onClick={onClose}
           className="ml-auto shrink-0 rounded p-1 text-muted-foreground hover:bg-accent hover:text-foreground focus:outline-none focus:ring-2 focus:ring-ring"
         >
