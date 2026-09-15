@@ -28,6 +28,9 @@ import { useSession } from "@/hooks/useSession";
 import { useEditorStore, type Tool } from "@/store/editorStore";
 
 const ModelPreview3D = lazy(() => import("@/components/skin/ModelPreview3D"));
+const ModelEditor3D = lazy(() => import("@/components/skin/ModelEditor3D"));
+
+type EditMode = "flat" | "model";
 
 const SHORTCUT_TOOL: Record<string, Tool> = Object.fromEntries(
   TOOLS.map((t) => [t.shortcut.toLowerCase(), t.id]),
