@@ -69,11 +69,36 @@ interface HitInfo {
   atlasY: number;
 }
 
+/** Where a quad sits, just outside a given box surface, to outline it. */
+function faceQuad(
+  face: FaceName,
+  size: [number, number, number],
+): { position: [number, number, number]; rotation: [number, number, number]; plane: [number, number] } {
+  const [w, h, d] = size;
+  const gap = 0.08;
+  switch (face) {
+    case "FRONT":
+      return { position: [0, 0, d / 2 + gap], rotation: [0, 0, 0], plane: [w, h] };
+    case "BACK":
+      return { position: [0, 0, -d / 2 - gap], rotation: [0, Math.PI, 0], plane: [w, h] };
+    case "LEFT":
+      return { position: [w / 2 + gap, 0, 0], rotation: [0, Math.PI / 2, 0], plane: [d, h] };
+    case "RIGHT":
+      return { position: [-w / 2 - gap, 0, 0], rotation: [0, -Math.PI / 2, 0], plane: [d, h] };
+    case "TOP":
+      return { position: [0, h / 2 + gap, 0], rotation: [-Math.PI / 2, 0, 0], plane: [w, d] };
+    default:
+      return { position: [0, -h / 2 - gap, 0], rotation: [Math.PI / 2, 0, 0], plane: [w, d] };
+  }
+}
+
 function PaintablePart({
   part,
   size,
   position,
   material,
+  slim,
+  selectedFace,
   onHit,
   onHover,
 }: {
@@ -81,26 +106,37 @@ function PaintablePart({
   size: [number, number, number];
   position: [number, number, number];
   material: THREE.Material;
+  slim: boolean;
+  selectedFace: FaceName | null;
   onHit: (e: ThreeEvent<PointerEvent>, part: BodyPart, kind: "down" | "move") => void;
   onHover: (info: HitInfo | null) => void;
 }) {
   const geometry = useMemo(() => {
     const g = new THREE.BoxGeometry(size[0], size[1], size[2]);
-    applyUVs(g, part);
+    applyUVs(g, part, slim);
     return g;
-  }, [part, size]);
+  }, [part, size, slim]);
 
   useEffect(() => () => geometry.dispose(), [geometry]);
 
+  const quad = selectedFace ? faceQuad(selectedFace, size) : null;
+
   return (
-    <mesh
-      geometry={geometry}
-      material={material}
-      position={position}
-      onPointerDown={(e) => onHit(e, part, "down")}
-      onPointerMove={(e) => onHit(e, part, "move")}
-      onPointerOut={() => onHover(null)}
-    />
+    <group position={position}>
+      <mesh
+        geometry={geometry}
+        material={material}
+        onPointerDown={(e) => onHit(e, part, "down")}
+        onPointerMove={(e) => onHit(e, part, "move")}
+        onPointerOut={() => onHover(null)}
+      />
+      {quad ? (
+        <mesh position={quad.position} rotation={quad.rotation} raycast={() => null}>
+          <planeGeometry args={quad.plane} />
+          <meshBasicMaterial color="#f97316" transparent opacity={0.28} depthWrite={false} />
+        </mesh>
+      ) : null}
+    </group>
   );
 }
 
