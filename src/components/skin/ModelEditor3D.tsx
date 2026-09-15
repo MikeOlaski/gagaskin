@@ -307,8 +307,8 @@ export default function ModelEditor3D() {
         <h2 className="text-sm font-semibold text-foreground">3D edit mode</h2>
         <span className="text-xs text-muted-foreground">
           {paintMode
-            ? "drag on the model to paint · right-drag to orbit · scroll to zoom"
-            : "drag to orbit · scroll to zoom · pick a paint tool to draw"}
+            ? "drag to paint · shift-click fills a whole surface · right-drag to orbit · scroll to zoom"
+            : "drag to orbit · shift-click fills a whole surface · pick a paint tool to draw"}
         </span>
         <span className="ml-auto font-mono text-xs text-muted-foreground">
           {hover
