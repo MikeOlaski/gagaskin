@@ -257,6 +257,16 @@ function SkinPainterPage() {
 
       {sourceOpen && <SourceImagePanel onClose={() => setSourceOpen(false)} />}
 
+      {partsOpen && editMode === "model" && (
+        <FloatingPanel
+          title="Body parts"
+          onClose={() => setPartsOpen(false)}
+          defaultPosition={{ x: 360, y: 120 }}
+        >
+          <BodySegmentPanel bare />
+        </FloatingPanel>
+      )}
+
       {focusMode && (
         <FloatingPanel title="Tools" onClose={() => setFocusMode(false)}>
           <ToolPanel bare />
