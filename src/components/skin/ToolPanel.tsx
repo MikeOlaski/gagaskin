@@ -46,6 +46,7 @@ export function ToolPanel({ bare = false }: { bare?: boolean } = {}) {
   const flipSelectedFaceHorizontal = useEditorStore((s) => s.flipSelectedFaceHorizontal);
   const flipSelectedFaceVertical = useEditorStore((s) => s.flipSelectedFaceVertical);
   const clearSelectedFace = useEditorStore((s) => s.clearSelectedFace);
+  const clearSkin = useEditorStore((s) => s.clearSkin);
   const showCoords = useEditorStore((s) => s.showCoords);
   const toggleCoords = useEditorStore((s) => s.toggleCoords);
   const selected = useSelectedFace();
