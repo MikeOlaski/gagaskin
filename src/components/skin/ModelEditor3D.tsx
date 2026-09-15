@@ -13,6 +13,7 @@ import {
   SKIN_SIZE,
   slimAtlas,
   type BodyPart,
+  type FaceName,
 } from "@/domain/skin/faceRegistry";
 import { useSkinCanvas } from "@/hooks/useSkinCanvas";
 import { useEditorStore, type Tool } from "@/store/editorStore";
@@ -219,6 +220,11 @@ function EditorScene({
       if (kind === "down") {
         e.stopPropagation();
         store.selectFace(found.face.id);
+        // Shift-click treats the whole cube surface as one selectable polygon.
+        if (e.nativeEvent.shiftKey && (store.tool === "fill" || store.tool === "select")) {
+          store.fillSelectedFace();
+          return;
+        }
         if (!isPaintTool) return;
         painting.current = true;
         if (store.tool !== "eyedropper") store.beginStroke();
