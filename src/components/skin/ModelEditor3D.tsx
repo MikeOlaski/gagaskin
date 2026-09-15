@@ -6,10 +6,12 @@ import * as THREE from "three";
 
 import { Button } from "@/components/ui/button";
 import {
+  ARM_PARTS,
   faceAtAtlas,
   getFace,
   PART_LABELS,
   SKIN_SIZE,
+  slimAtlas,
   type BodyPart,
 } from "@/domain/skin/faceRegistry";
 import { useSkinCanvas } from "@/hooks/useSkinCanvas";
@@ -20,7 +22,7 @@ const CAMERA = { position: [0, 6, 52] as [number, number, number], fov: 45 };
 const PAINT_TOOLS: Tool[] = ["pencil", "eraser", "fill", "eyedropper"];
 
 /** BoxGeometry face order is +X, -X, +Y, -Y, +Z, -Z; the character faces +Z. */
-function applyUVs(geometry: THREE.BoxGeometry, part: BodyPart) {
+function applyUVs(geometry: THREE.BoxGeometry, part: BodyPart, slim: boolean) {
   const uv = geometry.attributes["uv"] as THREE.BufferAttribute;
   const order: Array<{
     face: "LEFT" | "RIGHT" | "TOP" | "BOTTOM" | "FRONT" | "BACK";
@@ -35,7 +37,8 @@ function applyUVs(geometry: THREE.BoxGeometry, part: BodyPart) {
   ];
 
   order.forEach((entry, i) => {
-    const { atlas } = getFace(part, entry.face);
+    const skinFace = getFace(part, entry.face);
+    const atlas = slim ? slimAtlas(skinFace) : skinFace.atlas;
     const u0 = atlas.x / SKIN_SIZE;
     const u1 = (atlas.x + atlas.w) / SKIN_SIZE;
     let vTop = 1 - atlas.y / SKIN_SIZE;
