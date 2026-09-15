@@ -2,12 +2,14 @@ import { ClientOnly, createFileRoute, useNavigate } from "@tanstack/react-router
 import {
   Box,
   ChevronDown,
+  Columns2,
   Grid2x2,
   Image as ImageIcon,
   Keyboard,
   Maximize2,
   Minimize2,
   PersonStanding,
+  PictureInPicture2,
 } from "lucide-react";
 import { lazy, Suspense, useEffect, useState } from "react";
 
@@ -33,6 +35,7 @@ const ModelPreview3D = lazy(() => import("@/components/skin/ModelPreview3D"));
 const ModelEditor3D = lazy(() => import("@/components/skin/ModelEditor3D"));
 
 type EditMode = "flat" | "model";
+type SourceLayout = "floating" | "split";
 
 const SHORTCUT_TOOL: Record<string, Tool> = Object.fromEntries(
   TOOLS.map((t) => [t.shortcut.toLowerCase(), t.id]),
@@ -77,6 +80,7 @@ function PreviewFallback({ label }: { label: string }) {
 function SkinPainterPage() {
   const [focusMode, setFocusMode] = useState(false);
   const [sourceOpen, setSourceOpen] = useState(false);
+  const [sourceLayout, setSourceLayout] = useState<SourceLayout>("floating");
   const [partsOpen, setPartsOpen] = useState(false);
   const [editMode, setEditMode] = useState<EditMode>("flat");
   const { user, loading } = useSession();
@@ -185,6 +189,30 @@ function SkinPainterPage() {
               <ImageIcon className="mr-1 size-3.5" />
               Source view
             </Button>
+            {focusMode && sourceOpen && (
+              <div className="flex items-center rounded-md border border-border p-0.5" aria-label="Reference image layout">
+                <Button
+                  variant={sourceLayout === "floating" ? "default" : "ghost"}
+                  size="sm"
+                  aria-pressed={sourceLayout === "floating"}
+                  title="Float the reference over the canvas"
+                  onClick={() => setSourceLayout("floating")}
+                >
+                  <PictureInPicture2 className="mr-1 size-3.5" />
+                  Float
+                </Button>
+                <Button
+                  variant={sourceLayout === "split" ? "default" : "ghost"}
+                  size="sm"
+                  aria-pressed={sourceLayout === "split"}
+                  title="Place the reference beside the canvas"
+                  onClick={() => setSourceLayout("split")}
+                >
+                  <Columns2 className="mr-1 size-3.5" />
+                  Side by side
+                </Button>
+              </div>
+            )}
             <Button
               variant={focusMode ? "default" : "outline"}
               size="sm"
@@ -204,18 +232,35 @@ function SkinPainterPage() {
       </header>
 
       {focusMode ? (
-        <main className="flex min-h-0 flex-1">
-          {editMode === "model" ? (
-            <div className="min-h-0 flex-1 p-4">
-              <ClientOnly fallback={<PreviewFallback label="Loading 3D edit mode…" />}>
-                <Suspense fallback={<PreviewFallback label="Loading 3D edit mode…" />}>
-                  <ModelEditor3D />
-                </Suspense>
-              </ClientOnly>
-            </div>
-          ) : (
-            <UVEditor fullBleed />
+        <main
+          className={cn(
+            "min-h-0 flex-1",
+            sourceOpen && sourceLayout === "split"
+              ? "grid grid-rows-[minmax(300px,40vh)_minmax(420px,1fr)] overflow-auto lg:grid-cols-[minmax(300px,38%)_minmax(0,1fr)] lg:grid-rows-1"
+              : "flex",
           )}
+        >
+          {sourceOpen && sourceLayout === "split" ? (
+            <SourceImagePanel mode="docked" onClose={() => setSourceOpen(false)} />
+          ) : null}
+          <div
+            className={cn(
+              "min-h-0 min-w-0 [&>section]:h-full",
+              sourceOpen && sourceLayout === "split" ? "relative" : "flex-1",
+            )}
+          >
+            {editMode === "model" ? (
+              <div className="h-full min-h-0 p-4">
+                <ClientOnly fallback={<PreviewFallback label="Loading 3D edit mode…" />}>
+                  <Suspense fallback={<PreviewFallback label="Loading 3D edit mode…" />}>
+                    <ModelEditor3D />
+                  </Suspense>
+                </ClientOnly>
+              </div>
+            ) : (
+              <UVEditor key={sourceOpen && sourceLayout === "split" ? "split" : "full"} fullBleed />
+            )}
+          </div>
         </main>
       ) : (
         <main className="grid gap-4 overflow-x-hidden px-4 py-4 lg:px-6 xl:grid-cols-[300px_minmax(0,1fr)_360px]">
@@ -255,7 +300,9 @@ function SkinPainterPage() {
         </main>
       )}
 
-      {sourceOpen && <SourceImagePanel onClose={() => setSourceOpen(false)} />}
+      {sourceOpen && (!focusMode || sourceLayout === "floating") && (
+        <SourceImagePanel onClose={() => setSourceOpen(false)} />
+      )}
 
       {partsOpen && editMode === "model" && (
         <FloatingPanel

@@ -1,19 +1,18 @@
+import { useEffect, useState } from "react";
+
 import { TOOLS } from "@/components/skin/ToolPanel";
 
-const isMac = typeof navigator !== "undefined" && /Mac|iPhone|iPad/.test(navigator.platform);
-const MOD = isMac ? "⌘" : "Ctrl";
-
-const OTHER_SHORTCUTS: Array<{ label: string; keys: string }> = [
+const shortcutRows = (modifier: string): Array<{ label: string; keys: string }> => [
   { label: "Pan canvas", keys: "Space + drag" },
   { label: "Pan canvas", keys: "Middle-click drag" },
-  { label: "Zoom canvas", keys: `${MOD} + scroll` },
+  { label: "Zoom canvas", keys: `${modifier} + scroll` },
   { label: "Zoom in", keys: "+" },
   { label: "Zoom out", keys: "-" },
   { label: "Zoom to 100%", keys: "Shift + 0" },
   { label: "Zoom to fit", keys: "Shift + 1" },
   { label: "Center view", keys: "C" },
-  { label: "Undo", keys: `${MOD} + Z` },
-  { label: "Redo", keys: `${MOD} + Shift + Z` },
+  { label: "Undo", keys: `${modifier} + Z` },
+  { label: "Redo", keys: `${modifier} + Shift + Z` },
   { label: "Exit focus mode", keys: "Esc" },
 ];
 
@@ -29,13 +28,19 @@ function ShortcutRow({ label, keys }: { label: string; keys: string }) {
 }
 
 export function ShortcutsList() {
+  const [modifier, setModifier] = useState("Ctrl");
+
+  useEffect(() => {
+    if (/Mac|iPhone|iPad/.test(navigator.platform)) setModifier("⌘");
+  }, []);
+
   return (
     <div className="space-y-1.5">
       {TOOLS.map((t) => (
         <ShortcutRow key={t.id} label={t.label} keys={t.shortcut} />
       ))}
       <div className="my-2 h-px bg-border" />
-      {OTHER_SHORTCUTS.map((s) => (
+      {shortcutRows(modifier).map((s) => (
         <ShortcutRow key={s.label + s.keys} label={s.label} keys={s.keys} />
       ))}
     </div>

@@ -24,13 +24,14 @@ const DEFAULT_POS = { x: 380, y: 96 };
 
 interface SourceImagePanelProps {
   onClose: () => void;
+  mode?: "floating" | "docked";
 }
 
 /**
  * Floating source-image inspector: zoom, pan, eyedropper and palette
  * extraction for the uploaded reference, layered above the editor canvas.
  */
-export function SourceImagePanel({ onClose }: SourceImagePanelProps) {
+export function SourceImagePanel({ onClose, mode = "floating" }: SourceImagePanelProps) {
   const reference = useEditorStore((s) => s.reference);
   const setReference = useEditorStore((s) => s.setReference);
   const setColor = useEditorStore((s) => s.setColor);
@@ -186,18 +187,28 @@ export function SourceImagePanel({ onClose }: SourceImagePanelProps) {
   return (
     <div
       ref={panelRef}
-      className="fixed z-50 flex flex-col overflow-hidden rounded-xl border border-border bg-card shadow-2xl"
-      style={{ left: pos.x, top: pos.y, width: size.w, height: size.h }}
+      className={
+        mode === "floating"
+          ? "fixed z-50 flex flex-col overflow-hidden rounded-xl border border-border bg-card shadow-2xl"
+          : "relative flex h-full min-h-[300px] w-full flex-col overflow-hidden border-r border-border bg-card lg:min-h-0"
+      }
+      style={mode === "floating" ? { left: pos.x, top: pos.y, width: size.w, height: size.h } : undefined}
     >
       <div
-        className="flex shrink-0 touch-none cursor-grab items-center gap-2 border-b border-border bg-muted/50 px-3 py-2 active:cursor-grabbing"
-        onPointerDown={startDrag("move")}
-        onPointerMove={onDragMove}
-        onPointerUp={endDrag}
-        onPointerCancel={endDrag}
+        className={
+          mode === "floating"
+            ? "flex shrink-0 touch-none cursor-grab items-center gap-2 border-b border-border bg-muted/50 px-3 py-2 active:cursor-grabbing"
+            : "flex shrink-0 items-center gap-2 border-b border-border bg-muted/50 px-3 py-2"
+        }
+        onPointerDown={mode === "floating" ? startDrag("move") : undefined}
+        onPointerMove={mode === "floating" ? onDragMove : undefined}
+        onPointerUp={mode === "floating" ? endDrag : undefined}
+        onPointerCancel={mode === "floating" ? endDrag : undefined}
       >
-        <GripVertical className="size-4 shrink-0 text-muted-foreground" />
-        <span className="text-xs font-semibold text-foreground">Source image</span>
+        {mode === "floating" ? <GripVertical className="size-4 shrink-0 text-muted-foreground" /> : null}
+        <span className="text-xs font-semibold text-foreground">
+          {mode === "floating" ? "Source image" : "Reference image"}
+        </span>
         <span className="font-mono text-[11px] text-muted-foreground">
           {reference ? `${reference.width}×${reference.height} · ${Math.round(zoom * 100)}%` : "none"}
         </span>
@@ -373,17 +384,19 @@ export function SourceImagePanel({ onClose }: SourceImagePanelProps) {
         </div>
       ) : null}
 
-      <div
-        role="presentation"
-        title="Resize"
-        className="absolute bottom-0 right-0 size-4 cursor-nwse-resize touch-none"
-        onPointerDown={startDrag("resize")}
-        onPointerMove={onDragMove}
-        onPointerUp={endDrag}
-        onPointerCancel={endDrag}
-      >
-        <span className="absolute bottom-1 right-1 block size-2 border-b-2 border-r-2 border-muted-foreground/60" />
-      </div>
+      {mode === "floating" ? (
+        <div
+          role="presentation"
+          title="Resize"
+          className="absolute bottom-0 right-0 size-4 cursor-nwse-resize touch-none"
+          onPointerDown={startDrag("resize")}
+          onPointerMove={onDragMove}
+          onPointerUp={endDrag}
+          onPointerCancel={endDrag}
+        >
+          <span className="absolute bottom-1 right-1 block size-2 border-b-2 border-r-2 border-muted-foreground/60" />
+        </div>
+      ) : null}
     </div>
   );
 }
