@@ -5,12 +5,18 @@ interface FloatingPanelProps {
   title: string;
   onClose: () => void;
   children: ReactNode;
+  defaultPosition?: { x: number; y: number };
 }
 
 const DEFAULT_POSITION = { x: 24, y: 88 };
 
 /** A draggable, viewport-clamped palette used by focus mode. */
-export function FloatingPanel({ title, onClose, children }: FloatingPanelProps) {
+export function FloatingPanel({
+  title,
+  onClose,
+  children,
+  defaultPosition = DEFAULT_POSITION,
+}: FloatingPanelProps) {
   const panelRef = useRef<HTMLDivElement>(null);
   const dragRef = useRef<{
     startX: number;
