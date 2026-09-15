@@ -7,6 +7,7 @@ import {
   Keyboard,
   Maximize2,
   Minimize2,
+  PersonStanding,
 } from "lucide-react";
 import { lazy, Suspense, useEffect, useState } from "react";
 
@@ -161,6 +162,18 @@ function SkinPainterPage() {
                 3D edit mode
               </Button>
             </div>
+            {editMode === "model" && (
+              <Button
+                variant={partsOpen ? "default" : "outline"}
+                size="sm"
+                onClick={() => setPartsOpen((v) => !v)}
+                aria-pressed={partsOpen}
+                title="Show, hide and isolate body parts"
+              >
+                <PersonStanding className="mr-1 size-3.5" />
+                Body parts
+              </Button>
+            )}
             {!focusMode && <SkinFileBar />}
             <Button
               variant={sourceOpen ? "default" : "outline"}
