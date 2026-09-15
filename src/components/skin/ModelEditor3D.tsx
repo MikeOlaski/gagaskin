@@ -289,9 +289,11 @@ function EditorScene({
       });
 
       const store = useEditorStore.getState();
-      const isPaintTool = PAINT_TOOLS.includes(store.tool);
+      const isPaintTool = paintMode && PAINT_TOOLS.includes(store.tool);
 
       if (kind === "down") {
+        // In navigate mode the drag belongs to the camera, not the brush.
+        if (!paintMode && !e.nativeEvent.shiftKey) return;
         e.stopPropagation();
         store.selectFace(found.face.id);
         // Shift-click treats the whole cube surface as one selectable polygon.
@@ -310,10 +312,8 @@ function EditorScene({
       if (store.tool === "fill") return;
       store.applyToolAt(found.face.id, found.localX, found.localY);
     },
-    [onHover],
+    [onHover, paintMode],
   );
-
-  const paintMode = PAINT_TOOLS.includes(tool);
 
   return (
     <>
