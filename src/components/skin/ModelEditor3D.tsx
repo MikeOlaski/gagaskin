@@ -1,10 +1,11 @@
 import { OrbitControls } from "@react-three/drei";
-import { Canvas, useThree, type ThreeEvent } from "@react-three/fiber";
-import { Minus, Plus, RotateCcw } from "lucide-react";
+import { Canvas, useFrame, useThree, type ThreeEvent } from "@react-three/fiber";
+import { Brush, Minus, Move3d, Plus, RotateCcw } from "lucide-react";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import * as THREE from "three";
 
 import { Button } from "@/components/ui/button";
+import { Slider } from "@/components/ui/slider";
 import {
   ARM_PARTS,
   faceAtAtlas,
