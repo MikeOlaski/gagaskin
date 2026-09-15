@@ -18,7 +18,7 @@ import {
 import { useSkinCanvas } from "@/hooks/useSkinCanvas";
 import { useEditorStore, useSelectedFace, type Tool } from "@/store/editorStore";
 
-const CAMERA = { position: [0, 6, 52] as [number, number, number], fov: 45 };
+const CAMERA = { position: [0, 4, 38] as [number, number, number], fov: 45 };
 
 const PAINT_TOOLS: Tool[] = ["pencil", "eraser", "fill", "eyedropper"];
 
