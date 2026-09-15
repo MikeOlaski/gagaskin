@@ -153,20 +153,55 @@ function PaintablePart({
   );
 }
 
-/** Bridges the toolbar zoom buttons to the live camera, matching wheel zoom limits. */
-function ZoomBridge({ api }: { api: React.RefObject<((factor: number) => void) | null> }) {
+export const MIN_DISTANCE = 14;
+export const MAX_DISTANCE = 120;
+
+export interface ZoomApi {
+  setDistance: (distance: number) => void;
+}
+
+/**
+ * Bridges the toolbar zoom control to the live camera and reports the current
+ * distance back, so wheel zoom and the slider always agree.
+ */
+function ZoomBridge({
+  api,
+  controlsRef,
+  onDistance,
+}: {
+  api: React.RefObject<ZoomApi | null>;
+  controlsRef: React.RefObject<React.ComponentRef<typeof OrbitControls> | null>;
+  onDistance: (distance: number) => void;
+}) {
   const camera = useThree((s) => s.camera);
+  const last = useRef(0);
+
   useEffect(() => {
-    api.current = (factor: number) => {
-      const target = new THREE.Vector3(0, 1, 0);
-      const offset = camera.position.clone().sub(target);
-      const distance = Math.min(120, Math.max(14, offset.length() * factor));
-      camera.position.copy(target).add(offset.setLength(distance));
+    api.current = {
+      setDistance: (distance) => {
+        const controls = controlsRef.current;
+        const target = controls ? controls.target.clone() : new THREE.Vector3(0, 1, 0);
+        const offset = camera.position.clone().sub(target);
+        const clamped = Math.min(MAX_DISTANCE, Math.max(MIN_DISTANCE, distance));
+        camera.position.copy(target).add(offset.setLength(clamped));
+        controls?.update();
+      },
     };
     return () => {
       api.current = null;
     };
-  }, [api, camera]);
+  }, [api, camera, controlsRef]);
+
+  useFrame(() => {
+    const controls = controlsRef.current;
+    const target = controls ? controls.target : new THREE.Vector3(0, 1, 0);
+    const distance = Math.round(camera.position.distanceTo(target));
+    if (distance !== last.current) {
+      last.current = distance;
+      onDistance(distance);
+    }
+  });
+
   return null;
 }
 
