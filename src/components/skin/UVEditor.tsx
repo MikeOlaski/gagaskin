@@ -1,5 +1,5 @@
 import { Minus, Plus } from "lucide-react";
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 
 import { Button } from "@/components/ui/button";
 import { Slider } from "@/components/ui/slider";
@@ -9,7 +9,7 @@ import {
   LAYOUT_CELLS_H,
   LAYOUT_CELLS_W,
   LAYOUT_PADDING,
-  PLACED_FACES,
+  placedFacesForLayer,
   groupBounds,
 } from "@/domain/skin/layout";
 import { getPixel } from "@/domain/skin/skinBuffer";
@@ -68,6 +68,9 @@ export function UVEditor({ fullBleed = false }: { fullBleed?: boolean } = {}) {
   const applyToolAt = useEditorStore((s) => s.applyToolAt);
   const beginStroke = useEditorStore((s) => s.beginStroke);
   const selected = useSelectedFace();
+  const activeLayer = useEditorStore((s) => s.activeLayer);
+  // The exploded sheet shows whichever layer is being edited — body or overlay.
+  const placedFaces = useMemo(() => placedFacesForLayer(activeLayer), [activeLayer]);
 
   // Centers the exploded map (at the given zoom) in whatever space the
   // viewport currently has — shared by first paint and the view shortcuts.
