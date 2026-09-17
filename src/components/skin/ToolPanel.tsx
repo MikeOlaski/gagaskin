@@ -52,6 +52,12 @@ export function ToolPanel({ bare = false }: { bare?: boolean } = {}) {
   const clearSkin = useEditorStore((s) => s.clearSkin);
   const showCoords = useEditorStore((s) => s.showCoords);
   const toggleCoords = useEditorStore((s) => s.toggleCoords);
+  const activeLayer = useEditorStore((s) => s.activeLayer);
+  const setActiveLayer = useEditorStore((s) => s.setActiveLayer);
+  const outerVisible = useEditorStore((s) => s.outerVisible);
+  const toggleOuterVisible = useEditorStore((s) => s.toggleOuterVisible);
+  const copyInnerToOuter = useEditorStore((s) => s.copyInnerToOuter);
+  const clearLayer = useEditorStore((s) => s.clearLayer);
   const selected = useSelectedFace();
 
   const opposite = selected ? OPPOSITE_PART[selected.part] : undefined;
