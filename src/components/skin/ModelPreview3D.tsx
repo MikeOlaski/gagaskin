@@ -6,7 +6,7 @@ import * as THREE from "three";
 
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog";
-import { getFace, SKIN_SIZE, type BodyPart } from "@/domain/skin/faceRegistry";
+import { getFace, SKIN_SIZE, type BodyPart, type SkinLayer } from "@/domain/skin/faceRegistry";
 import { useSkinCanvas } from "@/hooks/useSkinCanvas";
 import { useEditorStore } from "@/store/editorStore";
 
@@ -17,7 +17,7 @@ const CAMERA = { position: [0, 6, 48] as [number, number, number], fov: 45 };
  * The character faces +Z, so +X is the character's LEFT side and -X its RIGHT.
  * The -Y (bottom) face is flipped vertically, matching Minecraft's convention.
  */
-function applyUVs(geometry: THREE.BoxGeometry, part: BodyPart) {
+function applyUVs(geometry: THREE.BoxGeometry, part: BodyPart, layer: SkinLayer = "inner") {
   const uv = geometry.attributes["uv"] as THREE.BufferAttribute;
   const order: Array<{
     face: "LEFT" | "RIGHT" | "TOP" | "BOTTOM" | "FRONT" | "BACK";
@@ -32,7 +32,7 @@ function applyUVs(geometry: THREE.BoxGeometry, part: BodyPart) {
   ];
 
   order.forEach((entry, i) => {
-    const { atlas } = getFace(part, entry.face);
+    const { atlas } = getFace(part, entry.face, layer);
     const u0 = atlas.x / SKIN_SIZE;
     const u1 = (atlas.x + atlas.w) / SKIN_SIZE;
     let vTop = 1 - atlas.y / SKIN_SIZE;
@@ -54,16 +54,40 @@ interface PartProps {
   material: THREE.Material;
 }
 
-function BodyCuboid({ part, size, position, material }: PartProps) {
+function BodyCuboid({
+  part,
+  size,
+  position,
+  material,
+  showOverlay,
+}: PartProps & { showOverlay: boolean }) {
   const geometry = useMemo(() => {
     const g = new THREE.BoxGeometry(size[0], size[1], size[2]);
     applyUVs(g, part);
     return g;
   }, [part, size]);
 
-  useEffect(() => () => geometry.dispose(), [geometry]);
+  // Overlay shell: half a texel larger on each side, exactly like the game.
+  const overlay = useMemo(() => {
+    const g = new THREE.BoxGeometry(size[0] + 1, size[1] + 1, size[2] + 1);
+    applyUVs(g, part, "outer");
+    return g;
+  }, [part, size]);
 
-  return <mesh geometry={geometry} material={material} position={position} />;
+  useEffect(
+    () => () => {
+      geometry.dispose();
+      overlay.dispose();
+    },
+    [geometry, overlay],
+  );
+
+  return (
+    <group position={position}>
+      <mesh geometry={geometry} material={material} />
+      {showOverlay ? <mesh geometry={overlay} material={material} /> : null}
+    </group>
+  );
 }
 
 const PARTS: Array<Omit<PartProps, "material">> = [
