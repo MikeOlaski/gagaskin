@@ -174,6 +174,8 @@ export const useEditorStore = create<EditorState>((set, get) => {
     redoStack: [],
     visibleParts: Object.fromEntries(PART_ORDER.map((p) => [p, true])) as Record<BodyPart, boolean>,
     slimArms: false,
+    activeLayer: "inner",
+    outerVisible: true,
 
     togglePartVisibility: (part) => {
       const visibleParts = { ...get().visibleParts, [part]: !get().visibleParts[part] };
