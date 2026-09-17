@@ -344,7 +344,7 @@ export function UVEditor({ fullBleed = false }: { fullBleed?: boolean } = {}) {
         }
       }
     }
-  }, [skin, cellSize, selectedFaceId, showCoords, width, height, pad]);
+  }, [skin, cellSize, selectedFaceId, showCoords, width, height, pad, placedFaces]);
 
   const hit = useCallback(
     (clientX: number, clientY: number) => {
@@ -370,7 +370,7 @@ export function UVEditor({ fullBleed = false }: { fullBleed?: boolean } = {}) {
       }
       return null;
     },
-    [cellSize, pad],
+    [cellSize, pad, placedFaces],
   );
 
   // Capture is best-effort: a failure here (e.g. an already-released pointer)
