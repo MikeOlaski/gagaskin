@@ -164,6 +164,16 @@ export const PLACED_FACES: PlacedFace[] = EDITOR_LAYOUT.map((l) => ({
   face: FACE_BY_ID[l.faceId]!,
 }));
 
+/** Same exploded positions, but sampling the overlay (outer) layer blocks. */
+export const OUTER_PLACED_FACES: PlacedFace[] = PLACED_FACES.map((p) => ({
+  ...p,
+  face: getFace(p.face.part, p.face.face, "outer"),
+}));
+
+export function placedFacesForLayer(layer: SkinLayer): PlacedFace[] {
+  return layer === "inner" ? PLACED_FACES : OUTER_PLACED_FACES;
+}
+
 export interface Bounds {
   x: number;
   y: number;
