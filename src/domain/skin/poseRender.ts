@@ -1,6 +1,6 @@
 import * as THREE from "three";
 
-import { getFace, SKIN_SIZE, type BodyPart } from "./faceRegistry";
+import { getFace, SKIN_SIZE, type BodyPart, type SkinLayer } from "./faceRegistry";
 import { writeSkinToCanvas, type SkinBuffer } from "./skinBuffer";
 
 /**
@@ -35,7 +35,7 @@ const VIEW_DIRECTIONS: Record<GalleryView, Direction[]> = {
 };
 
 /** BoxGeometry face order: +X, -X, +Y, -Y, +Z, -Z. */
-function applyUVs(geometry: THREE.BoxGeometry, part: BodyPart) {
+function applyUVs(geometry: THREE.BoxGeometry, part: BodyPart, layer: SkinLayer = "inner") {
   const uv = geometry.attributes["uv"] as THREE.BufferAttribute;
   const order: Array<{ face: "LEFT" | "RIGHT" | "TOP" | "BOTTOM" | "FRONT" | "BACK"; flipV: boolean }> = [
     { face: "LEFT", flipV: false },
@@ -46,7 +46,7 @@ function applyUVs(geometry: THREE.BoxGeometry, part: BodyPart) {
     { face: "BACK", flipV: false },
   ];
   order.forEach((entry, i) => {
-    const { atlas } = getFace(part, entry.face);
+    const { atlas } = getFace(part, entry.face, layer);
     const u0 = atlas.x / SKIN_SIZE;
     const u1 = (atlas.x + atlas.w) / SKIN_SIZE;
     let vTop = 1 - atlas.y / SKIN_SIZE;
@@ -106,14 +106,23 @@ function buildScene(texture: THREE.Texture) {
 
   const disposables: Array<{ dispose: () => void }> = [material];
   for (const limb of LIMBS) {
-    const geometry = new THREE.BoxGeometry(limb.size[0], limb.size[1], limb.size[2]);
-    applyUVs(geometry, limb.part);
-    geometry.translate(limb.centreOffset[0], limb.centreOffset[1], limb.centreOffset[2]);
-    disposables.push(geometry);
-    const mesh = new THREE.Mesh(geometry, material);
-    mesh.position.set(limb.pivot[0], limb.pivot[1], limb.pivot[2]);
-    mesh.rotation.x = limb.rotationX;
-    scene.add(mesh);
+    // Inner (body) shell, then the overlay shell half a texel larger all round,
+    // so hair, hats, jackets and sleeves appear in published renders.
+    for (const layer of ["inner", "outer"] as const) {
+      const grow = layer === "outer" ? 1 : 0;
+      const geometry = new THREE.BoxGeometry(
+        limb.size[0] + grow,
+        limb.size[1] + grow,
+        limb.size[2] + grow,
+      );
+      applyUVs(geometry, limb.part, layer);
+      geometry.translate(limb.centreOffset[0], limb.centreOffset[1], limb.centreOffset[2]);
+      disposables.push(geometry);
+      const mesh = new THREE.Mesh(geometry, material);
+      mesh.position.set(limb.pivot[0], limb.pivot[1], limb.pivot[2]);
+      mesh.rotation.x = limb.rotationX;
+      scene.add(mesh);
+    }
   }
   return { scene, disposables };
 }
