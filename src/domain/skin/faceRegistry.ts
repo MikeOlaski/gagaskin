@@ -222,5 +222,5 @@ export const OPPOSITE_PART: Partial<Record<BodyPart, BodyPart>> = {
 export function oppositeFace(face: SkinFace): SkinFace | null {
   const part = OPPOSITE_PART[face.part];
   if (!part) return null;
-  return getFace(part, face.face);
+  return getFace(part, face.face, face.layer);
 }

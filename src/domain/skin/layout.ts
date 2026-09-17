@@ -1,4 +1,12 @@
-import { FACE_BY_ID, faceId, type BodyPart, type FaceName, type SkinFace } from "./faceRegistry";
+import {
+  FACE_BY_ID,
+  faceId,
+  getFace,
+  type BodyPart,
+  type FaceName,
+  type SkinFace,
+  type SkinLayer,
+} from "./faceRegistry";
 
 /**
  * Exploded editor layout. All positions are expressed in CELL units
