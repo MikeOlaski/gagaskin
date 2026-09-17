@@ -45,7 +45,7 @@ function applyUVs(
   ];
 
   order.forEach((entry, i) => {
-    const skinFace = getFace(part, entry.face);
+    const skinFace = getFace(part, entry.face, layer);
     const atlas = slim ? slimAtlas(skinFace) : skinFace.atlas;
     const u0 = atlas.x / SKIN_SIZE;
     const u1 = (atlas.x + atlas.w) / SKIN_SIZE;
