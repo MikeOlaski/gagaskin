@@ -3,10 +3,15 @@ import { create } from "zustand";
 import { createDemoSkin, createDiagnosticSkin } from "@/domain/skin/demoSkin";
 import {
   FACE_BY_ID,
+  faceId,
+  facesForLayer,
+  getFace,
   oppositeFace,
+  OUTER_FACES,
   PART_ORDER,
   type BodyPart,
   type SkinFace,
+  type SkinLayer,
 } from "@/domain/skin/faceRegistry";
 import { fitImageToFace, type FitMode } from "@/domain/skin/imageMapping";
 import {
@@ -75,12 +80,20 @@ interface EditorState {
   visibleParts: Record<BodyPart, boolean>;
   /** slim (3px) arms — the "Alex" model — vs classic 4px */
   slimArms: boolean;
+  /** which skin layer strokes land on: the body or the overlay */
+  activeLayer: SkinLayer;
+  /** whether the overlay shell is drawn on the 3D model */
+  outerVisible: boolean;
 
   togglePartVisibility: (part: BodyPart) => void;
   isolatePart: (part: BodyPart) => void;
   showAllParts: () => void;
   setSlimArms: (slim: boolean) => void;
   fillSelectedFace: () => void;
+  setActiveLayer: (layer: SkinLayer) => void;
+  toggleOuterVisible: () => void;
+  clearLayer: (layer: SkinLayer) => void;
+  copyInnerToOuter: () => void;
 
   selectFace: (id: string | null) => void;
   setTool: (tool: Tool) => void;
@@ -161,6 +174,8 @@ export const useEditorStore = create<EditorState>((set, get) => {
     redoStack: [],
     visibleParts: Object.fromEntries(PART_ORDER.map((p) => [p, true])) as Record<BodyPart, boolean>,
     slimArms: false,
+    activeLayer: "inner",
+    outerVisible: true,
 
     togglePartVisibility: (part) => {
       const visibleParts = { ...get().visibleParts, [part]: !get().visibleParts[part] };
@@ -181,6 +196,40 @@ export const useEditorStore = create<EditorState>((set, get) => {
         >,
       }),
     setSlimArms: (slimArms) => set({ slimArms }),
+
+    /** Switching layer keeps the same surface selected, on the new layer. */
+    setActiveLayer: (layer) => {
+      const { selectedFaceId, outerVisible } = get();
+      const face = selectedFaceId ? FACE_BY_ID[selectedFaceId] : null;
+      set({
+        activeLayer: layer,
+        outerVisible: layer === "outer" ? true : outerVisible,
+        selectedFaceId: face ? faceId(face.part, face.face, layer) : selectedFaceId,
+      });
+    },
+
+    toggleOuterVisible: () => set({ outerVisible: !get().outerVisible }),
+
+    clearLayer: (layer) => {
+      snapshot();
+      const faces = facesForLayer(layer);
+      mutate((skin) => {
+        for (const face of faces) fillRect(skin, face.atlas, TRANSPARENT);
+      });
+    },
+
+    /** Seeds the overlay with a copy of the body, a common starting point. */
+    copyInnerToOuter: () => {
+      const source = get().skin;
+      const copies = OUTER_FACES.map((outer) => ({
+        target: outer.atlas,
+        pixels: getFacePixels(source, getFace(outer.part, outer.face, "inner").atlas),
+      }));
+      snapshot();
+      mutate((skin) => {
+        for (const c of copies) putFacePixels(skin, c.target, c.pixels);
+      });
+    },
 
     fillSelectedFace: () => {
       const state = get();

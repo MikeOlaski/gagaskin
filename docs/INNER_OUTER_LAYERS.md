@@ -49,3 +49,22 @@ models.
 
 Everything stays keyed to the canonical 64×64 buffer — layers are just extra
 regions of the same texture, never a separate source of truth.
+
+## Status: built (V1)
+
+Implemented:
+- `faceRegistry.ts` — `SkinLayer`, `layer` on every face, `getFace(part, face, layer)`,
+  `OUTER_FACES`, `ALL_FACES` (72 faces), `facesForLayer`, `faceAtAtlas` layer-aware.
+- `layout.ts` — `placedFacesForLayer(layer)` for the exploded sheet.
+- `editorStore.ts` — `activeLayer`, `outerVisible`, `setActiveLayer`, `toggleOuterVisible`,
+  `clearLayer`, `copyInnerToOuter`.
+- Flat editor draws the active layer's sheet; Tools panel has Body / Overlay,
+  show-overlay, Body → overlay, Clear overlay.
+- 3D editor and 3D preview render an overlay shell one texel larger per side;
+  raycasting targets the active layer only.
+- `poseRender.ts` renders both shells, so published gallery renders show hair,
+  hats, jackets and sleeves.
+- Export is unchanged: the single 64x64 buffer already holds both layers.
+
+Verified by `src/test/layers.test.ts`: exact vanilla overlay origins, no atlas
+overlap between any two of the 72 faces, and layer-correct reverse lookup.

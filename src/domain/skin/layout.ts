@@ -1,4 +1,12 @@
-import { FACE_BY_ID, faceId, type BodyPart, type FaceName, type SkinFace } from "./faceRegistry";
+import {
+  FACE_BY_ID,
+  faceId,
+  getFace,
+  type BodyPart,
+  type FaceName,
+  type SkinFace,
+  type SkinLayer,
+} from "./faceRegistry";
 
 /**
  * Exploded editor layout. All positions are expressed in CELL units
@@ -155,6 +163,16 @@ export const PLACED_FACES: PlacedFace[] = EDITOR_LAYOUT.map((l) => ({
   ...l,
   face: FACE_BY_ID[l.faceId]!,
 }));
+
+/** Same exploded positions, but sampling the overlay (outer) layer blocks. */
+export const OUTER_PLACED_FACES: PlacedFace[] = PLACED_FACES.map((p) => ({
+  ...p,
+  face: getFace(p.face.part, p.face.face, "outer"),
+}));
+
+export function placedFacesForLayer(layer: SkinLayer): PlacedFace[] {
+  return layer === "inner" ? PLACED_FACES : OUTER_PLACED_FACES;
+}
 
 export interface Bounds {
   x: number;

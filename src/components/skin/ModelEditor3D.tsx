@@ -15,6 +15,7 @@ import {
   slimAtlas,
   type BodyPart,
   type FaceName,
+  type SkinLayer,
 } from "@/domain/skin/faceRegistry";
 import { useSkinCanvas } from "@/hooks/useSkinCanvas";
 import { useEditorStore, useSelectedFace, type Tool } from "@/store/editorStore";
@@ -24,7 +25,12 @@ const CAMERA = { position: [0, 4, 38] as [number, number, number], fov: 45 };
 const PAINT_TOOLS: Tool[] = ["pencil", "eraser", "fill", "eyedropper"];
 
 /** BoxGeometry face order is +X, -X, +Y, -Y, +Z, -Z; the character faces +Z. */
-function applyUVs(geometry: THREE.BoxGeometry, part: BodyPart, slim: boolean) {
+function applyUVs(
+  geometry: THREE.BoxGeometry,
+  part: BodyPart,
+  slim: boolean,
+  layer: SkinLayer = "inner",
+) {
   const uv = geometry.attributes["uv"] as THREE.BufferAttribute;
   const order: Array<{
     face: "LEFT" | "RIGHT" | "TOP" | "BOTTOM" | "FRONT" | "BACK";
@@ -39,7 +45,7 @@ function applyUVs(geometry: THREE.BoxGeometry, part: BodyPart, slim: boolean) {
   ];
 
   order.forEach((entry, i) => {
-    const skinFace = getFace(part, entry.face);
+    const skinFace = getFace(part, entry.face, layer);
     const atlas = slim ? slimAtlas(skinFace) : skinFace.atlas;
     const u0 = atlas.x / SKIN_SIZE;
     const u1 = (atlas.x + atlas.w) / SKIN_SIZE;
@@ -94,6 +100,9 @@ function faceQuad(
   }
 }
 
+/** Overlay shell grows half a texel on every side, exactly like the game. */
+const OUTER_GROWTH = 1;
+
 function PaintablePart({
   part,
   size,
@@ -101,6 +110,8 @@ function PaintablePart({
   material,
   slim,
   selectedFace,
+  activeLayer,
+  outerVisible,
   onHit,
   onHover,
 }: {
@@ -110,6 +121,8 @@ function PaintablePart({
   material: THREE.Material;
   slim: boolean;
   selectedFace: FaceName | null;
+  activeLayer: SkinLayer;
+  outerVisible: boolean;
   onHit: (e: ThreeEvent<PointerEvent>, part: BodyPart, kind: "down" | "move") => void;
   onHover: (info: HitInfo | null) => void;
 }) {
@@ -119,18 +132,33 @@ function PaintablePart({
     return g;
   }, [part, size, slim]);
 
+  const outerGeometry = useMemo(() => {
+    const g = new THREE.BoxGeometry(
+      size[0] + OUTER_GROWTH,
+      size[1] + OUTER_GROWTH,
+      size[2] + OUTER_GROWTH,
+    );
+    applyUVs(g, part, slim, "outer");
+    return g;
+  }, [part, size, slim]);
+
   // Wireframe edges make each cube (and so each paintable surface) readable.
   const edges = useMemo(() => new THREE.EdgesGeometry(geometry), [geometry]);
 
   useEffect(
     () => () => {
       geometry.dispose();
+      outerGeometry.dispose();
       edges.dispose();
     },
-    [geometry, edges],
+    [geometry, outerGeometry, edges],
   );
 
-  const quad = selectedFace ? faceQuad(selectedFace, size) : null;
+  const paintingOuter = activeLayer === "outer";
+  const showOuter = outerVisible || paintingOuter;
+  const quad = selectedFace
+    ? faceQuad(selectedFace, paintingOuter ? [size[0] + OUTER_GROWTH, size[1] + OUTER_GROWTH, size[2] + OUTER_GROWTH] : size)
+    : null;
 
   return (
     <group position={position}>
@@ -139,7 +167,25 @@ function PaintablePart({
       <mesh geometry={geometry} raycast={() => null}>
         <meshLambertMaterial color="#e2e8f0" />
       </mesh>
-      <mesh geometry={geometry} material={material} scale={1.01} onPointerDown={(e) => onHit(e, part, "down")} onPointerMove={(e) => onHit(e, part, "move")} onPointerOut={() => onHover(null)} />
+      <mesh
+        geometry={geometry}
+        material={material}
+        scale={1.01}
+        {...(paintingOuter ? { raycast: () => null } : {})}
+        onPointerDown={(e) => onHit(e, part, "down")}
+        onPointerMove={(e) => onHit(e, part, "move")}
+        onPointerOut={() => onHover(null)}
+      />
+      {showOuter ? (
+        <mesh
+          geometry={outerGeometry}
+          material={material}
+          {...(paintingOuter ? {} : { raycast: () => null })}
+          onPointerDown={(e) => onHit(e, part, "down")}
+          onPointerMove={(e) => onHit(e, part, "move")}
+          onPointerOut={() => onHover(null)}
+        />
+      ) : null}
       <lineSegments geometry={edges} raycast={() => null} renderOrder={2}>
         <lineBasicMaterial color="#1f2937" transparent opacity={0.45} depthTest={false} />
       </lineSegments>
@@ -225,6 +271,8 @@ function EditorScene({
   const tool = useEditorStore((s) => s.tool);
   const visibleParts = useEditorStore((s) => s.visibleParts);
   const slimArms = useEditorStore((s) => s.slimArms);
+  const activeLayer = useEditorStore((s) => s.activeLayer);
+  const outerVisible = useEditorStore((s) => s.outerVisible);
   const selected = useSelectedFace();
   const painting = useRef(false);
 
@@ -333,6 +381,8 @@ function EditorScene({
                 material={material}
                 slim={slimPart}
                 selectedFace={selected?.part === p.part ? selected.face : null}
+                activeLayer={activeLayer}
+                outerVisible={outerVisible}
                 onHit={handleHit}
                 onHover={onHover}
               />

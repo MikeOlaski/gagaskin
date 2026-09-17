@@ -1,5 +1,5 @@
 import { Minus, Plus } from "lucide-react";
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 
 import { Button } from "@/components/ui/button";
 import { Slider } from "@/components/ui/slider";
@@ -9,7 +9,7 @@ import {
   LAYOUT_CELLS_H,
   LAYOUT_CELLS_W,
   LAYOUT_PADDING,
-  PLACED_FACES,
+  placedFacesForLayer,
   groupBounds,
 } from "@/domain/skin/layout";
 import { getPixel } from "@/domain/skin/skinBuffer";
@@ -68,6 +68,9 @@ export function UVEditor({ fullBleed = false }: { fullBleed?: boolean } = {}) {
   const applyToolAt = useEditorStore((s) => s.applyToolAt);
   const beginStroke = useEditorStore((s) => s.beginStroke);
   const selected = useSelectedFace();
+  const activeLayer = useEditorStore((s) => s.activeLayer);
+  // The exploded sheet shows whichever layer is being edited — body or overlay.
+  const placedFaces = useMemo(() => placedFacesForLayer(activeLayer), [activeLayer]);
 
   // Centers the exploded map (at the given zoom) in whatever space the
   // viewport currently has — shared by first paint and the view shortcuts.
@@ -251,7 +254,7 @@ export function UVEditor({ fullBleed = false }: { fullBleed?: boolean } = {}) {
       );
     }
 
-    for (const placed of PLACED_FACES) {
+    for (const placed of placedFaces) {
       const { face } = placed;
       const px = ox + placed.x * cellSize;
       const py = oy + placed.y * cellSize;
@@ -341,7 +344,7 @@ export function UVEditor({ fullBleed = false }: { fullBleed?: boolean } = {}) {
         }
       }
     }
-  }, [skin, cellSize, selectedFaceId, showCoords, width, height, pad]);
+  }, [skin, cellSize, selectedFaceId, showCoords, width, height, pad, placedFaces]);
 
   const hit = useCallback(
     (clientX: number, clientY: number) => {
@@ -352,7 +355,7 @@ export function UVEditor({ fullBleed = false }: { fullBleed?: boolean } = {}) {
       const py = clientY - rect.top;
       const ox = pad * cellSize;
       const oy = pad * cellSize + 22;
-      for (const placed of PLACED_FACES) {
+      for (const placed of placedFaces) {
         const fx = ox + placed.x * cellSize;
         const fy = oy + placed.y * cellSize;
         const w = placed.face.atlas.w * cellSize;
@@ -367,7 +370,7 @@ export function UVEditor({ fullBleed = false }: { fullBleed?: boolean } = {}) {
       }
       return null;
     },
-    [cellSize, pad],
+    [cellSize, pad, placedFaces],
   );
 
   // Capture is best-effort: a failure here (e.g. an already-released pointer)

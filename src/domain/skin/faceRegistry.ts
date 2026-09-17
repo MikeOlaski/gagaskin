@@ -9,11 +9,19 @@ export interface AtlasRect {
   h: number;
 }
 
+/**
+ * Minecraft skins carry two layers per body part: the opaque inner (body) shell
+ * and a slightly larger outer (overlay) shell where hair, hats, jackets, sleeves
+ * and trouser legs live. Both live in the same 64×64 buffer.
+ */
+export type SkinLayer = "inner" | "outer";
+
 export interface SkinFace {
   id: string;
   part: BodyPart;
   face: FaceName;
   front: boolean;
+  layer: SkinLayer;
   atlas: AtlasRect;
 }
 
@@ -102,26 +110,61 @@ export const PART_ORDER: BodyPart[] = [
   "RIGHT_LEG",
 ];
 
-export const FACES: SkinFace[] = PART_ORDER.flatMap((part) =>
-  FACE_ORDER.map((face) => ({
-    id: `${PART_ID[part]}.${face.toLowerCase()}`,
-    part,
-    face,
-    front: face === "FRONT",
-    atlas: RAW[part][face],
-  })),
-);
+/**
+ * Overlay block origin minus inner block origin, in texels (from the vanilla
+ * 64×64 layout): head 0,0→32,0 · torso 16,16→16,32 · right arm 40,16→40,32 ·
+ * left arm 32,48→48,48 · right leg 0,16→0,32 · left leg 16,48→0,48.
+ */
+const OUTER_DELTA: Record<BodyPart, { dx: number; dy: number }> = {
+  HEAD: { dx: 32, dy: 0 },
+  TORSO: { dx: 0, dy: 16 },
+  RIGHT_ARM: { dx: 0, dy: 16 },
+  LEFT_ARM: { dx: 16, dy: 0 },
+  RIGHT_LEG: { dx: 0, dy: 16 },
+  LEFT_LEG: { dx: -16, dy: 0 },
+};
 
-export const FACE_BY_ID: Record<string, SkinFace> = Object.fromEntries(
-  FACES.map((f) => [f.id, f]),
-);
-
-export function faceId(part: BodyPart, face: FaceName): string {
-  return `${PART_ID[part]}.${face.toLowerCase()}`;
+export function faceId(part: BodyPart, face: FaceName, layer: SkinLayer = "inner"): string {
+  const base = `${PART_ID[part]}.${face.toLowerCase()}`;
+  return layer === "outer" ? `${base}.outer` : base;
 }
 
-export function getFace(part: BodyPart, face: FaceName): SkinFace {
-  return FACE_BY_ID[faceId(part, face)]!;
+function buildFaces(layer: SkinLayer): SkinFace[] {
+  return PART_ORDER.flatMap((part) =>
+    FACE_ORDER.map((face) => {
+      const base = RAW[part][face];
+      const d = OUTER_DELTA[part];
+      return {
+        id: faceId(part, face, layer),
+        part,
+        face,
+        front: face === "FRONT",
+        layer,
+        atlas:
+          layer === "inner"
+            ? base
+            : { x: base.x + d.dx, y: base.y + d.dy, w: base.w, h: base.h },
+      };
+    }),
+  );
+}
+
+/** Inner (body) layer faces — the historical registry. */
+export const FACES: SkinFace[] = buildFaces("inner");
+/** Outer (overlay) layer faces — hair, hats, jackets, sleeves, boots. */
+export const OUTER_FACES: SkinFace[] = buildFaces("outer");
+export const ALL_FACES: SkinFace[] = [...FACES, ...OUTER_FACES];
+
+export const FACE_BY_ID: Record<string, SkinFace> = Object.fromEntries(
+  ALL_FACES.map((f) => [f.id, f]),
+);
+
+export function getFace(part: BodyPart, face: FaceName, layer: SkinLayer = "inner"): SkinFace {
+  return FACE_BY_ID[faceId(part, face, layer)]!;
+}
+
+export function facesForLayer(layer: SkinLayer): SkinFace[] {
+  return layer === "inner" ? FACES : OUTER_FACES;
 }
 
 /**
@@ -133,7 +176,7 @@ export function faceAtAtlas(
   atlasX: number,
   atlasY: number,
 ): { face: SkinFace; localX: number; localY: number } | null {
-  for (const face of FACES) {
+  for (const face of ALL_FACES) {
     const { x, y, w, h } = face.atlas;
     if (atlasX >= x && atlasX < x + w && atlasY >= y && atlasY < y + h) {
       return { face, localX: atlasX - x, localY: atlasY - y };
@@ -179,5 +222,5 @@ export const OPPOSITE_PART: Partial<Record<BodyPart, BodyPart>> = {
 export function oppositeFace(face: SkinFace): SkinFace | null {
   const part = OPPOSITE_PART[face.part];
   if (!part) return null;
-  return getFace(part, face.face);
+  return getFace(part, face.face, face.layer);
 }

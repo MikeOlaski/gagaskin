@@ -2,9 +2,12 @@ import {
   Copy,
   Droplet,
   Eraser,
+  Eye,
+  EyeOff,
   FlipHorizontal2,
   FlipVertical2,
   Hand,
+  Layers,
   type LucideIcon,
   MousePointer2,
   PaintBucket,
@@ -49,6 +52,12 @@ export function ToolPanel({ bare = false }: { bare?: boolean } = {}) {
   const clearSkin = useEditorStore((s) => s.clearSkin);
   const showCoords = useEditorStore((s) => s.showCoords);
   const toggleCoords = useEditorStore((s) => s.toggleCoords);
+  const activeLayer = useEditorStore((s) => s.activeLayer);
+  const setActiveLayer = useEditorStore((s) => s.setActiveLayer);
+  const outerVisible = useEditorStore((s) => s.outerVisible);
+  const toggleOuterVisible = useEditorStore((s) => s.toggleOuterVisible);
+  const copyInnerToOuter = useEditorStore((s) => s.copyInnerToOuter);
+  const clearLayer = useEditorStore((s) => s.clearLayer);
   const selected = useSelectedFace();
 
   const opposite = selected ? OPPOSITE_PART[selected.part] : undefined;
@@ -168,6 +177,69 @@ export function ToolPanel({ bare = false }: { bare?: boolean } = {}) {
         >
           <Eraser className="mr-1 size-3.5" /> Clear entire skin
         </Button>
+      </div>
+
+      <div className="mt-4 border-t border-border pt-3">
+        <span className="text-xs font-semibold text-foreground">Layer</span>
+        <p className="mt-1 text-xs text-muted-foreground">
+          Body is the solid skin. Overlay sits just outside it — hair, hats, jackets, sleeves.
+        </p>
+        <div className="mt-2 flex items-center rounded-md border border-border p-0.5">
+          <Button
+            variant={activeLayer === "inner" ? "default" : "ghost"}
+            size="sm"
+            className="flex-1"
+            aria-pressed={activeLayer === "inner"}
+            data-testid="layer-inner"
+            onClick={() => setActiveLayer("inner")}
+          >
+            Body
+          </Button>
+          <Button
+            variant={activeLayer === "outer" ? "default" : "ghost"}
+            size="sm"
+            className="flex-1"
+            aria-pressed={activeLayer === "outer"}
+            data-testid="layer-outer"
+            onClick={() => setActiveLayer("outer")}
+          >
+            Overlay
+          </Button>
+        </div>
+        <div className="mt-2 grid grid-cols-2 gap-2">
+          <Button
+            variant="outline"
+            size="sm"
+            className="col-span-2"
+            aria-pressed={outerVisible}
+            onClick={toggleOuterVisible}
+            title="Show or hide the overlay shell on the model"
+          >
+            {outerVisible ? (
+              <Eye className="mr-1 size-3.5" />
+            ) : (
+              <EyeOff className="mr-1 size-3.5" />
+            )}
+            {outerVisible ? "Overlay shown" : "Overlay hidden"}
+          </Button>
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={copyInnerToOuter}
+            title="Copy the whole body layer onto the overlay"
+          >
+            <Layers className="mr-1 size-3.5" /> Body → overlay
+          </Button>
+          <Button
+            variant="outline"
+            size="sm"
+            className="text-destructive hover:text-destructive"
+            onClick={() => clearLayer("outer")}
+            title="Erase the whole overlay layer (undoable)"
+          >
+            <Trash2 className="mr-1 size-3.5" /> Clear overlay
+          </Button>
+        </div>
       </div>
 
       <button
