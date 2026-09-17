@@ -254,7 +254,7 @@ export function UVEditor({ fullBleed = false }: { fullBleed?: boolean } = {}) {
       );
     }
 
-    for (const placed of PLACED_FACES) {
+    for (const placed of placedFaces) {
       const { face } = placed;
       const px = ox + placed.x * cellSize;
       const py = oy + placed.y * cellSize;
@@ -355,7 +355,7 @@ export function UVEditor({ fullBleed = false }: { fullBleed?: boolean } = {}) {
       const py = clientY - rect.top;
       const ox = pad * cellSize;
       const oy = pad * cellSize + 22;
-      for (const placed of PLACED_FACES) {
+      for (const placed of placedFaces) {
         const fx = ox + placed.x * cellSize;
         const fy = oy + placed.y * cellSize;
         const w = placed.face.atlas.w * cellSize;
