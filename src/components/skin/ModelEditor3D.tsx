@@ -271,6 +271,8 @@ function EditorScene({
   const tool = useEditorStore((s) => s.tool);
   const visibleParts = useEditorStore((s) => s.visibleParts);
   const slimArms = useEditorStore((s) => s.slimArms);
+  const activeLayer = useEditorStore((s) => s.activeLayer);
+  const outerVisible = useEditorStore((s) => s.outerVisible);
   const selected = useSelectedFace();
   const painting = useRef(false);
 
