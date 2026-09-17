@@ -381,6 +381,8 @@ function EditorScene({
                 material={material}
                 slim={slimPart}
                 selectedFace={selected?.part === p.part ? selected.face : null}
+                activeLayer={activeLayer}
+                outerVisible={outerVisible}
                 onHit={handleHit}
                 onHover={onHover}
               />
