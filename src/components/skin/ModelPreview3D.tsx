@@ -100,6 +100,7 @@ const PARTS: Array<Omit<PartProps, "material">> = [
 ];
 
 function PlayerModel({ canvas, version }: { canvas: HTMLCanvasElement; version: number }) {
+  const showOverlay = useEditorStore((s) => s.outerVisible);
   const texture = useMemo(() => {
     const t = new THREE.CanvasTexture(canvas);
     t.magFilter = THREE.NearestFilter;
@@ -135,7 +136,7 @@ function PlayerModel({ canvas, version }: { canvas: HTMLCanvasElement; version: 
   return (
     <group position={[0, -17, 0]}>
       {PARTS.map((p) => (
-        <BodyCuboid key={p.part} {...p} material={material} />
+        <BodyCuboid key={p.part} {...p} material={material} showOverlay={showOverlay} />
       ))}
     </group>
   );
