@@ -15,6 +15,7 @@ import {
   slimAtlas,
   type BodyPart,
   type FaceName,
+  type SkinLayer,
 } from "@/domain/skin/faceRegistry";
 import { useSkinCanvas } from "@/hooks/useSkinCanvas";
 import { useEditorStore, useSelectedFace, type Tool } from "@/store/editorStore";
@@ -24,7 +25,12 @@ const CAMERA = { position: [0, 4, 38] as [number, number, number], fov: 45 };
 const PAINT_TOOLS: Tool[] = ["pencil", "eraser", "fill", "eyedropper"];
 
 /** BoxGeometry face order is +X, -X, +Y, -Y, +Z, -Z; the character faces +Z. */
-function applyUVs(geometry: THREE.BoxGeometry, part: BodyPart, slim: boolean) {
+function applyUVs(
+  geometry: THREE.BoxGeometry,
+  part: BodyPart,
+  slim: boolean,
+  layer: SkinLayer = "inner",
+) {
   const uv = geometry.attributes["uv"] as THREE.BufferAttribute;
   const order: Array<{
     face: "LEFT" | "RIGHT" | "TOP" | "BOTTOM" | "FRONT" | "BACK";
