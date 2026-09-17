@@ -3,10 +3,15 @@ import { create } from "zustand";
 import { createDemoSkin, createDiagnosticSkin } from "@/domain/skin/demoSkin";
 import {
   FACE_BY_ID,
+  faceId,
+  facesForLayer,
+  getFace,
   oppositeFace,
+  OUTER_FACES,
   PART_ORDER,
   type BodyPart,
   type SkinFace,
+  type SkinLayer,
 } from "@/domain/skin/faceRegistry";
 import { fitImageToFace, type FitMode } from "@/domain/skin/imageMapping";
 import {
